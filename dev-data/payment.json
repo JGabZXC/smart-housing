@@ -1,0 +1,9 @@
+[
+    {
+        "user": "someObjectId",
+        "amount": 1000,
+        "paymentDate": "2021-09-01",
+        "paymentMethod": "Cash",
+        "status": "Paid"
+    }
+]

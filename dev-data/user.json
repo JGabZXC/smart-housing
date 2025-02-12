@@ -1,0 +1,30 @@
+[
+    {
+        "name": "John Doe",
+        "contactNumber": "09123456789",
+        "email": "johndoe@gmail.com",
+        "password": "password123",
+        "role": "user",
+        "phase": "Phase 3",
+        "street": "Malabon",
+        "completeAddress": "Section 1, Malabon, Phase 3",
+        "payment": [
+            "someObjectId",
+            "anotherObjectId"
+        ]
+    },
+    {
+        "name": "Marga Deniega",
+        "contactNumber": "09123456789",
+        "email": "deniega@gmail.com",
+        "password": "password123",
+        "role": "admin",
+        "phase": "Phase 2",
+        "street": "Maligaya",
+        "completeAddress": "Section 5, Maligaya, Phase 2",
+        "payment": [
+            "someObjectId",
+            "anotherObjectId"
+        ]
+    }
+]

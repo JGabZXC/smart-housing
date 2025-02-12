@@ -1,0 +1,18 @@
+[
+    {
+        "name": "Fireworks Show",
+        "date": "2022-07-04",
+        "richDescription": "A show of fireworks in the sky",
+        "description": "A spectacular fireworks show that will light up the night sky with a dazzling array of colors and patterns. Join us for an unforgettable evening of entertainment, music, and celebration as we commemorate this special occasion with a breathtaking display of pyrotechnics.",
+        "place": "Phase 3 Court",
+        "image": "fireworks.jpg"
+    },
+    {
+        "name": "Basketball Tournament",
+        "date": "2023-08-04",
+        "richDescription": "An exciting basketball tournament",
+        "description": "Join us for an exciting basketball tournament where teams will compete for the championship. Enjoy a day of thrilling matches, teamwork, and sportsmanship. Don't miss the action and cheer for your favorite team in this competitive event.",
+        "place": "Phase 3 Court",
+        "image": "basketball.jpg"
+    }
+]

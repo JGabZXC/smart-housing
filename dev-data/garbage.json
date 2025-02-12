@@ -1,0 +1,17 @@
+[
+    {
+        "phase": 3,
+        "pickUpDay": ["Monday", "Thursday"],
+        "pickUpTime": [1739363528476, 1739303508476]
+    },
+    {
+        "phase": 2,
+        "pickUpDay": ["Tuesday", "Wednesday"],
+        "pickUpTime": [1739363528476, 1739303508476]
+    },
+    {
+        "phase": 1,
+        "pickUpDay": ["Friday", "Saturday"],
+        "pickUpTime": [1739363528476, 1739303508476]
+    }
+]
