@@ -5,7 +5,13 @@
         "richDescription": "A show of fireworks in the sky",
         "description": "A spectacular fireworks show that will light up the night sky with a dazzling array of colors and patterns. Join us for an unforgettable evening of entertainment, music, and celebration as we commemorate this special occasion with a breathtaking display of pyrotechnics.",
         "place": "Phase 3 Court",
-        "image": "fireworks.jpg"
+        "image": "fireworks.jpg",
+        "isFeatured": true,
+        "attendess": [
+            "someObjectId",
+            "someObjectId",
+            "anotherObjectId"
+        ]
     },
     {
         "name": "Basketball Tournament",
@@ -13,6 +19,40 @@
         "richDescription": "An exciting basketball tournament",
         "description": "Join us for an exciting basketball tournament where teams will compete for the championship. Enjoy a day of thrilling matches, teamwork, and sportsmanship. Don't miss the action and cheer for your favorite team in this competitive event.",
         "place": "Phase 3 Court",
-        "image": "basketball.jpg"
+        "image": "basketball.jpg",
+        "isFeatured": false,
+        "attendess": [
+            "someObjectId",
+            "someObjectId",
+            "anotherObjectId"
+        ]
+    },
+    {
+        "name": "Healthcare Program",
+        "date": "2023-09-15",
+        "richDescription": "A comprehensive healthcare program",
+        "description": "Join us for a comprehensive healthcare program that includes free medical check-ups, health education sessions, and wellness activities. This program aims to promote health and well-being in the community. Don't miss this opportunity to take charge of your health.",
+        "place": "Community Center",
+        "image": "healthcare.jpg",
+        "isFeatured": false,
+        "attendess": [
+            "someObjectId",
+            "someObjectId",
+            "anotherObjectId"
+        ]
+    },
+    {
+        "name": "Feeding Program",
+        "date": "2023-10-10",
+        "richDescription": "A community feeding program",
+        "description": "Join us for a community feeding program that aims to provide nutritious meals to those in need. This program is a great opportunity to support and give back to the community. Come and help us make a difference by ensuring that everyone has access to healthy food.",
+        "place": "Community Hall",
+        "image": "feeding.jpg",
+        "isFeatured": false,
+        "attendess": [
+            "someObjectId",
+            "someObjectId",
+            "anotherObjectId"
+        ]
     }
 ]

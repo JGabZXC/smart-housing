@@ -11,6 +11,10 @@
         "payment": [
             "someObjectId",
             "anotherObjectId"
+        ],
+        "eventAttended": [
+            "someObjectId",
+            "anotherObjectId"
         ]
     },
     {
@@ -23,6 +27,10 @@
         "street": "Maligaya",
         "completeAddress": "Section 5, Maligaya, Phase 2",
         "payment": [
+            "someObjectId",
+            "anotherObjectId"
+        ],
+        "eventAttended": [
             "someObjectId",
             "anotherObjectId"
         ]

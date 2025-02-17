@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const AppError = require('../utils/appError');
 
 const eventSchema = new mongoose.Schema({
   name: {
@@ -26,10 +27,42 @@ const eventSchema = new mongoose.Schema({
     required: [true, 'An event must have a place'],
   },
   image: String,
+  isFeatured: {
+    type: Boolean,
+    default: false,
+  },
+  attendees: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+    },
+  ],
 });
 
 eventSchema.pre(/^find/, function (next) {
   this.select('-__v');
+  next();
+});
+
+// Check if there is already a featured event
+eventSchema.pre('save', async (next) => {
+  const checkExistingFeatured = await mongoose.model('Event').find({
+    isFeatured: true,
+  });
+
+  if (checkExistingFeatured.length >= 1)
+    return next(new AppError('There is already a featured event', 400));
+
+  next();
+});
+eventSchema.pre('findOneAndUpdate', async (next) => {
+  const checkExistingFeatured = await mongoose.model('Event').find({
+    isFeatured: true,
+  });
+
+  if (checkExistingFeatured.length >= 1)
+    return next(new AppError('There is already a featured event', 400));
+
   next();
 });
 

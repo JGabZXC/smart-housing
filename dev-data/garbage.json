@@ -1,17 +1,43 @@
 [
     {
         "phase": 3,
-        "pickUpDay": ["Monday", "Thursday"],
-        "pickUpTime": [1739363528476, 1739303508476]
+        "pickUpDay": {
+            "day": "Monday",
+            "timeLocation": [
+                {
+                    "time": "8:00-9:00",
+                    "street": "Maligaya"
+                },
+                {
+                    "time": "9:00-10:00",
+                    "street": "Rizal Street"
+                },
+                {
+                    "time": "10:00-11:00",
+                    "street": "Habangbuhay"
+                }
+            ]
+        }
     },
     {
-        "phase": 2,
-        "pickUpDay": ["Tuesday", "Wednesday"],
-        "pickUpTime": [1739363528476, 1739303508476]
-    },
-    {
-        "phase": 1,
-        "pickUpDay": ["Friday", "Saturday"],
-        "pickUpTime": [1739363528476, 1739303508476]
+        "phase": 3,
+        "pickUpDay": {
+            "day": "Tuesday",
+            "timeLocation": [
+                {
+                    "time": "13:00-14:00",
+                    "street": "Maligaya"
+                },
+                {
+                    "time": "14:00-15:00",
+                    "street": "Rizal Street"
+                },
+                {
+                    "time": "15:00-16:00",
+                    "street": "Habangbuhay"
+                }
+            ]
+        }
     }
+    
 ]

@@ -3,6 +3,11 @@
         "user": "someObjectId",
         "amount": 1000,
         "paymentDate": "2021-09-01",
+        "paymentCoveredDate": [
+            "2021-09-01",
+            "2021-09-02",
+            "2021-09-03"
+        ],
         "paymentMethod": "Cash",
         "status": "Paid"
     }

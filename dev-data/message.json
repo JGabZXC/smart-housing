@@ -1,0 +1,22 @@
+[
+    {
+        "message": "Hello World",
+        "user": "John Doe",
+        "event": "ObjectId"
+    },
+    {
+        "message": "Welcome to the event",
+        "user": "Jane Doe",
+        "event": "ObjectId"
+    },
+    {
+        "message": "Enjoy the show",
+        "user": "John Doe",
+        "event": "ObjectId"
+    },
+    {
+        "message": "Have a great time",
+        "user": "Jane Doe",
+        "event": "ObjectId"
+    }
+]
