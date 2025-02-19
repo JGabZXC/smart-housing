@@ -18,7 +18,11 @@ const APIFeatures = require('../utils/apiFeatures');
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
-    const features = new APIFeatures(Model.find(), req.query)
+    // For nested GET messages on event
+    let filter = {};
+    if (req.params.eventId) filter = { event: req.params.eventId };
+
+    const features = new APIFeatures(Model.find(filter), req.query)
       .filter()
       .sort()
       .limitFields()
@@ -49,7 +53,12 @@ exports.getOne = (Model) =>
   });
 
 exports.createOne = (Model) =>
-  catchAsync(async (req, res) => {
+  catchAsync(async (req, res, next) => {
+    if (req.body.date)
+      return next(
+        new AppError('You cannot create a document with a date', 400),
+      );
+
     const doc = await Model.create(req.body);
 
     res.status(201).json({

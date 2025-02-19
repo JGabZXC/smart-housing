@@ -9,6 +9,7 @@ const globalErrorHandler = require('./controllers/errorController');
 const eventRoute = require('./routes/eventRoutes');
 const garbageRoute = require('./routes/garbageRoutes');
 const userRoute = require('./routes/userRoutes');
+const messageRoute = require('./routes/messageRoutes');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/v1/events', eventRoute);
+app.use('/api/v1/messages', messageRoute);
 app.use('/api/v1/garbages', garbageRoute);
 app.use('/api/v1/users', userRoute);
 

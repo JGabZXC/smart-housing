@@ -1,8 +1,11 @@
 const express = require('express');
 const eventController = require('../controllers/eventController');
 const authController = require('../controllers/authController');
+const messageRoute = require('./messageRoutes');
 
 const router = express.Router();
+
+router.use('/:eventId/messages', messageRoute);
 
 router
   .route('/')
