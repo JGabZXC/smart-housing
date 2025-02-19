@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema(
   {
@@ -19,6 +20,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
       minLength: 8,
+      select: false,
+    },
+    confirmPassword: {
+      type: String,
+      required: [true, 'Confirm Password is required'],
+      validate: {
+        validator: function (el) {
+          return el === this.password;
+        },
+        message: 'Passwords are not the same!',
+      },
     },
     role: {
       type: String,
@@ -53,6 +65,11 @@ const userSchema = new mongoose.Schema(
         ref: 'Event',
       },
     ],
+    validTokenDate: {
+      type: Date,
+      default: new Date(),
+    },
+    passwordChangedAt: Date,
   },
   {
     toJSON: { virtuals: true },
@@ -65,9 +82,43 @@ userSchema.virtual('completeAddress').get(function () {
 });
 
 userSchema.pre(/^find/, function (next) {
-  this.select('-__v -password');
+  this.select('-__v');
   next();
 });
+
+userSchema.pre('save', async function (next) {
+  // Only hash the password if it has been modified
+  if (!this.isModified('password')) return next();
+
+  this.password = await bcrypt.hash(this.password, 12);
+  this.confirmPassword = undefined;
+
+  next();
+});
+
+userSchema.methods.checkPassword = async function (
+  candidatePassword,
+  userPassword,
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
+  if (this.passwordChangedAt) {
+    const changeTimeStamp = this.passwordChangedAt.getTime() / 1000;
+    return JWTTimeStamp < changeTimeStamp;
+  }
+
+  return false;
+};
+
+userSchema.methods.isTokenLatest = function (tokenDate) {
+  if (this.validTokenDate) {
+    const tokenTimeStamp = Math.floor(this.validTokenDate.getTime() / 1000);
+
+    return tokenDate < tokenTimeStamp;
+  }
+};
 
 const User = mongoose.model('User', userSchema);
 

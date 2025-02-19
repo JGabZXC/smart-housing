@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
 
 mongoose.set('id', false); // Disable id on all virtuals
 
@@ -12,6 +13,7 @@ const userRoute = require('./routes/userRoutes');
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use('/api/v1/events', eventRoute);
 app.use('/api/v1/garbages', garbageRoute);
