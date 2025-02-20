@@ -2,32 +2,24 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
-// const validateUserFields = (req, next, fieldsToValidate) => {
-//   // User created should not have a role, eventAttended, or payment
-//   if (fieldsToValidate.includes('role') && req.body.role) {
-//     return new AppError('You cannot create a user with a role', 400);
-//   }
-//   if (fieldsToValidate.includes('eventAttended') && req.body.eventAttended) {
-//     return new AppError('You cannot create a user with eventAttended', 400);
-//   }
-//   if (fieldsToValidate.includes('payment') && req.body.payment) {
-//     return new AppError('You cannot create a user with payment', 400);
-//   }
-//   return null;
-// };
-
-exports.getAll = (Model) =>
+exports.getAll = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {
-    // For nested GET messages on event
+    // For nested GET messages on event and project
     let filter = {};
     if (req.params.eventId) filter = { event: req.params.eventId };
+    if (req.params.projectId) filter = { event: req.params.projectId };
 
     const features = new APIFeatures(Model.find(filter), req.query)
       .filter()
       .sort()
       .limitFields()
       .paginate();
-    const doc = await features.query;
+
+    // eslint-disable-next-line prefer-destructuring
+    let query = features.query;
+    if (populateOptions) query = query.populate(populateOptions);
+
+    const doc = await query;
 
     res.status(200).json({
       status: 'success',

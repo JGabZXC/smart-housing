@@ -45,23 +45,29 @@ eventSchema.pre(/^find/, function (next) {
 });
 
 // Check if there is already a featured event
-eventSchema.pre('save', async (next) => {
-  const checkExistingFeatured = await mongoose.model('Event').find({
-    isFeatured: true,
-  });
+eventSchema.pre('save', async function (next) {
+  if (this.isFeatured) {
+    const checkExistingFeatured = await mongoose.model('Event').find({
+      isFeatured: true,
+    });
 
-  if (checkExistingFeatured.length >= 1)
-    return next(new AppError('There is already a featured event', 400));
+    if (checkExistingFeatured.length >= 1)
+      return next(new AppError('There is already a featured event', 400));
+  }
 
   next();
 });
-eventSchema.pre('findOneAndUpdate', async (next) => {
-  const checkExistingFeatured = await mongoose.model('Event').find({
-    isFeatured: true,
-  });
+eventSchema.pre('findOneAndUpdate', async function (next) {
+  const update = this.getUpdate();
 
-  if (checkExistingFeatured.length >= 1)
-    return next(new AppError('There is already a featured event', 400));
+  if (update.isFeatured) {
+    const checkExistingFeatured = await mongoose.model('Event').find({
+      isFeatured: true,
+    });
+
+    if (checkExistingFeatured.length >= 1)
+      return next(new AppError('There is already a featured event', 400));
+  }
 
   next();
 });

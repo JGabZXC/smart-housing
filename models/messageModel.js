@@ -24,7 +24,7 @@ const messageSchema = new mongoose.Schema({
   },
 });
 
-messageSchema.index({ event: 1, user: 1 }, { unique: true });
+// messageSchema.index({ event: 1, user: 1 }, { unique: true }); // Every user should not be limited to message in any event, so i disabled this
 
 messageSchema.pre(/^find/, function (next) {
   this.select('-__v');
