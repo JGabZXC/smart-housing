@@ -22,7 +22,8 @@ const projectSchema = new mongoose.Schema({
     required: [true, 'A project must have a description'],
     minLength: 10,
   },
-  image: String,
+  imageCover: String,
+  images: [String],
   isFeatured: {
     type: Boolean,
     default: false,
