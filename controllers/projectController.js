@@ -1,10 +1,6 @@
 const multer = require('multer');
-const {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
-} = require('@aws-sdk/client-s3');
-const { getSignedUrl } = '@aws-sdk/s3-request-presigner';
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const s3 = require('../utils/s3Bucket');
 const handler = require('./handlerController');
 const Project = require('../models/projectModel');
 const AppError = require('../utils/appError');
@@ -29,14 +25,6 @@ exports.uploadProjectImages = upload.fields([
   { name: 'imageCover', maxCount: 1 },
   { name: 'images', maxCount: 10 },
 ]);
-
-const s3 = new S3Client({
-  credentials: {
-    accessKeyId: process.env.S3_ACCESS_KEY,
-    secretAccessKey: process.env.S3_SECRET_KEY,
-  },
-  region: process.env.S3_REGION,
-});
 
 exports.uploadS3 = catchAsync(async (req, res, next) => {
   // resize imageCover

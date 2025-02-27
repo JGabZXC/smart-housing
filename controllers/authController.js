@@ -37,7 +37,37 @@ const sendToken = (user, statusCode, res) => {
 
 exports.getAllUsers = handlerFactory.getAll(User);
 exports.getUser = handlerFactory.getOne(User);
-exports.updateUser = handlerFactory.updateOne(User);
+exports.updateUser = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) return next(new AppError('Please provide email', 400));
+
+  const user = await User.findOne({ email });
+  if (!user) return next(new AppError('User not found', 404));
+
+  if (req.body.password && req.body.confirmPassword) {
+    if (req.body.password !== req.body.confirmPassword)
+      return next(new AppError('Passwords do not match', 400));
+    user.password = req.body.password;
+    user.confirmPassword = req.body.confirmPassword;
+  }
+
+  user.name = req.body.name || user.name;
+  user.contactNumber = req.body.contactNumber || user.contactNumber;
+  user.email = req.body.email || user.email;
+  user.phase = req.body.phase || user.phase;
+  user.street = req.body.street || user.street;
+  user.role = req.body.role || user.role;
+  user.blk = req.body.blk || user.blk;
+  user.lot = req.body.lot || user.lot;
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user,
+    },
+  });
+});
 
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({

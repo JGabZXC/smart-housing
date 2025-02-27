@@ -4,13 +4,11 @@ const garbageSchema = new mongoose.Schema({
   phase: {
     type: Number,
     required: [true, 'Please provide Phase'],
-    unique: true,
   },
   pickUpDay: {
     day: {
       type: String,
       required: [true, 'Please provide Day'],
-      unique: true,
     },
     timeLocation: [
       {
@@ -30,6 +28,22 @@ const garbageSchema = new mongoose.Schema({
 
 garbageSchema.pre(/^find/, function (next) {
   this.select('-__v');
+  next();
+});
+
+garbageSchema.pre('save', async function (next) {
+  const checkExistingDay = await mongoose.model('Garbage').findOne({
+    phase: this.phase,
+    'pickUpDay.day': this.pickUpDay.day,
+  });
+
+  if (checkExistingDay) {
+    return next(
+      new Error(
+        `Day ${this.pickUpDay.day} already exists for Phase ${this.phase}`,
+      ),
+    );
+  }
   next();
 });
 

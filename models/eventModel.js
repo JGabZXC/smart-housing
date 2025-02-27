@@ -26,7 +26,8 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: [true, 'An event must have a place'],
   },
-  image: String,
+  imageCover: String,
+  images: [String],
   isFeatured: {
     type: Boolean,
     default: false,

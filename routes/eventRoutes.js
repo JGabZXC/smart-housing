@@ -13,6 +13,8 @@ router
   .post(
     authController.protect,
     authController.protectTo('admin'),
+    eventController.uploadEventImages,
+    eventController.uploadS3,
     eventController.createEvent,
   );
 
@@ -22,6 +24,8 @@ router
   .patch(
     authController.protect,
     authController.protectTo('admin'),
+    eventController.uploadEventImages,
+    eventController.uploadS3,
     eventController.updateEvent,
   )
   .delete(
