@@ -30,9 +30,9 @@ exports.getAll = (Model, populateOptions) =>
     });
   });
 
-exports.getOne = (Model) =>
+exports.getOne = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findById(req.params.id);
+    const doc = await Model.findById(req.params.id).populate(populateOptions);
 
     if (!doc) return next(new AppError('No document found with that ID', 404));
 
@@ -47,7 +47,10 @@ exports.getOne = (Model) =>
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
     // Check later
-    if (req.originalUrl.split('/')[-1] && req.body.date)
+    if (
+      req.originalUrl.split('/')[-1] === 'events' ||
+      (req.originalUrl.split('/')[-1] === 'projects' && req.body.date)
+    )
       return next(
         new AppError('You cannot create a document with a date', 400),
       );

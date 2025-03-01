@@ -1,9 +1,12 @@
+// noinspection JSUnusedLocalSymbols
+
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const handlerFactory = require('./handlerController');
 const catchAsync = require('../utils/catchAsync');
+const validateHouse = require('../utils/validateHouse');
 
 const cookieOptions = {
   expires: new Date(
@@ -36,9 +39,10 @@ const sendToken = (user, statusCode, res) => {
 };
 
 exports.getAllUsers = handlerFactory.getAll(User);
-exports.getUser = handlerFactory.getOne(User);
+exports.getUser = handlerFactory.getOne(User, 'address');
 exports.updateUser = catchAsync(async (req, res, next) => {
   const { email } = req.body;
+  const updatedFields = {};
   if (!email) return next(new AppError('Please provide email', 400));
 
   const user = await User.findOne({ email });
@@ -47,24 +51,23 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   if (req.body.password && req.body.confirmPassword) {
     if (req.body.password !== req.body.confirmPassword)
       return next(new AppError('Passwords do not match', 400));
-    user.password = req.body.password;
-    user.confirmPassword = req.body.confirmPassword;
+
+    updatedFields.password = req.body.password;
+    updatedFields.confirmPassword = req.body.confirmPassword;
   }
 
-  user.name = req.body.name || user.name;
-  user.contactNumber = req.body.contactNumber || user.contactNumber;
-  user.email = req.body.email || user.email;
-  user.phase = req.body.phase || user.phase;
-  user.street = req.body.street || user.street;
-  user.role = req.body.role || user.role;
-  user.blk = req.body.blk || user.blk;
-  user.lot = req.body.lot || user.lot;
-  await user.save({ validateBeforeSave: false });
+  updatedFields.name = req.body.name || user.name;
+  updatedFields.contactNumber = req.body.contactNumber || user.contactNumber;
+  updatedFields.email = req.body.email || user.email;
+  updatedFields.address = req.body.address || user.address;
+
+  await validateHouse(req.body.address);
+  await User.updateOne({ _id: user._id }, updatedFields);
 
   res.status(200).json({
     status: 'success',
     data: {
-      user,
+      user: await User.findById(user._id),
     },
   });
 });
@@ -76,10 +79,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
-    phase: req.body.phase,
-    street: req.body.street,
-    blk: req.body.blk,
-    lot: req.body.lot,
+    address: req.body.address,
   });
 
   res.status(201).json({
@@ -104,8 +104,7 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.checkPassword(password, user.password)))
     return next(new AppError('Invalid email or password', 401));
 
-  user.validTokenDate = Date.now();
-  await user.save({ validateBeforeSave: false });
+  await User.updateOne({ _id: user._id }, { validTokenDate: Date.now() });
 
   sendToken(user, 200, res);
 });

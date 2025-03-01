@@ -12,7 +12,12 @@ dotenv.config({ path: './config.env' });
 
 const server = require('./app');
 
-mongoose.connect(process.env.MONGODB_LOCALHOST).then(() => {
+const DB = process.env.DATABASE_ATLAS.replace(
+  '<db_password>',
+  process.env.DATABASE_ATLAS_PASSWORD,
+);
+
+mongoose.connect(DB).then(() => {
   console.log('DB connection successful!');
 });
 

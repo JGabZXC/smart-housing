@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const House = require('./houseModel');
+const AppError = require('../utils/appError');
+const validateHouse = require('../utils/validateHouse');
 
 const userSchema = new mongoose.Schema(
   {
@@ -37,21 +40,10 @@ const userSchema = new mongoose.Schema(
       enum: ['user', 'admin'],
       default: 'user',
     },
-    phase: {
-      type: Number,
-      required: [true, 'Phase is required'],
-    },
-    street: {
-      type: String,
-      required: [true, 'Street is required'],
-    },
-    blk: {
-      type: String,
-      required: [true, 'Block is required'],
-    },
-    lot: {
-      type: String,
-      required: [true, 'Lot is required'],
+    address: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'House',
+      required: [true, 'Address is required'],
     },
     payment: [
       {
@@ -77,10 +69,6 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-userSchema.virtual('completeAddress').get(function () {
-  return `Phase ${this.phase}, ${this.street}, Blk ${this.blk}, Lot ${this.lot}`;
-});
-
 userSchema.pre(/^find/, function (next) {
   this.select('-__v');
   next();
@@ -96,6 +84,20 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// House Checker
+userSchema.pre('save', async function (next) {
+  await validateHouse(this.address);
+
+  next();
+});
+
+userSchema.post('save', async function (next) {
+  const house = await House.findOne(this.address);
+
+  await House.updateOne({ _id: house._id }, { status: 'occupied' }); // Update house status to occupied
+});
+
+// Password Checker
 userSchema.methods.checkPassword = async function (
   candidatePassword,
   userPassword,
@@ -103,6 +105,7 @@ userSchema.methods.checkPassword = async function (
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+// Password Change Checker
 userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
   if (this.passwordChangedAt) {
     const changeTimeStamp = this.passwordChangedAt.getTime() / 1000;
@@ -112,6 +115,7 @@ userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
   return false;
 };
 
+// Token Checker
 userSchema.methods.isTokenLatest = function (tokenDate) {
   if (this.validTokenDate) {
     const tokenTimeStamp = Math.floor(this.validTokenDate.getTime() / 1000);

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 const AppError = require('../utils/appError');
 
 const projectSchema = new mongoose.Schema({
@@ -8,6 +9,7 @@ const projectSchema = new mongoose.Schema({
     trime: true,
     minLength: 5,
     maxLength: 30,
+    unique: true,
   },
   date: {
     type: Date,
@@ -28,6 +30,7 @@ const projectSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  slug: String,
 });
 
 projectSchema.pre('save', async function (next) {
@@ -39,6 +42,8 @@ projectSchema.pre('save', async function (next) {
     if (checkExistingFeatured.length >= 1)
       return next(new AppError('There is already a featured project.', 400));
   }
+
+  this.slug = slugify(this.name, { lower: true });
 
   next();
 });

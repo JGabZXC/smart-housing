@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const AppError = require('../utils/appError');
 
 const garbageSchema = new mongoose.Schema({
   phase: {
@@ -39,8 +40,9 @@ garbageSchema.pre('save', async function (next) {
 
   if (checkExistingDay) {
     return next(
-      new Error(
+      new AppError(
         `Day ${this.pickUpDay.day} already exists for Phase ${this.phase}`,
+        400,
       ),
     );
   }

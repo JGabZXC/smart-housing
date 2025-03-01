@@ -14,6 +14,7 @@ const globalErrorHandler = require('./controllers/errorController');
 const eventRoute = require('./routes/eventRoutes');
 const garbageRoute = require('./routes/garbageRoutes');
 const userRoute = require('./routes/userRoutes');
+const housingRoute = require('./routes/housingRoutes');
 const messageRoute = require('./routes/messageRoutes');
 const projectRoute = require('./routes/projectRoutes');
 
@@ -71,6 +72,7 @@ app.use('/api/v1/events', eventRoute);
 app.use('/api/v1/projects', projectRoute);
 app.use('/api/v1/messages', messageRoute);
 app.use('/api/v1/garbages', garbageRoute);
+app.use('/api/v1/housings', housingRoute);
 app.use('/api/v1/users', userRoute);
 
 app.use('*', (req, res, next) => {
