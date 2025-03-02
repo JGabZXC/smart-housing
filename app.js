@@ -17,6 +17,7 @@ const userRoute = require('./routes/userRoutes');
 const housingRoute = require('./routes/housingRoutes');
 const messageRoute = require('./routes/messageRoutes');
 const projectRoute = require('./routes/projectRoutes');
+const paymentRoute = require('./routes/paymentRoutes');
 
 const s3 = new S3Client({
   credentials: {
@@ -73,6 +74,7 @@ app.use('/api/v1/projects', projectRoute);
 app.use('/api/v1/messages', messageRoute);
 app.use('/api/v1/garbages', garbageRoute);
 app.use('/api/v1/housings', housingRoute);
+app.use('/api/v1/payments', paymentRoute);
 app.use('/api/v1/users', userRoute);
 
 app.use('*', (req, res, next) => {

@@ -1,13 +1,18 @@
 const express = require('express');
 const messageController = require('../controllers/messageController');
 const authController = require('../controllers/authController');
+const paymentController = require('../controllers/paymentController');
 
 const router = express.Router({ mergeParams: true });
 
-router.use(authController.protect);
+// Temporary ONLY! Remove this if there's a frontend available
+// router.use(authController.protect);
 router
   .route('/')
-  .get(messageController.getAllMessages)
+  .get(
+    paymentController.createBookingCheckout,
+    messageController.getAllMessages,
+  )
   .post(
     authController.protectTo('user'),
     messageController.setEventIds,

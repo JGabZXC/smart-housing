@@ -1,10 +1,10 @@
 [
     {
         "user": "someObjectId",
+        "address": "someObjectId",
         "amount": 1000,
+        "dateRange": "092021-102021",
         "paymentDate": "2021-09-01",
-        "paymentMethod": "Cash",
-        "status": "Paid",
-        "referenceNumber": "1234567890"
+        "status": "paid"
     }
 ]
