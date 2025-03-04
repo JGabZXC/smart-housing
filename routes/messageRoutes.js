@@ -6,7 +6,7 @@ const paymentController = require('../controllers/paymentController');
 const router = express.Router({ mergeParams: true });
 
 // Temporary ONLY! Remove this if there's a frontend available
-// router.use(authController.protect);
+router.use(authController.protect);
 router
   .route('/')
   .get(

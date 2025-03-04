@@ -48,8 +48,9 @@ exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
     // Check later
     if (
-      req.originalUrl.split('/')[-1] === 'events' ||
-      (req.originalUrl.split('/')[-1] === 'projects' && req.body.date)
+      (req.originalUrl.split('/')[-1] === 'events' ||
+        req.originalUrl.split('/')[-1] === 'projects') &&
+      req.body.date
     )
       return next(
         new AppError('You cannot create a document with a date', 400),

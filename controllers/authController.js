@@ -165,3 +165,27 @@ exports.protectTo =
 
     next();
   };
+
+// Only for rendered pages, no errors | JWT COOKIES
+exports.isLoggedIn = async (req, res, next) => {
+  try {
+    if (req.cookies.jwt) {
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET,
+      );
+
+      const currentUser = await User.findById(decoded.id);
+
+      if (!currentUser) return next();
+
+      if (currentUser.changedPasswordAfter(decoded.iat)) return next();
+
+      res.locals.user = currentUser;
+      return next();
+    }
+  } catch (err) {
+    return next();
+  }
+  next();
+};

@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const House = require('./houseModel');
-const AppError = require('../utils/appError');
 const validateHouse = require('../utils/validateHouse');
 
 const userSchema = new mongoose.Schema(

@@ -1,0 +1,149 @@
+<% if(locals.featuredProject) { %>
+<div class="hero-index">
+  <section class="py-4 py-xl-5">
+    <div class="container">
+      <div class="bg-dark border-0 border-dark overflow-hidden" style="border-radius: 24px;">
+        <div class="row g-0">
+          <div class="col-md-6">
+            <div class="text-white p-4 p-md-5">
+              <h2 class="fw-bold text-white mb-3"><%= featuredProject.name %></h2>
+              <p class="mb-4"><%= featuredProject.richDescription %></p>
+              <div class="my-3"><a class="btn btn-primary btn-lg me-2" role="button" href="#">Attend</a><a class="btn btn-light btn-lg" role="button" href="/project/<%= featuredProject.slug %>">Read More</a></div>
+            </div>
+          </div>
+          <div class="col-md-6 order-first order-md-last" style="min-height:250px;"><img class="w-100 h-100 fit-cover featured-photo"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<% } else { %>
+<div>
+  <section>
+    <div class="container">
+      <h1>There's no featured project...</h1>
+    </div>
+  </section>
+</div>
+<% } %>
+<div>
+  <div class="container">
+    <h1 class="text-center" style="font-weight: bold;">GARBAGE COLLECTION</h1>
+    <div>
+      <p style="font-size: 22px;"><strong>Phase 1</strong></p>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Monday</th>
+              <th>Tuesday</th>
+              <th>Wednesday</th>
+              <th>Thursday</th>
+              <th>Friday</th>
+              <th>Saturday</th>
+              <th>Sunday</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+            </tr>
+            <tr>
+              <td>9:00-10:00 (Streetname)</td>
+              <td>9:00-10:00 (Streetname)</td>
+              <td>9:00-10:00 (Streetname)</td>
+              <td>9:00-10:00 (Streetname)</td>
+              <td>9:00-10:00 (Streetname)</td>
+              <td>9:00-10:00 (Streetname)</td>
+              <td>9:00-10:00 (Streetname)</td>
+            </tr>
+            <tr>
+              <td>10:00-11:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+            </tr>
+            <tr>
+              <td>11:00-12:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+            </tr>
+            <tr>
+              <td>13:00-14:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+            </tr>
+            <tr>
+              <td>14:00-15:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+            </tr>
+            <tr>
+              <td>15:00-16:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+              <td>8:00-9:00 (Streetname)</td>
+            </tr>
+            <tr></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <p style="font-size: 22px;"><strong>Phase 2</strong></p>
+    </div>
+    <div>
+      <p style="font-size: 22px;"><strong>Phase 3</strong></p>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <% const phase3 = garbages.filter(garbage => { if(garbage.phase === 3) {
+              return garbage;
+            }
+          } ); %>
+            <tr>
+              <% phase3.forEach(day => { %>
+              <th><%= day.pickUpDay.day %></th>
+              <% }); %>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <% phase3.forEach(day => { %>
+              <td>
+                <% day.pickUpDay.timeLocation.forEach(timeLoc => { %>
+                <%= timeLoc.time %> (<%= timeLoc.street %>)<br>
+                <% }); %>
+              </td>
+              <% }); %>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

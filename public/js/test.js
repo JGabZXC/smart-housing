@@ -20,5 +20,4 @@ export const test = async () => {
   } catch (err) {
     console.log(err);
   }
-  A;
 };
