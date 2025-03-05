@@ -53,7 +53,7 @@ const sendErrorProd = (err, req, res) => {
 
     return res.status(500).json({
       status: 'error',
-      message: 'Something went very wrong!',
+      msg: 'Something went very wrong!',
     });
   }
 
@@ -67,7 +67,6 @@ const sendErrorProd = (err, req, res) => {
   // If the error is not operational, we want to send a generic message
   // eslint-disable-next-line
   console.error('ERROR 💔:', err);
-
   return res.status(err.statusCode).render('error', {
     title: 'Something went wrong!',
     msg: 'Please try again later.',

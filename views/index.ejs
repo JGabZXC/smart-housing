@@ -31,87 +31,6 @@
     <h1 class="text-center" style="font-weight: bold;">GARBAGE COLLECTION</h1>
     <div>
       <p style="font-size: 22px;"><strong>Phase 1</strong></p>
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Monday</th>
-              <th>Tuesday</th>
-              <th>Wednesday</th>
-              <th>Thursday</th>
-              <th>Friday</th>
-              <th>Saturday</th>
-              <th>Sunday</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-            </tr>
-            <tr>
-              <td>9:00-10:00 (Streetname)</td>
-              <td>9:00-10:00 (Streetname)</td>
-              <td>9:00-10:00 (Streetname)</td>
-              <td>9:00-10:00 (Streetname)</td>
-              <td>9:00-10:00 (Streetname)</td>
-              <td>9:00-10:00 (Streetname)</td>
-              <td>9:00-10:00 (Streetname)</td>
-            </tr>
-            <tr>
-              <td>10:00-11:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-            </tr>
-            <tr>
-              <td>11:00-12:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-            </tr>
-            <tr>
-              <td>13:00-14:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-            </tr>
-            <tr>
-              <td>14:00-15:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-            </tr>
-            <tr>
-              <td>15:00-16:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-              <td>8:00-9:00 (Streetname)</td>
-            </tr>
-            <tr></tr>
-          </tbody>
-        </table>
-      </div>
     </div>
     <div>
       <p style="font-size: 22px;"><strong>Phase 2</strong></p>
@@ -121,10 +40,7 @@
       <div class="table-responsive">
         <table class="table">
           <thead>
-            <% const phase3 = garbages.filter(garbage => { if(garbage.phase === 3) {
-              return garbage;
-            }
-          } ); %>
+            <% const phase3 = garbages.filter(garbage => garbage.phase === 3); %>
             <tr>
               <% phase3.forEach(day => { %>
               <th><%= day.pickUpDay.day %></th>
@@ -132,15 +48,24 @@
             </tr>
           </thead>
           <tbody>
+            <% 
+                // Find the maximum number of timeLocation entries across all days
+                const maxTimeLocations = Math.max(...phase3.map(day => day.pickUpDay.timeLocation.length));
+              %>
+            <% for (let i = 0; i < maxTimeLocations; i++) { %>
             <tr>
               <% phase3.forEach(day => { %>
               <td>
-                <% day.pickUpDay.timeLocation.forEach(timeLoc => { %>
-                <%= timeLoc.time %> (<%= timeLoc.street %>)<br>
-                <% }); %>
+                <% if (day.pickUpDay.timeLocation[i]) { %>
+                <%= day.pickUpDay.timeLocation[i].time %> (<%= day.pickUpDay.timeLocation[i].street %>)
+                <% } else { %>
+                <!-- If no data for this row, leave the cell empty -->
+                &nbsp;
+                <% } %>
               </td>
               <% }); %>
             </tr>
+            <% } %>
           </tbody>
         </table>
       </div>

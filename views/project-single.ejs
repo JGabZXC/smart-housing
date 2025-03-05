@@ -1,0 +1,81 @@
+<% const monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]; %>
+
+<div>
+  <div class="container" id="project-container" data-slug="<%= project.slug %>">
+    <section style="padding: 0px;padding-top: 20px;">
+      <% let month = new Date(project.date).getMonth(); %>
+      <% month = monthName[month] %>
+      <% const year = new Date(project.date).getFullYear(); %>
+      <h1><%= project.name %> [<%= `${month} ${year}` %>]</h1><img class="object-fit-cover featured-photo" width="100%" height="600" />
+    </section>
+    <section style="padding: 20px 0;padding-top: 40px;">
+      <p><span style="color: rgb(0, 0, 0);">Etiam sodales, libero tristique fermentum lacinia, libero ipsum ullamcorper dolor, nec tincidunt odio purus id erat. Mauris et mattis neque. Nulla placerat massa sit amet odio condimentum suscipit. Nullam sed leo laoreet, feugiat velit nec, gravida tortor. Fusce id rutrum diam. Nulla nec diam nibh. Mauris ac molestie ipsum.</span></p>
+      <p><span style="color: rgb(0, 0, 0);">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin quis dapibus eros. Cras gravida luctus massa, in pulvinar nisl lobortis rhoncus. Aliquam commodo est orci, nec ullamcorper augue mattis et. Vivamus vel orci ex. In tincidunt quam at felis porttitor consequat. Vestibulum viverra gravida nisl vel tempus. Praesent a tortor pretium, porta arcu eu, tristique felis. Cras efficitur nunc magna, vitae finibus nisl feugiat sed. Phasellus quis tincidunt nibh. Suspendisse cursus at lectus non dictum. Ut vitae nulla magna. Donec blandit arcu lacinia ligula interdum, id molestie elit bibendum. Aliquam iaculis dolor quis libero maximus laoreet. Aenean sed lobortis ipsum, eu bibendum dolor. Pellentesque interdum maximus justo, a consectetur nibh dictum non. In a commodo lectus.</span></p>
+    </section>
+    <div id="carousel-1" class="carousel slide" data-bs-ride="false">
+      <div class="carousel-inner">
+        <div class="carousel-item active"><img class="object-fit-cover w-100 d-block" alt="Slide Image" src="photo-1740031904427-ca6713523372.jpg" width=" 100%" height="600" /></div>
+        <div class="carousel-item"><img class="w-100 d-block" src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png" alt="Slide Image" /></div>
+        <div class="carousel-item"><img class="w-100 d-block" src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png" alt="Slide Image" /></div>
+      </div>
+      <div><a class="carousel-control-prev" href="#carousel-1" role="button" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span><span class="visually-hidden">Previous</span></a><a class="carousel-control-next" href="#carousel-1" role="button" data-bs-slide="next"><span class="carousel-control-next-icon"></span><span class="visually-hidden">Next</span></a></div>
+      <div class="carousel-indicators"><button class="active" type="button" data-bs-target="#carousel-1" data-bs-slide-to="0"></button><button type="button" data-bs-target="#carousel-1" data-bs-slide-to="1"></button><button type="button" data-bs-target="#carousel-1" data-bs-slide-to="2"></button></div>
+    </div>
+    <section style="padding-bottom: 20px;padding-top: 20px;">
+      <h1>Forum</h1>
+      <div>
+        <div class="d-flex justify-content-between">
+          <p>User 1: Nice project!</p>
+          <p>Date</p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p>User 1: Nice project!</p>
+          <p>Date</p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p>User 1: Nice project!</p>
+          <p>Date</p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p>User 1: Nice project!</p>
+          <p>Date</p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p>User 1: Nice project!</p>
+          <p>Date</p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p>User 1: Nice project!</p>
+          <p>Date</p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p>User 1: Nice project!</p>
+          <p>Date</p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p>User 1: Nice project!</p>
+          <p>Date</p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p>User 1: Nice project!</p>
+          <p>Date</p>
+        </div>
+        <div class="d-flex justify-content-between">
+          <p>User 1: Nice project!</p>
+          <p>Date</p>
+        </div>
+      </div>
+      <nav>
+        <ul class="pagination">
+          <li class="page-item"><a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
+          <li class="page-item"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item"><a class="page-link" href="#">4</a></li>
+          <li class="page-item"><a class="page-link" href="#">5</a></li>
+          <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
+        </ul>
+      </nav>
+    </section>
+  </div>
+</div>

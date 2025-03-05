@@ -41,6 +41,25 @@ exports.uploadS3 = catchAsync(async (req, res, next) => {
     req.body.imageCover = filename;
   }
 
+  if (req.files.images) {
+    req.body.images = [];
+    await Promise.all(
+      req.files.images.map(async (file, i) => {
+        const filename = `event-${file.originalname.split('.')[0]}-${Date.now()}-${i + 1}.jpeg`;
+        const params = {
+          Bucket: process.env.S3_NAME,
+          Key: filename,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+        const command = new PutObjectCommand(params);
+
+        await s3.send(command);
+        req.body.images.push(filename);
+      }),
+    );
+  }
+
   next();
 });
 

@@ -6,11 +6,14 @@ import { test } from './test';
 // test();
 
 import { login, logout } from './login';
-import { getS3Image } from './getS3Image';
+import { getFeaturedProject, getImages } from './getS3Image';
 
 const email = document.querySelector('#email');
 const password = document.querySelector('#password');
+
 const hero = document.querySelector('.hero-index');
+const projectContainer = document.querySelector('#project-container');
+const slug = projectContainer.dataset.slug;
 
 const loginForm = document.querySelector('#login-form');
 const logoutBtn = document.querySelector('#logout');
@@ -33,5 +36,9 @@ if (logoutBtn) {
 }
 
 if (hero) {
-  getS3Image();
+  getFeaturedProject();
+}
+
+if (projectContainer) {
+  getImages(slug);
 }

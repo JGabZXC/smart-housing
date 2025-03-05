@@ -15,6 +15,7 @@ const housingRoute = require('./routes/housingRoutes');
 const messageRoute = require('./routes/messageRoutes');
 const projectRoute = require('./routes/projectRoutes');
 const paymentRoute = require('./routes/paymentRoutes');
+const s3ImageRoute = require('./routes/s3ImageRoutes');
 const viewRoute = require('./routes/viewRoutes');
 
 const app = express();
@@ -39,6 +40,7 @@ app.use('/api/v1/messages', messageRoute);
 app.use('/api/v1/garbages', garbageRoute);
 app.use('/api/v1/housings', housingRoute);
 app.use('/api/v1/payments', paymentRoute);
+app.use('/api/v1/images', s3ImageRoute);
 app.use('/api/v1/users', userRoute);
 
 app.use('*', (req, res, next) => {

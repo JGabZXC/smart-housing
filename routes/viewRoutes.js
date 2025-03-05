@@ -3,12 +3,12 @@ const viewController = require('../controllers/viewController');
 const authController = require('../controllers/authController');
 
 const router = express.Router();
+
 router.use(authController.isLoggedIn);
 router.route('/').get(viewController.getIndex);
 
-router.route('/login').get(viewController.getLogin);
+router.route('/login').get(authController.reRoute, viewController.getLogin);
 
-// Fix this later!
-router.route('/api/v1/getImage').get(viewController.getImage);
+router.route('/project/:slug').get(viewController.getProject);
 
 module.exports = router;
