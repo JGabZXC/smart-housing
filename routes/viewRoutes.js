@@ -9,6 +9,7 @@ router.route('/').get(viewController.getIndex);
 
 router.route('/login').get(authController.reRoute, viewController.getLogin);
 
+router.route('/project').get(viewController.getAllProject);
 router.route('/project/:slug').get(viewController.getProject);
 
 module.exports = router;

@@ -34,6 +34,11 @@ export const logout = async () => {
 
     if (res.data.status === 'success') location.assign('/');
   } catch (err) {
-    console.error(err.response.data.message);
+    if (err.response.data.status === 'error') {
+      showAlert('error', `${err.response.data.message}. Logging out...`);
+      window.setTimeout(() => {
+        location.assign('/');
+      }, 2000);
+    }
   }
 };

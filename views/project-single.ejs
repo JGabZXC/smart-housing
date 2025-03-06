@@ -2,15 +2,16 @@
 
 <div>
   <div class="container" id="project-container" data-slug="<%= project.slug %>">
+  <p hidden id="project-id" data-projectid="<%= project._id %>"></p>
     <section style="padding: 0px;padding-top: 20px;">
       <% let month = new Date(project.date).getMonth(); %>
       <% month = monthName[month] %>
       <% const year = new Date(project.date).getFullYear(); %>
-      <h1><%= project.name %> [<%= `${month} ${year}` %>]</h1><img class="object-fit-cover featured-photo" width="100%" height="600" />
+      <h1><%= project.name %> [<%= `${month} ${year}` %>]</h1><img class="object-fit-cover featured-photo cover-photo-s-proj" width="100%" height="600" />
     </section>
     <section style="padding: 20px 0;padding-top: 40px;">
-      <p><span style="color: rgb(0, 0, 0);">Etiam sodales, libero tristique fermentum lacinia, libero ipsum ullamcorper dolor, nec tincidunt odio purus id erat. Mauris et mattis neque. Nulla placerat massa sit amet odio condimentum suscipit. Nullam sed leo laoreet, feugiat velit nec, gravida tortor. Fusce id rutrum diam. Nulla nec diam nibh. Mauris ac molestie ipsum.</span></p>
-      <p><span style="color: rgb(0, 0, 0);">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin quis dapibus eros. Cras gravida luctus massa, in pulvinar nisl lobortis rhoncus. Aliquam commodo est orci, nec ullamcorper augue mattis et. Vivamus vel orci ex. In tincidunt quam at felis porttitor consequat. Vestibulum viverra gravida nisl vel tempus. Praesent a tortor pretium, porta arcu eu, tristique felis. Cras efficitur nunc magna, vitae finibus nisl feugiat sed. Phasellus quis tincidunt nibh. Suspendisse cursus at lectus non dictum. Ut vitae nulla magna. Donec blandit arcu lacinia ligula interdum, id molestie elit bibendum. Aliquam iaculis dolor quis libero maximus laoreet. Aenean sed lobortis ipsum, eu bibendum dolor. Pellentesque interdum maximus justo, a consectetur nibh dictum non. In a commodo lectus.</span></p>
+      <p><span style="color: rgb(0, 0, 0);"><%= project.richDescription %></span></p>
+      <p><span style="color: rgb(0, 0, 0);"><%= project.description %></span></p>
     </section>
     <div id="carousel-1" class="carousel slide" data-bs-ride="false">
       <div class="carousel-inner">
@@ -23,48 +24,19 @@
     </div>
     <section style="padding-bottom: 20px;padding-top: 20px;">
       <h1>Forum</h1>
-      <div>
-        <div class="d-flex justify-content-between">
-          <p>User 1: Nice project!</p>
-          <p>Date</p>
-        </div>
-        <div class="d-flex justify-content-between">
-          <p>User 1: Nice project!</p>
-          <p>Date</p>
-        </div>
-        <div class="d-flex justify-content-between">
-          <p>User 1: Nice project!</p>
-          <p>Date</p>
-        </div>
-        <div class="d-flex justify-content-between">
-          <p>User 1: Nice project!</p>
-          <p>Date</p>
-        </div>
-        <div class="d-flex justify-content-between">
-          <p>User 1: Nice project!</p>
-          <p>Date</p>
-        </div>
-        <div class="d-flex justify-content-between">
-          <p>User 1: Nice project!</p>
-          <p>Date</p>
-        </div>
-        <div class="d-flex justify-content-between">
-          <p>User 1: Nice project!</p>
-          <p>Date</p>
-        </div>
-        <div class="d-flex justify-content-between">
-          <p>User 1: Nice project!</p>
-          <p>Date</p>
-        </div>
-        <div class="d-flex justify-content-between">
-          <p>User 1: Nice project!</p>
-          <p>Date</p>
-        </div>
-        <div class="d-flex justify-content-between">
-          <p>User 1: Nice project!</p>
-          <p>Date</p>
+      <div id="forum-messages">
+        <div>
+          <div class="d-flex flex-column justify-content-between flex-sm-column flex-md-row flex-lg-row flex-xl-row flex-xxl-row">
+            <p class="text-break" style="width: 80%;">User 1: Nice project! zxczxcxzcxzcxzcxzczxczxczxczxcxzcxzczxcxzczxcxzczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxc</p>
+            <p>Date</p>
+          </div>
         </div>
       </div>
+          <% if(locals.user) { %>
+            <div class="d-flex justify-content-between" style="padding: 0px;padding-top: 10px;padding-bottom: 10px;">
+              <form class="d-flex justify-content-between" style="width: 100%;"><input class="form-control" type="text" placeholder="Leave a comment" style="width: 80%;" /><button class="btn btn-primary" type="button">Submit</button></form>
+            </div>
+          <% } %>
       <nav>
         <ul class="pagination">
           <li class="page-item"><a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>

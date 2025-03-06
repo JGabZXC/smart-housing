@@ -1,8 +1,8 @@
 const { GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const s3 = require('../utils/s3Bucket');
 
 const catchAsync = require('../utils/catchAsync');
-const s3 = require('../utils/s3Bucket');
 const Project = require('../models/projectModel');
 const Event = require('../models/eventModel');
 

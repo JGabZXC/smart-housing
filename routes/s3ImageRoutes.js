@@ -9,12 +9,12 @@ router
   .get(s3ImageController.getFeaturedCover('project'));
 
 router
-  .route('/getFeaturedCover/event')
-  .get(s3ImageController.getFeaturedCover('event'));
-
-router
   .route('/getImages/project/:slug')
   .get(s3ImageController.getImages('project'));
+
+router
+  .route('/getFeaturedCover/event')
+  .get(s3ImageController.getFeaturedCover('event'));
 
 router.use(authController.protect);
 router.use(authController.protectTo('admin'));

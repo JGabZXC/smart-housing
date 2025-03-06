@@ -181,6 +181,8 @@ exports.isLoggedIn = async (req, res, next) => {
 
       if (currentUser.changedPasswordAfter(decoded.iat)) return next();
 
+      if (currentUser.isTokenLatest(decoded.iat)) return next();
+
       res.locals.user = currentUser;
       return next();
     }

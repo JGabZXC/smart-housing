@@ -31,6 +31,9 @@ export const getImages = async (slug) => {
     const carouselInner = document.querySelector('.carousel-inner');
     carouselInner.innerHTML = '';
 
+    const carouselIndicators = document.querySelector('.carousel-indicators');
+    carouselIndicators.innerHTML = '';
+
     projectImages.imageUrls.forEach((image, index) => {
       const div = document.createElement('div');
       div.classList.add('carousel-item');
@@ -45,6 +48,13 @@ export const getImages = async (slug) => {
 
       div.appendChild(img);
       carouselInner.appendChild(div);
+
+      const indicator = document.createElement('button');
+      indicator.type = 'button';
+      indicator.setAttribute('data-bs-target', '#carousel-1');
+      indicator.setAttribute('data-bs-slide-to', index);
+      if (index === 0) indicator.classList.add('active');
+      carouselIndicators.appendChild(indicator);
     });
   } catch (err) {
     console.error(err);
