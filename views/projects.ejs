@@ -7,14 +7,14 @@
         <h1>Featured Project</h1>
         <div class="bg-dark border-0 border-dark border overflow-hidden" style="border-radius: 24px;">
           <div class="row g-0">
-            <div class="col-md-6">
+            <div class="col-lg-6 ">
               <div class="text-white p-4 p-md-5">
                 <h2 class="fw-bold text-white mb-3"><%= featured.name %></h2>
                 <p class="mb-4"><%= featured.richDescription %></p>
                 <div class="my-3"></div><a class="btn btn-light btn-lg" role="button" href="/project/<%= featured.slug %>">Read More</a>
               </div>
             </div>
-            <div class="col-md-6 order-first order-md-last" style="min-height: 250px;"><img class="w-100 h-100 fit-cover" src="<%= featured.imageCoverUrl %>" /></div>
+            <div class="col-lg-6  order-first order-lg-last" style="min-height: 250px;"><img class="w-100 h-100 fit-cover" src="<%= featured.imageCoverUrl %>" /></div>
           </div>
         </div>
       </div>

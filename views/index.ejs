@@ -4,14 +4,14 @@
     <div class="container">
       <div class="bg-dark border-0 border-dark overflow-hidden" style="border-radius: 24px;">
         <div class="row g-0">
-          <div class="col-md-6">
+          <div class="col-lg-6">
             <div class="text-white p-4 p-md-5">
               <h2 class="fw-bold text-white mb-3"><%= featuredProject.name %></h2>
               <p class="mb-4"><%= featuredProject.richDescription %></p>
-              <div class="my-3"><a class="btn btn-primary btn-lg me-2" role="button" href="#">Attend</a><a class="btn btn-light btn-lg" role="button" href="/project/<%= featuredProject.slug %>">Read More</a></div>
+              <div class="my-3"><a class="btn btn-light btn-lg" role="button" href="/project/<%= featuredProject.slug %>">Read More</a></div>
             </div>
           </div>
-          <div class="col-md-6 order-first order-md-last" style="min-height:250px;"><img class="w-100 h-100 fit-cover featured-photo"></div>
+          <div class="col-lg-6 order-first order-lg-last" style="min-height:250px;"><img class="w-100 h-100 fit-cover featured-photo" loading="lazy"></div>
         </div>
       </div>
     </div>

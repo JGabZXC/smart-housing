@@ -48,17 +48,21 @@ projectSchema.pre('save', async function (next) {
   next();
 });
 projectSchema.pre('findOneAndUpdate', async function (next) {
-  // Fix this later
-  // const update = this.getUpdate();
+  const update = this.getUpdate();
+  const doc = await this.model.findOne(this.getQuery());
 
-  // if (update.isFeatured) {
-  //   const checkExistingFeatured = await mongoose.model('Project').find({
-  //     isFeatured: true,
-  //   });
+  if (update.isFeatured) {
+    const checkExistingFeatured = await mongoose.model('Project').findOne({
+      isFeatured: true,
+    });
 
-  //   if (checkExistingFeatured.length >= 1)
-  //     return next(new AppError('There is already a featured project.', 400));
-  // }
+    if (!checkExistingFeatured) return next();
+
+    if (String(checkExistingFeatured._id) === String(doc._id)) return next();
+
+    if (checkExistingFeatured)
+      return next(new AppError('There is already a featured project.', 400));
+  }
 
   next();
 });

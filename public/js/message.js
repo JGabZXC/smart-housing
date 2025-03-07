@@ -20,7 +20,7 @@ export const getMessagesProject = async (projectid) => {
       const div = document.createElement('div');
       const date = new Date(message.date);
       console.log(date);
-      const finalDate = date.toLocaleString("en-US", {timeZone: "UTC"});
+      const finalDate = date.toLocaleString("en-US", {timeZone: "Asia/Manila"});
       console.log(date);
       div.innerHTML = `
         <p class="text-break" style="width: 80%">${message.user.name.split(' ')[0]} (${finalDate}): ${message.message}</p>

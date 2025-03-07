@@ -12630,7 +12630,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.showAlert = exports.hideAlert = void 0;
 /* eslint-disable */
 var hideAlert = exports.hideAlert = function hideAlert() {
-  var el = document.querySelector('.alert');
+  var el = document.querySelector('.alert-con');
   if (el) el.parentElement.removeChild(el);
 };
 
@@ -12638,10 +12638,18 @@ var hideAlert = exports.hideAlert = function hideAlert() {
 var showAlert = exports.showAlert = function showAlert(type, msg) {
   var time = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
   hideAlert();
-  var markup = "<div class=\"alert alert--".concat(type, "\">").concat(msg, "</div>");
+  // const markup = `<!--<div class="alert alert&#45;&#45;${type}">${msg}</div>-->`;
+  var markup = "<div class=\"container alert-con position-sticky w-100 z-3\">\n    <div class=\"alert alert-".concat(type === 'error' ? 'danger' : 'success', " alert-dismissible fade show w-100\" role=\"alert\"><span>").concat(msg, "</span>\n      <button class=\"btn-close\" type=\"button\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\n    </div>\n  </div>");
   document.querySelector('body').insertAdjacentHTML('afterbegin', markup);
   window.setTimeout(hideAlert, time * 1000);
 };
+
+// <div className="container position-sticky w-100 z-3">
+//   <div className="alert alert-warning alert-dismissible fade show w-100" role="alert"><strong>Holy
+//     guacamole!</strong><span> You should check in on some of those fields below. </span>
+//     <button className="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+//   </div>
+// </div>
 },{}],"login.js":[function(require,module,exports) {
 "use strict";
 
@@ -12874,7 +12882,7 @@ var getMessagesProject = exports.getMessagesProject = /*#__PURE__*/function () {
               var date = new Date(message.date);
               console.log(date);
               var finalDate = date.toLocaleString("en-US", {
-                timeZone: "UTC"
+                timeZone: "Asia/Manila"
               });
               console.log(date);
               div.innerHTML = "\n        <p class=\"text-break\" style=\"width: 80%\">".concat(message.user.name.split(' ')[0], " (").concat(finalDate, "): ").concat(message.message, "</p>\n      ");
@@ -13100,7 +13108,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60894" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59661" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
