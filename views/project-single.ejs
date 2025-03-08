@@ -11,7 +11,7 @@
     </section>
     <section style="padding: 20px 0;padding-top: 40px;">
       <p><span style="color: rgb(0, 0, 0);"><%= project.richDescription %></span></p>
-      <p><span style="color: rgb(0, 0, 0);"><%= project.description %></span></p>
+      <p><span style="color: rgb(0, 0, 0);"><%- project.description.replace(/\n/g, '<br>') %></span></p>
     </section>
     <div id="carousel-1" class="carousel slide" data-bs-ride="false">
       <div class="carousel-inner">
@@ -34,7 +34,7 @@
       </div>
           <% if(locals.user) { %>
             <div class="d-flex justify-content-between" style="padding: 0px;padding-top: 10px;padding-bottom: 10px;">
-              <form class="d-flex justify-content-between" style="width: 100%;"><input class="form-control" type="text" placeholder="Leave a comment" style="width: 80%;" /><button class="btn btn-primary" type="button">Submit</button></form>
+              <form id="form-message" class="d-flex justify-content-between" style="width: 100%;"><input id="message" class="form-control" type="text" placeholder="Leave a comment" style="width: 80%;" /><button class="btn btn-primary" type="submit">Submit</button></form>
             </div>
           <% } %>
       <nav>

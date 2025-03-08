@@ -4,12 +4,7 @@ const APIFeatures = require('../utils/apiFeatures');
 
 exports.getAll = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {
-    // For nested GET messages on event and project
-    let filter = {};
-    if (req.params.eventId) filter = { event: req.params.eventId };
-    if (req.params.projectId) filter = { event: req.params.projectId };
-
-    const features = new APIFeatures(Model.find(filter), req.query)
+    const features = new APIFeatures(Model.find(), req.query)
       .filter()
       .sort()
       .limitFields()

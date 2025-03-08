@@ -7,18 +7,15 @@ const router = express.Router({ mergeParams: true });
 router.route('/message').get(messageController.getAllMessages);
 
 router.use(authController.protect);
-router
-  .route('/')
-  .get(messageController.getAllMessages)
-  .post(
-    authController.protectTo('user'),
-    messageController.setEventIds,
-    messageController.createMessage,
-  );
+router.route('/').get(messageController.getAllMessages).post(
+  // authController.protectTo('user'),
+  messageController.setEventIds,
+  messageController.createMessage,
+);
 router
   .route('/:id')
   .get(messageController.getMessage)
-  .patch(authController.protectTo('user'), messageController.updateMessage)
-  .delete(authController.protectTo('user'), messageController.deleteMessage);
+  .patch(messageController.updateMessage)
+  .delete(messageController.deleteMessage);
 
 module.exports = router;

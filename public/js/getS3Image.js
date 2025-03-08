@@ -25,7 +25,6 @@ export const getImages = async (slug) => {
     });
 
     const projectImages = res.data;
-    console.log(projectImages);
     featuredPhoto.src = projectImages.coverPhotoUrl;
 
     const carouselInner = document.querySelector('.carousel-inner');
