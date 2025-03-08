@@ -5,6 +5,7 @@ const s3 = require('../utils/s3Bucket');
 const catchAsync = require('../utils/catchAsync');
 const Project = require('../models/projectModel');
 const Garbage = require('../models/garbageModel');
+const Payment = require('../models/paymentModel');
 const APIFeatures = require('../utils/apiFeatures');
 
 exports.getIndex = catchAsync(async (req, res, next) => {
@@ -54,6 +55,15 @@ exports.getProject = catchAsync(async (req, res, next) => {
   res.status(200).render('project-single', {
     title: project.name,
     project,
+  });
+});
+
+exports.getMe = catchAsync(async (req, res, next) => {
+  const payment = await Payment.find({ user: req.user._id }).sort('-paymentDate');
+
+  res.status(200).render('me', {
+    title: req.user.name,
+    payment,
   });
 });
 

@@ -13,8 +13,6 @@ export const getMessagesProject = async (projectid) => {
       url: `/api/v1/projects/${projectid}/messages/message?page=${currentPage}&limit=${messagesPerPage}&sort=-date`,
     });
 
-    console.log(res);
-
     const messages = res.data.messages;
     const totalPages = res.data.totalPages;
     const messageContainer = document.querySelector('#forum-messages');

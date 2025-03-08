@@ -1,16 +1,18 @@
+const stripe = require('stripe')(process.env.STRIPE_SK);
 const handler = require('./handlerController');
 const Payment = require('../models/paymentModel');
 const catchAsync = require('../utils/catchAsync');
-const stripe = require('stripe')(process.env.STRIPE_SK);
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { amount, dateRange } = req.query;
 
+  console.log(dateRange);
+
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     customer_email: req.user.email,
-    success_url: `${req.protocol}://${req.get('host')}/api/v1/messages?user=${req.user._id}&address=${req.user.address}&price=${amount}&dateRange=${dateRange}`,
-    cancel_url: `${req.protocol}://${req.get('host')}/api/v1/messages`,
+    success_url: `${req.protocol}://${req.get('host')}/me?user=${req.user._id}&address=${req.user.address}&price=${amount}&dateRange=${dateRange}`,
+    cancel_url: `${req.protocol}://${req.get('host')}/me`,
     mode: 'payment',
     line_items: [
       {
@@ -27,6 +29,12 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     ],
   });
 
+  await Payment.create({
+    user: req.user._id,
+    address: req.user.address,
+    amount,
+    dateRange,
+  });
   res.status(200).json({ status: 'success', session });
 });
 
@@ -35,8 +43,7 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
 
   if (!user && !address && !price && !dateRange) return next();
 
-  await Payment.create({ user, address, amount: price, dateRange });
-  next();
+  res.redirect(req.originalUrl.split('?')[0]);
 });
 
 exports.getAllPayments = handler.getAll(Payment);
