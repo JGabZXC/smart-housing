@@ -1,6 +1,5 @@
 <div>
-  <% const featured = projects.filter(project => project.isFeatured === true)[0]; %>
-  <% if(featured) { %>
+  <% if(locals.featuredProject) { %>
   <div class="container">
     <section class="py-4 py-xl-5">
       <div class="container">
@@ -9,12 +8,12 @@
           <div class="row g-0">
             <div class="col-lg-6 ">
               <div class="text-white p-4 p-md-5">
-                <h2 class="fw-bold text-white mb-3"><%= featured.name %></h2>
-                <p class="mb-4"><%= featured.richDescription %></p>
-                <div class="my-3"></div><a class="btn btn-light btn-lg" role="button" href="/project/<%= featured.slug %>">Read More</a>
+                <h2 class="fw-bold text-white mb-3"><%= featuredProject.name %></h2>
+                <p class="mb-4"><%= featuredProject.richDescription %></p>
+                <div class="my-3"></div><a class="btn btn-light btn-lg" role="button" href="/project/<%= featuredProject.slug %>">Read More</a>
               </div>
             </div>
-            <div class="col-lg-6  order-first order-lg-last" style="min-height: 250px;"><img class="w-100 h-100 fit-cover" src="<%= featured.imageCoverUrl %>" /></div>
+            <div class="col-lg-6  order-first order-lg-last" style="min-height: 250px;"><img class="w-100 h-100 fit-cover" src="<%= featuredProject.imageCoverUrl %>" /></div>
           </div>
         </div>
       </div>

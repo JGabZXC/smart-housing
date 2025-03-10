@@ -20,6 +20,23 @@ exports.getIndex = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllProject = catchAsync(async (req, res, next) => {
+  const featuredProject = await Project.findOne({ isFeatured: true });
+  let featuredProjectWithSignedUrl = null;
+
+  if (featuredProject) {
+    const getObjectParams = {
+      Bucket: process.env.S3_NAME,
+      Key: featuredProject.imageCover,
+    };
+    const command = new GetObjectCommand(getObjectParams);
+    const imageCoverUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+
+    featuredProjectWithSignedUrl = {
+      ...featuredProject.toObject(),
+      imageCoverUrl,
+    };
+  }
+
   const features = new APIFeatures(Project.find(), req.query)
     .filter()
     .sort()
@@ -49,6 +66,7 @@ exports.getAllProject = catchAsync(async (req, res, next) => {
 
   res.status(200).render('projects', {
     title: 'Projects',
+    featuredProject: featuredProjectWithSignedUrl,
     projects: projectsWithSignedUrls,
   });
 });
@@ -63,7 +81,9 @@ exports.getProject = catchAsync(async (req, res, next) => {
 });
 
 exports.getMe = catchAsync(async (req, res, next) => {
-  const payment = await Payment.find({ user: req.user._id }).sort('-paymentDate');
+  const payment = await Payment.find({ user: req.user._id }).sort(
+    '-paymentDate',
+  );
 
   res.status(200).render('me', {
     title: req.user.name,
