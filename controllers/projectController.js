@@ -80,25 +80,7 @@ exports.setProjectUserIds = (req, res, next) => {
   next();
 };
 
-exports.getAllProjects = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(Project.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-
-  const project = await features.query;
-
-  const totalProjects = await Project.countDocuments();
-  const totalPages = Math.ceil(totalProjects / (req.query.limit || 10));
-
-  res.status(200).json({
-    status: 'success',
-    results: project.length,
-    totalPages,
-    project,
-  });
-});
+exports.getAllProjects = handler.getAll(Project);
 exports.getProject = handler.getOne(Project);
 exports.createProject = handler.createOne(Project);
 exports.updateProject = handler.updateOne(Project);

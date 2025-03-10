@@ -6,7 +6,6 @@ const catchAsync = require('../utils/catchAsync');
 const Project = require('../models/projectModel');
 const Garbage = require('../models/garbageModel');
 const Payment = require('../models/paymentModel');
-const APIFeatures = require('../utils/apiFeatures');
 
 exports.getIndex = catchAsync(async (req, res, next) => {
   const garbages = await Garbage.find();
@@ -21,9 +20,9 @@ exports.getIndex = catchAsync(async (req, res, next) => {
 
 exports.getAllProject = catchAsync(async (req, res, next) => {
   const featuredProject = await Project.findOne({ isFeatured: true });
-  let featuredProjectWithSignedUrl = null;
+  let featuredProjectWithUrl;
 
-  if (featuredProject) {
+  if (featuredProject.imageCover) {
     const getObjectParams = {
       Bucket: process.env.S3_NAME,
       Key: featuredProject.imageCover,
@@ -31,48 +30,12 @@ exports.getAllProject = catchAsync(async (req, res, next) => {
     const command = new GetObjectCommand(getObjectParams);
     const imageCoverUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
 
-    featuredProjectWithSignedUrl = {
-      ...featuredProject.toObject(),
-      imageCoverUrl,
-    };
+    featuredProjectWithUrl = { ...featuredProject.toObject(), imageCoverUrl };
   }
-
-  const features = new APIFeatures(Project.find(), req.query)
-    .filter()
-    .limitFields()
-    .paginate();
-  const projects = await features.query.sort('-date');
-
-  const projectsWithSignedUrls = await Promise.all(
-    projects.map(async (project) => {
-      let imageCoverUrl = null;
-
-      if (project.imageCover) {
-        const getObjectParams = {
-          Bucket: process.env.S3_NAME,
-          Key: project.imageCover,
-        };
-        const command = new GetObjectCommand(getObjectParams);
-        imageCoverUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
-      }
-
-      return {
-        ...project.toObject(),
-        imageCoverUrl,
-      };
-    }),
-  );
-
-  const totalProjects = await Project.countDocuments();
-  const totalPages = Math.ceil(totalProjects / (req.query.limit || 10));
-  const currentPage = +req.query.page || 1;
 
   res.status(200).render('projects', {
     title: 'Projects',
-    featuredProject: featuredProjectWithSignedUrl,
-    projects: projectsWithSignedUrls,
-    totalPages,
-    currentPage,
+    featuredProject: featuredProjectWithUrl,
   });
 });
 

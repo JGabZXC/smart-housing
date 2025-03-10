@@ -10,12 +10,14 @@ import { getFeaturedProject, getImages } from './getS3Image';
 import { getMessagesProject, submitMessagesProject } from './message';
 import { payWithStripe } from './payment';
 import { showAlert } from './alerts';
+import { getProjects } from './projects';
 
 const email = document.querySelector('#email');
 const password = document.querySelector('#password');
 
 const hero = document.querySelector('.hero-index');
 const projectContainer = document.querySelector('#project-container');
+const projectListContainer = document.querySelector('#project-list-container');
 
 const loginForm = document.querySelector('#login-form');
 const submitMessageForm = document.querySelector('#form-message');
@@ -78,4 +80,8 @@ if(paymentForm) {
     const dateRange = `${fromDateValue}-${toDateValue}`;
     payWithStripe(amount, dateRange);
   });
+}
+
+if(projectListContainer) {
+  getProjects();
 }
