@@ -5,6 +5,7 @@ const Event = require('../models/eventModel');
 const handler = require('./handlerController');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const APIFeatures = require('../utils/apiFeatures');
 
 const multerStorage = multer.memoryStorage();
 
@@ -63,7 +64,25 @@ exports.uploadS3 = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.getAllEvents = handler.getAll(Event);
+exports.getAllEvents = catchAsync(async (req, res, next) => {
+  const features = new APIFeatures(Event.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+
+  const event = await features.query;
+
+  const totalEvents = await Event.countDocuments();
+  const totalPages = Math.ceil(totalEvents / (req.query.limit || 10));
+
+  res.status(200).json({
+    status: 'success',
+    results: event.length,
+    totalPages,
+    event,
+  });
+});
 exports.getEvent = handler.getOne(Event);
 exports.createEvent = handler.createOne(Event);
 exports.updateEvent = handler.updateOne(Event);

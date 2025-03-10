@@ -39,10 +39,9 @@ exports.getAllProject = catchAsync(async (req, res, next) => {
 
   const features = new APIFeatures(Project.find(), req.query)
     .filter()
-    .sort()
     .limitFields()
     .paginate();
-  const projects = await features.query;
+  const projects = await features.query.sort('-date');
 
   const projectsWithSignedUrls = await Promise.all(
     projects.map(async (project) => {
@@ -64,10 +63,16 @@ exports.getAllProject = catchAsync(async (req, res, next) => {
     }),
   );
 
+  const totalProjects = await Project.countDocuments();
+  const totalPages = Math.ceil(totalProjects / (req.query.limit || 10));
+  const currentPage = +req.query.page || 1;
+
   res.status(200).render('projects', {
     title: 'Projects',
     featuredProject: featuredProjectWithSignedUrl,
     projects: projectsWithSignedUrls,
+    totalPages,
+    currentPage,
   });
 });
 

@@ -5,6 +5,7 @@ const handler = require('./handlerController');
 const Project = require('../models/projectModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const APIFeatures = require('../utils/apiFeatures');
 
 const multerStorage = multer.memoryStorage();
 
@@ -54,7 +55,7 @@ exports.uploadS3 = catchAsync(async (req, res, next) => {
     req.body.images = [];
     await Promise.all(
       req.files.images.map(async (file, i) => {
-        const filename = `event-${file.originalname.split('.')[0]}-${Date.now()}-${i + 1}.jpeg`;
+        const filename = `project-${file.originalname.split('.')[0]}-${Date.now()}-${i + 1}.jpeg`;
         const params = {
           Bucket: process.env.S3_NAME,
           Key: filename,
@@ -79,7 +80,25 @@ exports.setProjectUserIds = (req, res, next) => {
   next();
 };
 
-exports.getAllProjects = handler.getAll(Project);
+exports.getAllProjects = catchAsync(async (req, res, next) => {
+  const features = new APIFeatures(Project.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+
+  const project = await features.query;
+
+  const totalProjects = await Project.countDocuments();
+  const totalPages = Math.ceil(totalProjects / (req.query.limit || 10));
+
+  res.status(200).json({
+    status: 'success',
+    results: project.length,
+    totalPages,
+    project,
+  });
+});
 exports.getProject = handler.getOne(Project);
 exports.createProject = handler.createOne(Project);
 exports.updateProject = handler.updateOne(Project);
