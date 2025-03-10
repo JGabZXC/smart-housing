@@ -53,34 +53,35 @@ exports.getImages = (event) =>
       item = await Event.findOne({ slug: req.params.slug });
     }
 
-    const coverPhoto = item.imageCover;
-    const { images } = item;
-
-    const getObjectParams = {
-      Bucket: process.env.S3_NAME,
-      Key: coverPhoto,
-    };
-
-    const command = new GetObjectCommand(getObjectParams);
-    const coverPhotoUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
-
+    let coverPhotoUrl = null;
     const imageUrls = [];
-    // eslint-disable-next-line no-restricted-syntax
-    for (const image of images) {
-      // eslint-disable-next-line no-shadow
+
+    if (item?.imageCover) {
       const getObjectParams = {
         Bucket: process.env.S3_NAME,
-        Key: image,
+        Key: item.imageCover,
       };
-      // eslint-disable-next-line no-shadow
       const command = new GetObjectCommand(getObjectParams);
-      // eslint-disable-next-line no-await-in-loop
-      const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
-
-      imageUrls.push(url);
+      coverPhotoUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
     }
 
-    res.json({ coverPhotoUrl, imageUrls });
-  });
+    if (item?.images?.length > 0) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const image of item.images) {
+        const getObjectParams = {
+          Bucket: process.env.S3_NAME,
+          Key: image,
+        };
+        const command = new GetObjectCommand(getObjectParams);
+        // eslint-disable-next-line no-await-in-loop
+        const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+        imageUrls.push(url);
+      }
+    }
 
+    if (!coverPhotoUrl && imageUrls.length === 0)
+      return res.json({ message: 'No images found' });
+
+    return res.json({ coverPhotoUrl, imageUrls });
+  });
 exports.getAllImages = catchAsync(async (req, res, next) => {});

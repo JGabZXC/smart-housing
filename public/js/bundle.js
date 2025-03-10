@@ -12786,7 +12786,7 @@ var getFeaturedProject = exports.getFeaturedProject = /*#__PURE__*/function () {
 }();
 var getImages = exports.getImages = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(slug) {
-    var res, projectImages, carouselInner, carouselIndicators;
+    var res, _carouselInner, projectImages, carouselInner, carouselIndicators;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -12798,6 +12798,17 @@ var getImages = exports.getImages = /*#__PURE__*/function () {
           });
         case 3:
           res = _context2.sent;
+          console.log("here", res.data);
+          if (!res.data.message) {
+            _context2.next = 10;
+            break;
+          }
+          _carouselInner = document.querySelector('.carousel-inner');
+          _carouselInner.innerHTML = '';
+          featuredPhoto.remove();
+          return _context2.abrupt("return");
+        case 10:
+          ;
           projectImages = res.data;
           featuredPhoto.src = projectImages.coverPhotoUrl;
           carouselInner = document.querySelector('.carousel-inner');
@@ -12823,17 +12834,17 @@ var getImages = exports.getImages = /*#__PURE__*/function () {
             if (index === 0) indicator.classList.add('active');
             carouselIndicators.appendChild(indicator);
           });
-          _context2.next = 16;
+          _context2.next = 23;
           break;
-        case 13:
-          _context2.prev = 13;
+        case 20:
+          _context2.prev = 20;
           _context2.t0 = _context2["catch"](0);
           console.error(_context2.t0);
-        case 16:
+        case 23:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 13]]);
+    }, _callee2, null, [[0, 20]]);
   }));
   return function getImages(_x) {
     return _ref2.apply(this, arguments);
@@ -13252,7 +13263,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50260" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50613" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

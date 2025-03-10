@@ -29,16 +29,20 @@ exports.getAllProject = catchAsync(async (req, res, next) => {
 
   const projectsWithSignedUrls = await Promise.all(
     projects.map(async (project) => {
-      const getObjectParams = {
-        Bucket: process.env.S3_NAME,
-        Key: project.imageCover,
-      };
-      const command = new GetObjectCommand(getObjectParams);
-      const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+      let imageCoverUrl = null;
+
+      if (project.imageCover) {
+        const getObjectParams = {
+          Bucket: process.env.S3_NAME,
+          Key: project.imageCover,
+        };
+        const command = new GetObjectCommand(getObjectParams);
+        imageCoverUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+      }
 
       return {
         ...project.toObject(),
-        imageCoverUrl: signedUrl,
+        imageCoverUrl,
       };
     }),
   );

@@ -17,12 +17,23 @@ export const getFeaturedProject = async () => {
   }
 };
 
+
+
 export const getImages = async (slug) => {
   try {
     const res = await axios({
       method: 'GET',
       url: `/api/v1/images/getImages/project/${slug}`,
     });
+
+    console.log("here", res.data);
+
+    if(res.data.message) {
+      const carouselInner = document.querySelector('.carousel-inner');
+      carouselInner.innerHTML = '';
+      featuredPhoto.remove();
+      return;
+    };
 
     const projectImages = res.data;
     featuredPhoto.src = projectImages.coverPhotoUrl;
