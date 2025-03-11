@@ -80,7 +80,7 @@ exports.getAllEvents = catchAsync(async (req, res, next) => {
 
   let doc = await query;
 
-  const modifiedDoc = await Promise.all(
+  doc = await Promise.all(
     doc.map(async (item) => {
       const modifiedItem = { ...item.toObject() };
 
@@ -118,8 +118,6 @@ exports.getAllEvents = catchAsync(async (req, res, next) => {
       return modifiedItem;
     }),
   );
-
-  doc = modifiedDoc;
 
   res.status(200).json({
     status: 'success',

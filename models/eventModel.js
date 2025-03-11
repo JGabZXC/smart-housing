@@ -5,7 +5,7 @@ const eventSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'An event must have a name'],
-    trime: true,
+    trim: true,
     minLength: 5,
     maxLength: 30,
   },

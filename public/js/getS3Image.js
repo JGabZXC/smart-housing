@@ -3,11 +3,11 @@
 import axios from 'axios';
 const featuredPhoto = document.querySelector('.featured-photo');
 
-export const getFeaturedProject = async () => {
+export const getFeatured = async (type) => {
   try {
     const res = await axios({
       method: 'GET',
-      url: '/api/v1/images/getFeaturedCover/project',
+      url: `/api/v1/images/getFeaturedCover/${type}`,
     });
 
     const coverImage = res.data;
@@ -19,11 +19,11 @@ export const getFeaturedProject = async () => {
 
 
 
-export const getImages = async (slug) => {
+export const getImages = async (type, slug) => {
   try {
     const res = await axios({
       method: 'GET',
-      url: `/api/v1/images/getImages/project/${slug}`,
+      url: `/api/v1/images/getImages/${type}/${slug}`,
     });
 
     if(res.data.message) {

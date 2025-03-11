@@ -21,4 +21,7 @@ router
 router.route('/project').get(viewController.getAllProject);
 router.route('/project/:slug').get(viewController.getProject);
 
+router.route('/event').get(viewController.getAllEvent);
+// router.route('/event/:slug').get(viewController.getEvent);
+
 module.exports = router;

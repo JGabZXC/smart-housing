@@ -4,6 +4,7 @@ const s3 = require('../utils/s3Bucket');
 
 const catchAsync = require('../utils/catchAsync');
 const Project = require('../models/projectModel');
+const Event = require('../models/eventModel');
 const Garbage = require('../models/garbageModel');
 const Payment = require('../models/paymentModel');
 
@@ -45,6 +46,31 @@ exports.getProject = catchAsync(async (req, res, next) => {
   res.status(200).render('project-single', {
     title: project.name,
     project,
+  });
+});
+
+exports.getAllEvent = catchAsync(async (req, res, next) => {
+  const featuredEvent = await Event.findOne({ isFeatured: true });
+  let featuredEventWithUrl;
+
+  if (featuredEvent) {
+    featuredEventWithUrl = { ...featuredEvent.toObject() };
+    if (featuredEvent.imageCover) {
+      const objectParams = {
+        Bucket: process.env.S3_NAME,
+        Key: featuredEvent.imageCover,
+      };
+      const command = GetObjectCommand(objectParams);
+      const imageCoverUrl = await getSignedUrl(s3, command, {
+        expiresIn: 3600,
+      });
+      featuredEventWithUrl.imageCoverUrl = imageCoverUrl;
+    }
+  }
+
+  res.status(200).render('events', {
+    title: 'Events',
+    featuredEvent: featuredEventWithUrl || null,
   });
 });
 

@@ -6,11 +6,12 @@ import { test } from './test';
 // test();
 
 import { login, logout } from './login';
-import { getFeaturedProject, getImages } from './getS3Image';
+import { getFeatured, getImages } from './getS3Image';
 import { getMessagesProject, submitMessagesProject } from './message';
 import { payWithStripe } from './payment';
 import { showAlert } from './alerts';
 import { getProjects } from './projects';
+import { getEvents } from './events';
 
 const email = document.querySelector('#email');
 const password = document.querySelector('#password');
@@ -18,6 +19,9 @@ const password = document.querySelector('#password');
 const hero = document.querySelector('.hero-index');
 const projectContainer = document.querySelector('#project-container');
 const projectListContainer = document.querySelector('#project-list-container');
+
+const eventContainer = document.querySelector('#event-container');
+const eventListContainer = document.querySelector('#event-list-container');
 
 const loginForm = document.querySelector('#login-form');
 const submitMessageForm = document.querySelector('#form-message');
@@ -42,14 +46,18 @@ if (logoutBtn) {
 }
 
 if (hero) {
-  getFeaturedProject();
+  getFeatured('project');
 }
 
 if (projectContainer) {
   const slug = projectContainer.dataset.slug;
   const projectId = document.querySelector('#project-id').dataset.projectid;
-  getImages(slug);
+  getImages('project', slug);
   getMessagesProject(projectId);
+}
+
+if(eventContainer) {
+
 }
 
 if(submitMessageForm) {
@@ -84,4 +92,8 @@ if(paymentForm) {
 
 if(projectListContainer) {
   getProjects();
+}
+
+if(eventListContainer) {
+  getEvents();
 }
