@@ -12798,16 +12798,15 @@ var getImages = exports.getImages = /*#__PURE__*/function () {
           });
         case 3:
           res = _context2.sent;
-          console.log("here", res.data);
           if (!res.data.message) {
-            _context2.next = 10;
+            _context2.next = 9;
             break;
           }
           _carouselInner = document.querySelector('.carousel-inner');
           _carouselInner.innerHTML = '';
           featuredPhoto.remove();
           return _context2.abrupt("return");
-        case 10:
+        case 9:
           ;
           projectImages = res.data;
           featuredPhoto.src = projectImages.coverPhotoUrl;
@@ -12834,17 +12833,17 @@ var getImages = exports.getImages = /*#__PURE__*/function () {
             if (index === 0) indicator.classList.add('active');
             carouselIndicators.appendChild(indicator);
           });
-          _context2.next = 23;
+          _context2.next = 22;
           break;
-        case 20:
-          _context2.prev = 20;
+        case 19:
+          _context2.prev = 19;
           _context2.t0 = _context2["catch"](0);
           console.error(_context2.t0);
-        case 23:
+        case 22:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 20]]);
+    }, _callee2, null, [[0, 19]]);
   }));
   return function getImages(_x) {
     return _ref2.apply(this, arguments);
@@ -13074,32 +13073,33 @@ var getProjects = exports.getProjects = /*#__PURE__*/function () {
           });
         case 3:
           res = _context.sent;
+          console.log(res.data);
           if (!(res.data.status !== 'success')) {
-            _context.next = 6;
+            _context.next = 7;
             break;
           }
           return _context.abrupt("return");
-        case 6:
+        case 7:
           projects = res.data.data.doc;
           totalPages = res.data.totalPages;
           projectListContainer.innerHTML = '';
           projects.forEach(function (project) {
-            var markup = "\n      <div class=\"col\">\n        <div class=\"card\">\n          <div class=\"card-body\">\n            <h4 class=\"card-title\">".concat(project.name, "</h4>\n            <p class=\"card-text\">").concat(project.richDescription.slice(0, 100), "...</p>\n            ").concat(project.imageUrl ? "<img class\"object-fit-cover\" src=\"".concat(project.imageUrl, "\" width=\"100%\" height=\"200\" />") : '', "\n            <a class=\"card-link\" href=\"/project/").concat(project.slug, "\">Read More</a>\n          </div>\n        </div>\n      </div>\n      ");
+            var markup = "\n      <div class=\"col\">\n        <div class=\"card\">\n          <div class=\"card-body\">\n            <h4 class=\"card-title\">".concat(project.name, "</h4>\n            <p class=\"card-text\">").concat(project.richDescription.slice(0, 100), "...</p>\n            ").concat(project.coverUrl ? "<img class\"object-fit-cover\" src=\"".concat(project.coverUrl, "\" width=\"100%\" height=\"200\" />") : '', "\n            <a class=\"card-link\" href=\"/project/").concat(project.slug, "\">Read More</a>\n          </div>\n        </div>\n      </div>\n      ");
             projectListContainer.innerHTML += markup;
           });
           hasNextPage = projects.length === projectsPerPage;
           renderPagination(totalPages);
-          _context.next = 17;
+          _context.next = 18;
           break;
-        case 14:
-          _context.prev = 14;
+        case 15:
+          _context.prev = 15;
           _context.t0 = _context["catch"](0);
           console.error(_context.t0);
-        case 17:
+        case 18:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 14]]);
+    }, _callee, null, [[0, 15]]);
   }));
   return function getProjects() {
     return _ref.apply(this, arguments);
@@ -13347,7 +13347,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50394" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56668" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

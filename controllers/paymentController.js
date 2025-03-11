@@ -29,12 +29,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     ],
   });
 
-  await Payment.create({
-    user: req.user._id,
-    address: req.user.address,
-    amount,
-    dateRange,
-  });
   res.status(200).json({ status: 'success', session });
 });
 
@@ -42,6 +36,12 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   const { user, address, price, dateRange } = req.query;
 
   if (!user && !address && !price && !dateRange) return next();
+  await Payment.create({
+    user: req.user._id,
+    address: req.user.address,
+    amount: price,
+    dateRange,
+  });
 
   res.redirect(req.originalUrl.split('?')[0]);
 });

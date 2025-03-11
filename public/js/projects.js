@@ -15,6 +15,8 @@ export const getProjects = async () => {
       url: `/api/v1/projects?&page=${currentPage}&limit=${projectsPerPage}&sort=-date`,
     });
 
+    console.log(res.data);
+
     if(res.data.status !== 'success') return;
 
     const projects = res.data.data.doc;
@@ -29,7 +31,7 @@ export const getProjects = async () => {
           <div class="card-body">
             <h4 class="card-title">${project.name}</h4>
             <p class="card-text">${project.richDescription.slice(0, 100)}...</p>
-            ${project.imageUrl ? `<img class"object-fit-cover" src="${project.imageUrl}" width="100%" height="200" />` : ''}
+            ${project.coverUrl ? `<img class"object-fit-cover" src="${project.coverUrl}" width="100%" height="200" />` : ''}
             <a class="card-link" href="/project/${project.slug}">Read More</a>
           </div>
         </div>
