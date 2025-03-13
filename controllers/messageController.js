@@ -2,6 +2,7 @@ const handlerFactory = require('./handlerController');
 const Message = require('../models/messageModel');
 const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 exports.setEventIds = (req, res, next) => {
   // Allow nested routes
@@ -35,7 +36,53 @@ exports.getAllMessages = catchAsync(async (req, res, next) => {
     messages,
   });
 });
+
+const handleMessageUpdate = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const check = await Model.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+
+    if (!check)
+      return next(
+        new AppError('You are not allowed to update this document', 403),
+      );
+
+    const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        doc,
+      },
+    });
+  });
+
+const handleMessageDelete = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const check = await Model.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+
+    if (!check)
+      return next(
+        new AppError('You are not allowed to update this document', 403),
+      );
+
+    await Model.findByIdAndDelete(req.params.id);
+
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  });
+
 exports.getMessage = handlerFactory.getOne(Message);
 exports.createMessage = handlerFactory.createOne(Message);
-exports.updateMessage = handlerFactory.updateOne(Message);
-exports.deleteMessage = handlerFactory.deleteOne(Message);
+exports.updateMessage = handleMessageUpdate(Message);
+exports.deleteMessage = handleMessageDelete(Message);

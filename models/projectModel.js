@@ -15,10 +15,7 @@ const projectSchema = new mongoose.Schema({
     maxLength: 30,
     unique: true,
   },
-  date: {
-    type: Date,
-    default: Date.now(),
-  },
+  date: Date,
   richDescription: {
     type: String,
     required: [true, 'A project must have a rich description'],
