@@ -12866,6 +12866,126 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 var currentPage = 1;
 var messagesPerPage = 10;
 var hasNextPage = false;
+var userID;
+if (document.querySelector('#project-id')) {
+  userID = document.querySelector('#project-id').dataset.userid;
+}
+var forumMessages = document.querySelector('#forum-messages');
+function renderPagination(totalPages) {
+  var pagination = document.querySelector('.pagination');
+  pagination.innerHTML = '';
+
+  // Previous Button
+  var prevButton = "<li class=\"page-item ".concat(currentPage === 1 ? 'disabled' : '', "\">\n    <a class=\"page-link\" aria-label=\"Previous\" onclick=\"changePage(").concat(currentPage - 1, ")\">\n      <span aria-hidden=\"true\">\xAB</span>\n    </a>\n  </li>");
+  pagination.innerHTML += prevButton;
+
+  // Page Numbers
+  for (var i = 1; i <= totalPages; i++) {
+    var pageItem = "<li class=\"page-item ".concat(i === currentPage ? 'active' : '', "\">\n      <a class=\"page-link\" onclick=\"changePage(").concat(i, ")\">").concat(i, "</a>\n    </li>");
+    pagination.innerHTML += pageItem;
+  }
+
+  // Next Button
+  var nextButton = "<li class=\"page-item ".concat(!hasNextPage ? 'disabled' : '', "\">\n    <a class=\"page-link\" aria-label=\"Next\" onclick=\"changePage(").concat(currentPage + 1, ")\">\n      <span aria-hidden=\"true\">\xBB</span>\n    </a>\n  </li>");
+  pagination.innerHTML += nextButton;
+}
+function handleMessageUpdate(_x, _x2, _x3, _x4) {
+  return _handleMessageUpdate.apply(this, arguments);
+}
+function _handleMessageUpdate() {
+  _handleMessageUpdate = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(target, message, prevValue, messageID) {
+    var newMessage, res;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          if (target.classList.contains('btn-success')) {
+            _context4.next = 6;
+            break;
+          }
+          target.innerHTML = '<i class="bi bi-check"></i> Confirm';
+          target.classList.remove('btn-primary');
+          target.classList.add('btn-success');
+          message.innerHTML = "<input type=\"text\" value=\"".concat(prevValue, "\">");
+          return _context4.abrupt("return");
+        case 6:
+          newMessage = message.querySelector('input').value;
+          _context4.prev = 7;
+          _context4.next = 10;
+          return (0, _axios.default)({
+            method: 'PATCH',
+            url: "/api/v1/messages/".concat(messageID),
+            data: {
+              message: newMessage
+            }
+          });
+        case 10:
+          res = _context4.sent;
+          message.innerHTML = '';
+          if (!(res.data.status === 'success')) {
+            _context4.next = 16;
+            break;
+          }
+          (0, _alerts.showAlert)('success', 'Message updated!');
+          _context4.next = 16;
+          return getMessagesProject(document.querySelector('#project-id').dataset.projectid);
+        case 16:
+          target.innerHTML = '<i class="bi bi-pencil">';
+          target.classList.remove('btn-success');
+          target.classList.add('btn-primary');
+          _context4.next = 24;
+          break;
+        case 21:
+          _context4.prev = 21;
+          _context4.t0 = _context4["catch"](7);
+          (0, _alerts.showAlert)('error', _context4.t0.response.data.message);
+        case 24:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4, null, [[7, 21]]);
+  }));
+  return _handleMessageUpdate.apply(this, arguments);
+}
+function handleMessageDelete(_x5, _x6) {
+  return _handleMessageDelete.apply(this, arguments);
+}
+function _handleMessageDelete() {
+  _handleMessageDelete = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(target, messageID) {
+    return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+      while (1) switch (_context5.prev = _context5.next) {
+        case 0:
+          if (!target.classList.contains('for-delete')) {
+            _context5.next = 12;
+            break;
+          }
+          _context5.prev = 1;
+          _context5.next = 4;
+          return (0, _axios.default)({
+            method: 'DELETE',
+            url: "/api/v1/messages/".concat(messageID)
+          });
+        case 4:
+          (0, _alerts.showAlert)('success', 'Message deleted!');
+          _context5.next = 7;
+          return getMessagesProject(document.querySelector('#project-id').dataset.projectid);
+        case 7:
+          _context5.next = 12;
+          break;
+        case 9:
+          _context5.prev = 9;
+          _context5.t0 = _context5["catch"](1);
+          (0, _alerts.showAlert)('error', _context5.t0.response.data.message);
+        case 12:
+          target.innerHTML = '<i class="bi bi-check"></i> Confirm';
+          target.classList.add('for-delete');
+        case 14:
+        case "end":
+          return _context5.stop();
+      }
+    }, _callee5, null, [[1, 9]]);
+  }));
+  return _handleMessageDelete.apply(this, arguments);
+}
 var getMessagesProject = exports.getMessagesProject = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(projectid) {
     var res, messages, totalPages, messageContainer, div;
@@ -12887,11 +13007,12 @@ var getMessagesProject = exports.getMessagesProject = /*#__PURE__*/function () {
           if (messages.length > 0) {
             messages.forEach(function (message) {
               var div = document.createElement('div');
+              div.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-2', 'gap-1');
               var date = new Date(message.date);
               var finalDate = date.toLocaleString('en-US', {
                 timeZone: 'Asia/Manila'
               });
-              div.innerHTML = "\n          <p class=\"text-break\" style=\"width: 80%\">".concat(message.user.name.split(' ')[0], " (").concat(finalDate, "): ").concat(message.message, "</p>\n        ");
+              div.innerHTML = "\n          <div class=\"d-flex gap-1\">\n            <p class=\"top-message\">".concat(message.user.name.split(' ')[0], " <span class=\"date-message\">(").concat(finalDate, ")</span>: </p>\n            <p class=\"text-break bottom-message\">").concat(message.message, "</p>\n          </div>\n            ").concat(message.user._id === userID ? "\n          <div class=\"d-flex gap-2 btn-actions\">\n            <button class=\"btn btn-primary edit-message\" data-id=\"".concat(message._id, "\"><i class=\"bi bi-pencil\"></i></button>\n            <button class=\"btn btn-danger delete-message\" data-id=\"").concat(message._id, "\"><i class=\"bi bi-trash\"></i></button>\n          </div>\n          ") : '', "\n        ");
               messageContainer.appendChild(div);
             });
           } else {
@@ -12922,18 +13043,55 @@ var getMessagesProject = exports.getMessagesProject = /*#__PURE__*/function () {
       }
     }, _callee, null, [[0, 13]]);
   }));
-  return function getMessagesProject(_x) {
+  return function getMessagesProject(_x7) {
     return _ref.apply(this, arguments);
   };
 }();
+if (forumMessages) {
+  forumMessages.addEventListener('click', /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
+      var target, parentOfParentElement, messageID, message, messagePrevVal;
+      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+        while (1) switch (_context2.prev = _context2.next) {
+          case 0:
+            target = e.target;
+            if (target.tagName.toLowerCase() === 'i') target = target.parentElement;
+            parentOfParentElement = target.parentElement.parentElement;
+            messageID = target.dataset.id;
+            if (!target.classList.contains('edit-message')) {
+              _context2.next = 9;
+              break;
+            }
+            message = parentOfParentElement.querySelector('.bottom-message');
+            messagePrevVal = message.innerHTML;
+            _context2.next = 9;
+            return handleMessageUpdate(target, message, messagePrevVal, messageID);
+          case 9:
+            if (!target.classList.contains('delete-message')) {
+              _context2.next = 12;
+              break;
+            }
+            _context2.next = 12;
+            return handleMessageDelete(target, messageID);
+          case 12:
+          case "end":
+            return _context2.stop();
+        }
+      }, _callee2);
+    }));
+    return function (_x8) {
+      return _ref2.apply(this, arguments);
+    };
+  }());
+}
 var submitMessagesProject = exports.submitMessagesProject = /*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(projectid) {
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(projectid) {
     var res, message;
-    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-      while (1) switch (_context2.prev = _context2.next) {
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
         case 0:
-          _context2.prev = 0;
-          _context2.next = 3;
+          _context3.prev = 0;
+          _context3.next = 3;
           return (0, _axios.default)({
             method: 'POST',
             url: "/api/v1/projects/".concat(projectid, "/messages"),
@@ -12942,51 +13100,33 @@ var submitMessagesProject = exports.submitMessagesProject = /*#__PURE__*/functio
             }
           });
         case 3:
-          res = _context2.sent;
+          res = _context3.sent;
           message = res.data;
           if (!(message.status === 'success')) {
-            _context2.next = 10;
+            _context3.next = 10;
             break;
           }
           (0, _alerts.showAlert)('success', 'Message uploaded!');
           document.querySelector('#message').value = '';
-          _context2.next = 10;
+          _context3.next = 10;
           return getMessagesProject(projectid);
         case 10:
-          _context2.next = 15;
+          _context3.next = 15;
           break;
         case 12:
-          _context2.prev = 12;
-          _context2.t0 = _context2["catch"](0);
-          (0, _alerts.showAlert)('error', _context2.t0.response.data.message);
+          _context3.prev = 12;
+          _context3.t0 = _context3["catch"](0);
+          (0, _alerts.showAlert)('error', _context3.t0.response.data.message);
         case 15:
         case "end":
-          return _context2.stop();
+          return _context3.stop();
       }
-    }, _callee2, null, [[0, 12]]);
+    }, _callee3, null, [[0, 12]]);
   }));
-  return function submitMessagesProject(_x2) {
-    return _ref2.apply(this, arguments);
+  return function submitMessagesProject(_x9) {
+    return _ref3.apply(this, arguments);
   };
 }();
-function renderPagination(totalPages) {
-  var pagination = document.querySelector('.pagination');
-  pagination.innerHTML = '';
-
-  // Previous Button
-  var prevButton = "<li class=\"page-item ".concat(currentPage === 1 ? 'disabled' : '', "\">\n    <a class=\"page-link\" aria-label=\"Previous\" onclick=\"changePage(").concat(currentPage - 1, ")\">\n      <span aria-hidden=\"true\">\xAB</span>\n    </a>\n  </li>");
-  pagination.innerHTML += prevButton;
-
-  // Page Numbers
-  for (var i = 1; i <= totalPages; i++) {
-    var pageItem = "<li class=\"page-item ".concat(i === currentPage ? 'active' : '', "\">\n      <a class=\"page-link\" onclick=\"changePage(").concat(i, ")\">").concat(i, "</a>\n    </li>");
-    pagination.innerHTML += pageItem;
-  }
-
-  // Next Button
-  var nextButton = "<li class=\"page-item ".concat(!hasNextPage ? 'disabled' : '', "\">\n    <a class=\"page-link\" aria-label=\"Next\" onclick=\"changePage(").concat(currentPage + 1, ")\">\n      <span aria-hidden=\"true\">\xBB</span>\n    </a>\n  </li>");
-  pagination.innerHTML += nextButton;
-}
 window.changePage = function (newPage) {
   var projectId = document.querySelector('#project-id').dataset.projectid;
   if (newPage < 1) return; // Prevent going to page 0 or negative
@@ -13073,13 +13213,12 @@ var getProjects = exports.getProjects = /*#__PURE__*/function () {
           });
         case 3:
           res = _context.sent;
-          console.log(res.data);
           if (!(res.data.status !== 'success')) {
-            _context.next = 7;
+            _context.next = 6;
             break;
           }
           return _context.abrupt("return");
-        case 7:
+        case 6:
           projects = res.data.data.doc;
           totalPages = res.data.totalPages;
           projectListContainer.innerHTML = '';
@@ -13089,17 +13228,17 @@ var getProjects = exports.getProjects = /*#__PURE__*/function () {
           });
           hasNextPage = projects.length === projectsPerPage;
           renderPagination(totalPages);
-          _context.next = 18;
+          _context.next = 17;
           break;
-        case 15:
-          _context.prev = 15;
+        case 14:
+          _context.prev = 14;
           _context.t0 = _context["catch"](0);
           console.error(_context.t0);
-        case 18:
+        case 17:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 15]]);
+    }, _callee, null, [[0, 14]]);
   }));
   return function getProjects() {
     return _ref.apply(this, arguments);
@@ -13383,6 +13522,8 @@ if (projectContainer) {
   (0, _message.getMessagesProject)(projectId);
 }
 if (eventContainer) {}
+
+// MESSAGES
 if (submitMessageForm) {
   var _projectId = document.querySelector('#project-id').dataset.projectid;
   submitMessageForm.addEventListener('submit', function (e) {
@@ -13436,7 +13577,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50269" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50345" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

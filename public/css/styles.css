@@ -50,4 +50,7 @@
         height: 300px;
     }
 
+    .date-message {
+        display: none;
+    }
 }

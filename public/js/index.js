@@ -60,6 +60,7 @@ if(eventContainer) {
 
 }
 
+// MESSAGES
 if(submitMessageForm) {
   const projectId = document.querySelector('#project-id').dataset.projectid;
   submitMessageForm.addEventListener('submit', (e) => {

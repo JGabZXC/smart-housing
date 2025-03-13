@@ -2,7 +2,7 @@
 
 <div>
   <div class="container" id="project-container" data-slug="<%= project.slug %>">
-  <p hidden id="project-id" data-projectid="<%= project._id %>"></p>
+  <p hidden id="project-id" data-projectid="<%= project._id %>" data-userid="<%= locals.user ? locals.user._id : ''%>"></p>
     <section style="padding: 0px;padding-top: 20px;">
       <% let month = new Date(project.date).getMonth(); %>
       <% month = monthName[month] %>

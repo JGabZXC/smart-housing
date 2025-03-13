@@ -15,8 +15,6 @@ export const getProjects = async () => {
       url: `/api/v1/projects?&page=${currentPage}&limit=${projectsPerPage}&sort=-date`,
     });
 
-    console.log(res.data);
-
     if(res.data.status !== 'success') return;
 
     const projects = res.data.data.doc;
