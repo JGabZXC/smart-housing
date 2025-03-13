@@ -4,6 +4,7 @@ const multer = require('multer');
 const s3 = require('../utils/s3Bucket');
 const handler = require('./handlerController');
 const Project = require('../models/projectModel');
+const Message = require('../models/messageModel');
 const catchAsync = require('../utils/catchAsync');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
@@ -146,4 +147,14 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
 exports.getProject = handler.getOne(Project);
 exports.createProject = handler.createOne(Project);
 exports.updateProject = handler.updateOne(Project);
-exports.deleteProject = handler.deleteOne(Project);
+exports.deleteProject = catchAsync(async (req, res, next) => {
+  const projectId = req.params.id;
+
+  await Project.findByIdAndDelete(projectId);
+  await Message.deleteMany({ event: projectId });
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});

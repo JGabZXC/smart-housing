@@ -21,22 +21,21 @@ exports.getIndex = catchAsync(async (req, res, next) => {
 
 exports.getAllProject = catchAsync(async (req, res, next) => {
   const featuredProject = await Project.findOne({ isFeatured: true });
-  let featuredProjectWithUrl;
 
-  if (featuredProject.imageCover) {
+  if (featuredProject?.imageCover) {
     const getObjectParams = {
       Bucket: process.env.S3_NAME,
       Key: featuredProject.imageCover,
     };
     const command = new GetObjectCommand(getObjectParams);
-    const imageCoverUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
-
-    featuredProjectWithUrl = { ...featuredProject.toObject(), imageCoverUrl };
+    featuredProject.imageCoverUrl = await getSignedUrl(s3, command, {
+      expiresIn: 3600,
+    });
   }
 
   res.status(200).render('projects', {
     title: 'Projects',
-    featuredProject: featuredProjectWithUrl,
+    featuredProject,
   });
 });
 
@@ -51,26 +50,21 @@ exports.getProject = catchAsync(async (req, res, next) => {
 
 exports.getAllEvent = catchAsync(async (req, res, next) => {
   const featuredEvent = await Event.findOne({ isFeatured: true });
-  let featuredEventWithUrl;
 
-  if (featuredEvent) {
-    featuredEventWithUrl = { ...featuredEvent.toObject() };
-    if (featuredEvent.imageCover) {
-      const objectParams = {
-        Bucket: process.env.S3_NAME,
-        Key: featuredEvent.imageCover,
-      };
-      const command = GetObjectCommand(objectParams);
-      const imageCoverUrl = await getSignedUrl(s3, command, {
-        expiresIn: 3600,
-      });
-      featuredEventWithUrl.imageCoverUrl = imageCoverUrl;
-    }
+  if (featuredEvent?.imageCover) {
+    const objectParams = {
+      Bucket: process.env.S3_NAME,
+      Key: featuredEvent.imageCover,
+    };
+    const command = GetObjectCommand(objectParams);
+    featuredEvent.imageCoverUrl = await getSignedUrl(s3, command, {
+      expiresIn: 3600,
+    });
   }
 
   res.status(200).render('events', {
     title: 'Events',
-    featuredEvent: featuredEventWithUrl || null,
+    featuredEvent,
   });
 });
 
