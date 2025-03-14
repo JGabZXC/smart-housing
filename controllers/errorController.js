@@ -31,7 +31,7 @@ const sendErrorDev = (err, req, res) => {
     });
   }
 
-  console.log(err);
+  // console.log(err);
 
   // Rendered Website
   return res.status(err.statusCode).render('error', {

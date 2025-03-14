@@ -27,8 +27,8 @@ export const getImages = async (type, slug) => {
     });
 
     if(res.data.message) {
-      const carouselInner = document.querySelector('.carousel-inner');
-      carouselInner.innerHTML = '';
+      const carousel = document.querySelector('#carousel-1');
+      carousel.innerHTML = '';
       featuredPhoto.remove();
       return;
     };

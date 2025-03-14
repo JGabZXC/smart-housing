@@ -18,4 +18,11 @@ router
   .patch(messageController.updateMessage)
   .delete(messageController.deleteMessage);
 
+router
+  .route('/admin/:id')
+  .delete(
+    authController.protectTo('admin'),
+    messageController.deleteMessageAdmin,
+  );
+
 module.exports = router;

@@ -4,10 +4,12 @@
   <div class="container" id="project-container" data-slug="<%= project.slug %>">
   <p hidden id="project-id" data-projectid="<%= project._id %>" data-userid="<%= locals.user ? locals.user._id : ''%>"></p>
     <section style="padding: 0px;padding-top: 20px;">
-      <% let month = new Date(project.date).getMonth(); %>
-      <% month = monthName[month] %>
-      <% const year = new Date(project.date).getFullYear(); %>
-      <h1><%= project.name %> [<%= `${month} ${year}` %>]</h1><img class="object-fit-cover featured-photo cover-photo-s-proj" width="100%" height="600" />
+      <% let month = project.date && new Date(project.date).getMonth();
+          month = monthName[month];
+      %>
+      <% const year = project.date && new Date(project.date).getFullYear(); %>
+      <% const finalDate = `${month} ${year}` %>
+      <h1><%= project.name %><%= year ? ` [${finalDate}]` : null %></h1><img class="object-fit-cover featured-photo cover-photo-s-proj" width="100%" height="600" />
     </section>
     <section style="padding: 20px 0;padding-top: 40px;">
       <p><span style="color: rgb(0, 0, 0);"><%= project.richDescription %></span></p>
@@ -15,9 +17,9 @@
     </section>
     <div id="carousel-1" class="carousel slide" data-bs-ride="false">
       <div class="carousel-inner">
-        <div class="carousel-item active"><img class="object-fit-cover w-100 d-block" alt="Slide Image" src="photo-1740031904427-ca6713523372.jpg" width=" 100%" height="600" /></div>
-        <div class="carousel-item"><img class="w-100 d-block" src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png" alt="Slide Image" /></div>
-        <div class="carousel-item"><img class="w-100 d-block" src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png" alt="Slide Image" /></div>
+        <div class="carousel-item active"><img class="object-fit-cover w-100 d-block" alt="Slide Image" width=" 100%" height="600" /></div>
+        <div class="carousel-item"><img class="w-100 d-block" alt="Slide Image" /></div>
+        <div class="carousel-item"><img class="w-100 d-block" alt="Slide Image" /></div>
       </div>
       <div><a class="carousel-control-prev" href="#carousel-1" role="button" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span><span class="visually-hidden">Previous</span></a><a class="carousel-control-next" href="#carousel-1" role="button" data-bs-slide="next"><span class="carousel-control-next-icon"></span><span class="visually-hidden">Next</span></a></div>
       <div class="carousel-indicators"><button class="active" type="button" data-bs-target="#carousel-1" data-bs-slide-to="0"></button><button type="button" data-bs-target="#carousel-1" data-bs-slide-to="1"></button><button type="button" data-bs-target="#carousel-1" data-bs-slide-to="2"></button></div>

@@ -24,4 +24,12 @@ router.route('/project/:slug').get(viewController.getProject);
 router.route('/event').get(viewController.getAllEvent);
 // router.route('/event/:slug').get(viewController.getEvent);
 
+router
+  .route('/admin')
+  .get(
+    authController.protect,
+    authController.protectTo('admin'),
+    viewController.getAdminDashboard,
+  );
+
 module.exports = router;

@@ -86,3 +86,5 @@ exports.getMessage = handlerFactory.getOne(Message);
 exports.createMessage = handlerFactory.createOne(Message);
 exports.updateMessage = handleMessageUpdate(Message);
 exports.deleteMessage = handleMessageDelete(Message);
+
+exports.deleteMessageAdmin = handlerFactory.deleteOne(Message);

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { showAlert } from './alerts';
 
 let currentPage = 1;
-const messagesPerPage = 10;
+const messagesPerPage = 5;
 let hasNextPage = false;
 
 let userID;
@@ -18,28 +18,69 @@ function renderPagination(totalPages) {
   pagination.innerHTML = '';
 
   // Previous Button
-  const prevButton = `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-    <a class="page-link" aria-label="Previous" onclick="changePage(${currentPage - 1})">
+  const prevButton = document.createElement('li');
+  prevButton.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+  prevButton.innerHTML = `
+    <a class="page-link" aria-label="Previous">
       <span aria-hidden="true">«</span>
     </a>
-  </li>`;
-  pagination.innerHTML += prevButton;
+  `;
+  if (currentPage > 1) {
+    prevButton.addEventListener('click', () => changePage(currentPage - 1));
+  }
+  pagination.appendChild(prevButton);
 
   // Page Numbers
-  for (let i = 1; i <= totalPages; i++) {
-    const pageItem = `<li class="page-item ${i === currentPage ? 'active' : ''}">
-      <a class="page-link" onclick="changePage(${i})">${i}</a>
-    </li>`;
-    pagination.innerHTML += pageItem;
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) {
+      const pageItem = document.createElement('li');
+      pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+      pageItem.innerHTML = `<a class="page-link" onclick="changePage(${i})">${i}</a>`;
+      pagination.appendChild(pageItem);
+    }
+  } else {
+    const createPageItem = (i) => {
+      const pageItem = document.createElement('li');
+      pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+      pageItem.innerHTML = `<a class="page-link" onclick="changePage(${i})">${i}</a>`;
+      pagination.appendChild(pageItem);
+    };
+
+    createPageItem(1);
+
+    if (currentPage > 3) {
+      const ellipsisItem = document.createElement('li');
+      ellipsisItem.className = 'page-item disabled';
+      ellipsisItem.innerHTML = `<a class="page-link">...</a>`;
+      pagination.appendChild(ellipsisItem);
+    }
+
+    for (let i = Math.max(2, currentPage - 2); i <= Math.min(totalPages - 1, currentPage + 2); i++) {
+      createPageItem(i);
+    }
+
+    if (currentPage < totalPages - 3) {
+      const ellipsisItem = document.createElement('li');
+      ellipsisItem.className = 'page-item disabled';
+      ellipsisItem.innerHTML = `<a class="page-link">...</a>`;
+      pagination.appendChild(ellipsisItem);
+    }
+
+    createPageItem(totalPages);
   }
 
   // Next Button
-  const nextButton = `<li class="page-item ${!hasNextPage ? 'disabled' : ''}">
-    <a class="page-link" aria-label="Next" onclick="changePage(${currentPage + 1})">
+  const nextButton = document.createElement('li');
+  nextButton.className = `page-item ${!hasNextPage ? 'disabled' : ''}`;
+  nextButton.innerHTML = `
+    <a class="page-link" aria-label="Next" >
       <span aria-hidden="true">»</span>
     </a>
-  </li>`;
-  pagination.innerHTML += nextButton;
+  `;
+  if (hasNextPage) {
+    nextButton.addEventListener('click', () => changePage(currentPage + 1));
+  }
+  pagination.appendChild(nextButton);
 }
 
 async function handleMessageUpdate(target, message, prevValue, messageID) {

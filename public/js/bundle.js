@@ -12786,7 +12786,7 @@ var getFeatured = exports.getFeatured = /*#__PURE__*/function () {
 }();
 var getImages = exports.getImages = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(type, slug) {
-    var res, _carouselInner, projectImages, carouselInner, carouselIndicators;
+    var res, carousel, projectImages, carouselInner, carouselIndicators;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -12802,8 +12802,8 @@ var getImages = exports.getImages = /*#__PURE__*/function () {
             _context2.next = 9;
             break;
           }
-          _carouselInner = document.querySelector('.carousel-inner');
-          _carouselInner.innerHTML = '';
+          carousel = document.querySelector('#carousel-1');
+          carousel.innerHTML = '';
           featuredPhoto.remove();
           return _context2.abrupt("return");
         case 9:
@@ -12864,7 +12864,7 @@ function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyri
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } /* eslint-disable */
 var currentPage = 1;
-var messagesPerPage = 10;
+var messagesPerPage = 5;
 var hasNextPage = false;
 var userID;
 if (document.querySelector('#project-id')) {
@@ -12876,18 +12876,60 @@ function renderPagination(totalPages) {
   pagination.innerHTML = '';
 
   // Previous Button
-  var prevButton = "<li class=\"page-item ".concat(currentPage === 1 ? 'disabled' : '', "\">\n    <a class=\"page-link\" aria-label=\"Previous\" onclick=\"changePage(").concat(currentPage - 1, ")\">\n      <span aria-hidden=\"true\">\xAB</span>\n    </a>\n  </li>");
-  pagination.innerHTML += prevButton;
+  var prevButton = document.createElement('li');
+  prevButton.className = "page-item ".concat(currentPage === 1 ? 'disabled' : '');
+  prevButton.innerHTML = "\n    <a class=\"page-link\" aria-label=\"Previous\">\n      <span aria-hidden=\"true\">\xAB</span>\n    </a>\n  ";
+  if (currentPage > 1) {
+    prevButton.addEventListener('click', function () {
+      return changePage(currentPage - 1);
+    });
+  }
+  pagination.appendChild(prevButton);
 
   // Page Numbers
-  for (var i = 1; i <= totalPages; i++) {
-    var pageItem = "<li class=\"page-item ".concat(i === currentPage ? 'active' : '', "\">\n      <a class=\"page-link\" onclick=\"changePage(").concat(i, ")\">").concat(i, "</a>\n    </li>");
-    pagination.innerHTML += pageItem;
+  if (totalPages <= 7) {
+    for (var i = 1; i <= totalPages; i++) {
+      var pageItem = document.createElement('li');
+      pageItem.className = "page-item ".concat(i === currentPage ? 'active' : '');
+      pageItem.innerHTML = "<a class=\"page-link\" onclick=\"changePage(".concat(i, ")\">").concat(i, "</a>");
+      pagination.appendChild(pageItem);
+    }
+  } else {
+    var createPageItem = function createPageItem(i) {
+      var pageItem = document.createElement('li');
+      pageItem.className = "page-item ".concat(i === currentPage ? 'active' : '');
+      pageItem.innerHTML = "<a class=\"page-link\" onclick=\"changePage(".concat(i, ")\">").concat(i, "</a>");
+      pagination.appendChild(pageItem);
+    };
+    createPageItem(1);
+    if (currentPage > 3) {
+      var ellipsisItem = document.createElement('li');
+      ellipsisItem.className = 'page-item disabled';
+      ellipsisItem.innerHTML = "<a class=\"page-link\">...</a>";
+      pagination.appendChild(ellipsisItem);
+    }
+    for (var _i = Math.max(2, currentPage - 2); _i <= Math.min(totalPages - 1, currentPage + 2); _i++) {
+      createPageItem(_i);
+    }
+    if (currentPage < totalPages - 3) {
+      var _ellipsisItem = document.createElement('li');
+      _ellipsisItem.className = 'page-item disabled';
+      _ellipsisItem.innerHTML = "<a class=\"page-link\">...</a>";
+      pagination.appendChild(_ellipsisItem);
+    }
+    createPageItem(totalPages);
   }
 
   // Next Button
-  var nextButton = "<li class=\"page-item ".concat(!hasNextPage ? 'disabled' : '', "\">\n    <a class=\"page-link\" aria-label=\"Next\" onclick=\"changePage(").concat(currentPage + 1, ")\">\n      <span aria-hidden=\"true\">\xBB</span>\n    </a>\n  </li>");
-  pagination.innerHTML += nextButton;
+  var nextButton = document.createElement('li');
+  nextButton.className = "page-item ".concat(!hasNextPage ? 'disabled' : '');
+  nextButton.innerHTML = "\n    <a class=\"page-link\" aria-label=\"Next\" >\n      <span aria-hidden=\"true\">\xBB</span>\n    </a>\n  ";
+  if (hasNextPage) {
+    nextButton.addEventListener('click', function () {
+      return changePage(currentPage + 1);
+    });
+  }
+  pagination.appendChild(nextButton);
 }
 function handleMessageUpdate(_x, _x2, _x3, _x4) {
   return _handleMessageUpdate.apply(this, arguments);
@@ -13632,7 +13674,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50345" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63740" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

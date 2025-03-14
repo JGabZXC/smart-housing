@@ -84,3 +84,11 @@ exports.getLogin = catchAsync(async (req, res, next) => {
     title: 'Login',
   });
 });
+
+// ADMIN
+
+exports.getAdminDashboard = catchAsync(async (req, res, next) => {
+  res.status(200).render('dashboard', {
+    title: 'Dashboard',
+  });
+});
