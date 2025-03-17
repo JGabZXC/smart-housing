@@ -10,7 +10,7 @@ const projectSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'A project must have a name'],
-    trime: true,
+    trim: true,
     minLength: 5,
     maxLength: 30,
     unique: true,

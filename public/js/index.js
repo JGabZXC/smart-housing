@@ -12,6 +12,7 @@ import { payWithStripe } from './payment';
 import { showAlert } from './alerts';
 import { getProjects } from './projects';
 import { getEvents } from './events';
+import { getHouses } from './house';
 
 const email = document.querySelector('#email');
 const password = document.querySelector('#password');
@@ -20,8 +21,9 @@ const hero = document.querySelector('.hero-index');
 const projectContainer = document.querySelector('#project-container');
 const projectListContainer = document.querySelector('#project-list-container');
 
-const eventContainer = document.querySelector('#event-container');
+// const eventContainer = document.querySelector('#event-container');
 const eventListContainer = document.querySelector('#event-list-container');
+const addressContainer = document.querySelector('#address-container');
 
 const loginForm = document.querySelector('#login-form');
 const submitMessageForm = document.querySelector('#form-message');
@@ -49,6 +51,7 @@ if (hero) {
   getFeatured('project');
 }
 
+// PROJECTS
 if (projectContainer) {
   const slug = projectContainer.dataset.slug;
   const projectId = document.querySelector('#project-id').dataset.projectid;
@@ -56,45 +59,68 @@ if (projectContainer) {
   getMessagesProject(projectId);
 }
 
-if(eventContainer) {
-
+if (projectListContainer) {
+  getProjects();
 }
 
 // MESSAGES
-if(submitMessageForm) {
+if (submitMessageForm) {
   const projectId = document.querySelector('#project-id').dataset.projectid;
-  submitMessageForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+  submitMessageForm.addEventListener(
+    'submit',
+    (e) => {
+      e.preventDefault();
 
-    submitMessagesProject(projectId)
-  }, false);
+      submitMessagesProject(projectId);
+    },
+    false,
+  );
 }
 
-if(paymentForm) {
+if (paymentForm) {
   paymentForm.addEventListener('submit', (e) => {
     e.preventDefault();
     let fromDateValue = new Date(document.querySelector('#from-date').value);
     let toDateValue = new Date(document.querySelector('#to-date').value);
 
-    if(isNaN(fromDateValue) || isNaN(toDateValue)) return showAlert('error', 'Please select a valid date', 10);
+    if (isNaN(fromDateValue) || isNaN(toDateValue))
+      return showAlert('error', 'Please select a valid date', 10);
 
-    if(toDateValue < fromDateValue) return showAlert('error', 'The "From" date must be earlier than the "To" date', 10);
+    if (toDateValue < fromDateValue)
+      return showAlert(
+        'error',
+        'The "From" date must be earlier than the "To" date',
+        10,
+      );
 
-    const amount = ((toDateValue.getFullYear() - fromDateValue.getFullYear()) * 12 + (toDateValue.getMonth() - fromDateValue.getMonth())) * 1000;
-    fromDateValue = (fromDateValue.getMonth() + 1).toString().padStart(2, '0') + fromDateValue.getFullYear();
-    toDateValue = (toDateValue.getMonth() + 1).toString().padStart(2, '0') + toDateValue.getFullYear();
+    const amount =
+      ((toDateValue.getFullYear() - fromDateValue.getFullYear()) * 12 +
+        (toDateValue.getMonth() - fromDateValue.getMonth())) *
+      1000;
+    fromDateValue =
+      (fromDateValue.getMonth() + 1).toString().padStart(2, '0') +
+      fromDateValue.getFullYear();
+    toDateValue =
+      (toDateValue.getMonth() + 1).toString().padStart(2, '0') +
+      toDateValue.getFullYear();
 
-    if(fromDateValue === toDateValue) return showAlert('error', 'The "From" date and "To" date must not be the same', 10);
+    if (fromDateValue === toDateValue)
+      return showAlert(
+        'error',
+        'The "From" date and "To" date must not be the same',
+        10,
+      );
 
     const dateRange = `${fromDateValue}-${toDateValue}`;
     payWithStripe(amount, dateRange);
   });
 }
 
-if(projectListContainer) {
-  getProjects();
+if (eventListContainer) {
+  getEvents();
 }
 
-if(eventListContainer) {
-  getEvents();
+// HOUSES | ADMIN
+if (addressContainer) {
+  getHouses();
 }

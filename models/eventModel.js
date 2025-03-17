@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const AppError = require('../utils/appError');
+const slugify = require('slugify');
 
 const eventSchema = new mongoose.Schema({
   name: {
@@ -38,6 +39,7 @@ const eventSchema = new mongoose.Schema({
       ref: 'User',
     },
   ],
+  slug: String,
 });
 
 eventSchema.pre(/^find/, function (next) {
@@ -55,6 +57,8 @@ eventSchema.pre('save', async function (next) {
     if (checkExistingFeatured.length >= 1)
       return next(new AppError('There is already a featured event', 400));
   }
+
+  this.slug = slugify(this.name, { lower: true });
 
   next();
 });

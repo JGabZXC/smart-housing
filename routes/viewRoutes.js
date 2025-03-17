@@ -32,4 +32,12 @@ router
     viewController.getAdminDashboard,
   );
 
+router
+  .route('/address')
+  .get(
+    authController.protect,
+    authController.protectTo('admin'),
+    viewController.getAddress,
+  );
+
 module.exports = router;

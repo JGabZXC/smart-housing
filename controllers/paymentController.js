@@ -6,8 +6,6 @@ const catchAsync = require('../utils/catchAsync');
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { amount, dateRange } = req.query;
 
-  console.log(dateRange);
-
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     customer_email: req.user.email,

@@ -92,3 +92,9 @@ exports.getAdminDashboard = catchAsync(async (req, res, next) => {
     title: 'Dashboard',
   });
 });
+
+exports.getAddress = catchAsync(async (req, res, next) => {
+  res.status(200).render('address', {
+    title: 'Address',
+  });
+});

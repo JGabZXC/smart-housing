@@ -7,6 +7,7 @@ const AppError = require('../utils/appError');
 const handlerFactory = require('./handlerController');
 const catchAsync = require('../utils/catchAsync');
 const validateHouse = require('../utils/validateHouse');
+const House = require('../models/houseModel');
 
 const cookieOptions = {
   expires: new Date(
@@ -41,11 +42,9 @@ const sendToken = (user, statusCode, res) => {
 exports.getAllUsers = handlerFactory.getAll(User);
 exports.getUser = handlerFactory.getOne(User, 'address');
 exports.updateUser = catchAsync(async (req, res, next) => {
-  const { email } = req.body;
   const updatedFields = {};
-  if (!email) return next(new AppError('Please provide email', 400));
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ _id: req.params.id });
   if (!user) return next(new AppError('User not found', 404));
 
   if (req.body.password && req.body.confirmPassword) {
@@ -59,9 +58,27 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   updatedFields.name = req.body.name || user.name;
   updatedFields.contactNumber = req.body.contactNumber || user.contactNumber;
   updatedFields.email = req.body.email || user.email;
-  updatedFields.address = req.body.address || user.address;
+  updatedFields.role = req.body.role || user.role;
 
-  await validateHouse(req.body.address);
+  if (req.body.address) {
+    const newAddress = await validateHouse(req.body.address);
+
+    updatedFields.address = newAddress._id;
+    await House.findOneAndUpdate(
+      { _id: newAddress._id },
+      { status: 'occupied' },
+      { new: true, runValidators: true },
+    );
+
+    if (user.address !== newAddress._id) {
+      const prevAddress = await House.findOne({ _id: user.address });
+      await House.findOneAndUpdate(
+        { _id: prevAddress._id },
+        { status: 'unoccupied' },
+        { new: true, runValidators: true },
+      );
+    }
+  }
   await User.updateOne({ _id: user._id }, updatedFields);
 
   res.status(200).json({

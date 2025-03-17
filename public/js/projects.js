@@ -7,7 +7,7 @@ const projectListContainer = document.querySelector('#project-list-container');
 let currentPage = 1;
 const projectsPerPage = 10;
 
-function renderProject (project, container) {
+function renderProject(project, container) {
   const markup = `
     <div class="col">
       <div class="card">
@@ -24,12 +24,18 @@ function renderProject (project, container) {
 }
 
 export const getProjects = async () => {
-  await fetchData(`/api/v1/projects`, projectListContainer, renderProject, currentPage, projectsPerPage, changeProjectPage);
-}
+  await fetchData(
+    `/api/v1/projects`,
+    projectListContainer,
+    renderProject,
+    currentPage,
+    projectsPerPage,
+    changeProjectPage,
+  );
+};
 
-
-window.changeProjectPage =  async function(newPage) {
-  if(newPage < 1) return;
+window.changeProjectPage = async function (newPage) {
+  if (newPage < 1) return;
   currentPage = newPage;
   await getProjects();
-}
+};

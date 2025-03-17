@@ -1,35 +1,37 @@
 <div class="container">
-  <% if(title === 'Dashboard') { %>
-    <nav class="navbar navbar-expand-md bg-body">
-      <div class="container-fluid"><a class="navbar-brand" href="/"><strong>Holiday Homes Village</strong></a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-        <div id="navcol-1" class="collapse navbar-collapse">
-          <ul class="navbar-nav ms-auto">
-              <li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>
-              <li class="nav-item"><a class="nav-link" href="/me">Me</a></li>
-              <li class="nav-item"><a class="nav-link" id="logout">Log out</a></li>
-          </ul>
-        </div>
+  <% if(locals.user?.role === 'admin') { %>
+  <nav class="navbar navbar-expand-md bg-body">
+    <div class="container-fluid"><a class="navbar-brand" href="/"><strong>Holiday Homes Village</strong></a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+      <div id="navcol-1" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/address">Address</a></li>
+          <li class="nav-item"><a class="nav-link" href="/payment">Payment</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>
+          <li class="nav-item"><a class="nav-link" href="/me">Me</a></li>
+          <li class="nav-item"><a class="nav-link" id="logout">Log out</a></li>
+        </ul>
       </div>
-    </nav>
+    </div>
+  </nav>
   <% } else { %>
-    <nav class="navbar navbar-expand-md bg-body">
-      <div class="container-fluid"><a class="navbar-brand" href="/"><strong>Holiday Homes Village</strong></a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-        <div id="navcol-1" class="collapse navbar-collapse">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link" href="/project">Project</a></li>
-            <li class="nav-item"><a class="nav-link" href="/event">Event</a></li>
-            <% if(locals.user) { %>
-              <% if(user.role === 'admin') { %>
-                <li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>
-              <% } %>
-              <li class="nav-item"><a class="nav-link" href="/me">Me</a></li>
-              <li class="nav-item"><a class="nav-link" id="logout">Log out</a></li>
-            <% } else { %>
-              <li class="nav-item"><a class="nav-link" id="login" href="/login">Log in</a></li>
-            <% }%>
-          </ul>
-        </div>
+  <nav class="navbar navbar-expand-md bg-body">
+    <div class="container-fluid"><a class="navbar-brand" href="/"><strong>Holiday Homes Village</strong></a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+      <div id="navcol-1" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/project">Project</a></li>
+          <li class="nav-item"><a class="nav-link" href="/event">Event</a></li>
+          <% if(locals.user) { %>
+          <% if(user.role === 'admin') { %>
+          <li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>
+          <% } %>
+          <li class="nav-item"><a class="nav-link" href="/me">Me</a></li>
+          <li class="nav-item"><a class="nav-link" id="logout">Log out</a></li>
+          <% } else { %>
+          <li class="nav-item"><a class="nav-link" id="login" href="/login">Log in</a></li>
+          <% }%>
+        </ul>
       </div>
-    </nav>
+    </div>
+  </nav>
   <% } %>
 </div>

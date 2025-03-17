@@ -44,18 +44,6 @@ const userSchema = new mongoose.Schema(
       ref: 'House',
       required: [true, 'Address is required'],
     },
-    payment: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Payment',
-      },
-    ],
-    eventAttended: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Event',
-      },
-    ],
     validTokenDate: {
       type: Date,
       default: new Date(),
@@ -90,7 +78,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.post('save', async function (next) {
+userSchema.post('save', async function () {
   const house = await House.findOne(this.address);
 
   await House.updateOne({ _id: house._id }, { status: 'occupied' }); // Update house status to occupied
