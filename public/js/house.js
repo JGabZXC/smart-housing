@@ -1,28 +1,38 @@
 /* eslint-disable */
 import axios from 'axios';
 import { showAlert } from './alerts';
+import { renderPagination } from './_eventAndProjHelper';
 
 const tableBody = document.querySelector('.table-body');
 const addressContainer = document.querySelector('#address-container');
 const actionBar = document.querySelector('#action-bar');
 const modalElement = document.getElementById('staticBackdrop');
-const bootstrapModal = new bootstrap.Modal(modalElement);
-
 const deleteElement = document.getElementById('delete');
-const bootstrapDeleteModal = new bootstrap.Modal(deleteElement);
 
 let house;
-let queryString = '';
+let currentPage = 1;
+let queryString = '?page=1&sort=block';
+let hasNextPage = false;
+let housesPerPage;
 
-export const getHouses = async (queryString = '') => {
+let bootstrapModal;
+let bootstrapDeleteModal;
+if(modalElement) {
+bootstrapModal = new bootstrap.Modal(modalElement);
+bootstrapDeleteModal = new bootstrap.Modal(deleteElement);
+}
+
+export const getHouses = async () => {
   try {
+
     const res = await axios({
       method: 'GET',
       url: `/api/v1/housings${queryString}`,
     });
 
-    const houses = res.data.data.doc;
-    house = res.data.data.doc;
+    const houses = res.data.houses;
+    const totalPages = res.data.totalPages;
+    house = houses;
 
     if (houses.length < 0) {
       addressContainer.innerHTML = '<h2>No houses found</h2>';
@@ -48,6 +58,10 @@ export const getHouses = async (queryString = '') => {
       `;
       tableBody.appendChild(row);
     });
+
+    hasNextPage = houses.length === housesPerPage;
+
+    renderPagination(totalPages, currentPage, hasNextPage, changeAddress);
   } catch (err) {
     console.error(err);
   }
@@ -55,7 +69,7 @@ export const getHouses = async (queryString = '') => {
 
 if(tableBody) {
   tableBody.addEventListener('click', (e) => {
-    let target = e.target
+    let target = e.target;
 
     if (target.tagName.toLowerCase() === 'i') target = target.parentElement;
 
@@ -84,6 +98,7 @@ if(tableBody) {
               block: document.getElementById('block').value,
               lot: document.getElementById('lot').value,
               street: document.getElementById('street').value,
+              status: document.getElementById('status').value,
             },
           })
 
@@ -91,6 +106,7 @@ if(tableBody) {
 
           showAlert('success', 'House updated successfully')
           await getHouses(queryString);
+          console.log(bootstrapModal);
           bootstrapModal.hide();
         } catch(err) {
           showAlert('error', err.response.data.message);
@@ -98,7 +114,6 @@ if(tableBody) {
         }
       })
     }
-
 
     if(target.id === 'delete-btn') {
       const deleteBtn = document.querySelector('#delete-btn');
@@ -127,16 +142,60 @@ if(tableBody) {
         }
       })
     }
-
-
   });
 }
 
 if(actionBar) {
+  const searchInput = actionBar.querySelector('input[type="search"]');
+  const searchButton = actionBar.querySelector('button.btn-primary');
+
+  searchButton.addEventListener('click', async () => {
+    const searchValue = searchInput.value.trim();
+
+    // Reset to page 1 when searching
+    currentPage = 1;
+
+    // Update query string with search parameter
+    queryString = `?page=${currentPage}`;
+
+    // Add search parameter if there's a search value
+    if (searchValue) {
+      queryString += `&search=${encodeURIComponent(searchValue)}`;
+    }
+
+    // Keep existing sort and limit parameters if they exist
+    if (queryString.includes('sort=')) {
+      // Extract sort parameter from existing query string
+      const sortMatch = queryString.match(/sort=([^&]*)/);
+      if (sortMatch) queryString += `&sort=${sortMatch[1]}`;
+    } else {
+      // Apply default sort
+      queryString += '&sort=block';
+    }
+
+    if (queryString.includes('limit=')) {
+      // Extract limit parameter from existing query string
+      const limitMatch = queryString.match(/limit=([^&]*)/);
+      if (limitMatch) queryString += `&limit=${limitMatch[1]}`;
+    }
+
+    await getHouses();
+  });
+
+  // Allow search on Enter key press
+  searchInput.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      searchButton.click();
+    }
+  });
+
   actionBar.addEventListener('change', async (e) => {
     let target = e.target;
 
     if(target.tagName.toLowerCase() !== 'select') return;
+
+    currentPage = 1;
 
     // Initialize query parameters
     let sortParam = '';
@@ -153,21 +212,57 @@ if(actionBar) {
         sortParam = selected.value; // Get the sort field (e.g., "street" or "status")
       } else if (group === 'show') {
         limitParam = selected.value; // Get the limit value (e.g., "10", "20", "50")
+        housesPerPage = selected.value;
       } else if (group === 'order') {
         orderParam = selected.value; // Get the order value (e.g., "" for ascending, "-" for descending)
       }
     });
 
+
     // Build the query string
+    queryString = `?page=${currentPage}`;
+
     if (sortParam) {
-      queryString = `?sort=${orderParam}${sortParam}&`; // Add sort parameter with order prefix
+      queryString += `&sort=${orderParam}${sortParam}`;
     }
     if (limitParam) {
-      queryString += `limit=${limitParam}&`; // Add limit parameter
+      queryString += `&limit=${limitParam}`;
     }
 
-    // Remove the trailing '&' or '?' if no parameters are added
-    queryString = queryString.replace(/[&?]$/, '');
-    await getHouses(queryString)
+    await getHouses();
+
+    // // Build the query string
+    // if (sortParam) {
+    //   queryString = `?page=${currentPage}&sort=${orderParam}${sortParam}&`; // Add sort parameter with order prefix
+    // }
+    // if (limitParam) {
+    //   queryString += `limit=${limitParam}&`; // Add limit parameter
+    // }
+    //
+    // // Remove the trailing '&' or '?' if no parameters are added
+    // queryString = queryString.replace(/[&?]$/, '');
+    // await getHouses(queryString)
   })
 }
+
+window.changeAddress = async function (newPage) {
+  if (newPage < 1) return;
+  currentPage = newPage;
+
+  // Update page parameter in existing query string
+  if (queryString.includes('?')) {
+    // If query string already has parameters
+    if (queryString.includes('page=')) {
+      // Replace existing page parameter
+      queryString = queryString.replace(/page=\d+/, `page=${newPage}`);
+    } else {
+      // Add page parameter
+      queryString += `&page=${newPage}`;
+    }
+  } else {
+    // If no query string parameters yet
+    queryString = `?page=${newPage}`;
+  }
+
+  await getHouses();
+};

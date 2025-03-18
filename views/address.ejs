@@ -22,7 +22,7 @@
           <div class="mb-3">
             <label for="status" class="form-label m-0">Status</label>
             <p><small class="text-danger">double check before changing the status</small></p>
-            <input type="text" class="form-control bg-warning text-white" id="status" name="status">
+            <input type="text" class="form-control border border-warning text-warning" id="status" name="status">
           </div>
         </form>
       </div>
@@ -43,7 +43,7 @@
       </div>
       <div class="modal-body">
         <p>Are you sure you want to delete this address?</p>
-        <p id="complete-address">Cmplete address</p>
+        <p id="complete-address">Complete address</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -56,7 +56,12 @@
   <div class="container" style="border-style: solid;padding: 12px;">
     <h3>All Address</h3>
     <div id="action-bar" class="d-flex flex-column justify-content-between align-items-center flex-sm-column flex-md-column flex-lg-row flex-xl-row flex-xxl-row">
-      <div class="d-flex my-2 gap-2"><input type="search" /><button class="btn btn-primary" type="button">Search Street</button></div>
+      <div class="d-flex my-2 gap-2">
+        <input type="search" class="form-control" placeholder="Search block, lot, street, status..." />
+        <button class="btn btn-primary" type="button">
+          <i class="bi bi-search"></i> Search
+        </button>
+      </div>
       <div class="d-flex align-items-center gap-2">
         <div>
           <label class="form-label">Sort by:
