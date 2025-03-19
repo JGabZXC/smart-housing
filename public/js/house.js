@@ -3,23 +3,32 @@ import axios from 'axios';
 import { showAlert } from './alerts';
 import { renderPagination } from './_eventAndProjHelper';
 
+/*
+
+  TODO: Refactor code duplicate code later
+
+*/
+
 const tableBody = document.querySelector('.table-body');
 const addressContainer = document.querySelector('#address-container');
 const actionBar = document.querySelector('#action-bar');
 const modalElement = document.getElementById('staticBackdrop');
 const deleteElement = document.getElementById('delete');
+const createElement = document.getElementById('create');
 
 let house;
 let currentPage = 1;
-let queryString = '?page=1&sort=block';
+let queryString = '?page=1&sort=phase';
 let hasNextPage = false;
 let housesPerPage;
 
 let bootstrapModal;
 let bootstrapDeleteModal;
+let bootstrapCreateModal;
 if(modalElement) {
 bootstrapModal = new bootstrap.Modal(modalElement);
 bootstrapDeleteModal = new bootstrap.Modal(deleteElement);
+bootstrapCreateModal = new bootstrap.Modal(createElement);
 }
 
 export const getHouses = async () => {
@@ -43,6 +52,7 @@ export const getHouses = async () => {
     houses.forEach((house) => {
       const row = document.createElement('tr');
       row.innerHTML = `
+           <td>Phase ${house.phase}</td>
            <td>Block ${house.block}</td>
            <td>Lot ${house.lot}</td>
         <td>${house.street}</td>
@@ -90,6 +100,9 @@ if(tableBody) {
       saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
 
       newSaveBtn.addEventListener('click', async() => {
+        newSaveBtn.disabled = true;
+        newSaveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+
         try {
           const res = await axios({
             method: 'PATCH',
@@ -106,8 +119,9 @@ if(tableBody) {
 
           showAlert('success', 'House updated successfully')
           await getHouses(queryString);
-          console.log(bootstrapModal);
           bootstrapModal.hide();
+          newSaveBtn.disabled = false;
+          newSaveBtn.innerHTML = 'Save changes';
         } catch(err) {
           showAlert('error', err.response.data.message);
           console.error(err);
@@ -124,6 +138,9 @@ if(tableBody) {
       document.querySelector('#complete-address').textContent = getHouse.completeAddress;
 
       newDeleteBtn.addEventListener('click', async() => {
+        newDeleteBtn.disabled = true;
+        newDeleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...';
+
         try {
           const res = await axios({
             method: 'DELETE',
@@ -135,19 +152,24 @@ if(tableBody) {
           showAlert('success', 'House deleted successfully');
           await getHouses(queryString);
           bootstrapDeleteModal.hide();
-
+          newDeleteBtn.disabled = false;
+          newDeleteBtn.innerHTML = 'Confirm';
         } catch(err) {
           showAlert('error', err.response.data.message);
           console.error(err);
         }
       })
     }
+
+
   });
 }
 
 if(actionBar) {
   const searchInput = actionBar.querySelector('input[type="search"]');
   const searchButton = actionBar.querySelector('button.btn-primary');
+  // const createAddress = actionBar.querySelector('#create-address');
+  const createButton = document.querySelector('#create-btn');
 
   searchButton.addEventListener('click', async () => {
     const searchValue = searchInput.value.trim();
@@ -242,6 +264,39 @@ if(actionBar) {
     // // Remove the trailing '&' or '?' if no parameters are added
     // queryString = queryString.replace(/[&?]$/, '');
     // await getHouses(queryString)
+  })
+
+  createButton.addEventListener('click', async () => {
+    createButton.disabled = true;
+    createButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+
+    try {
+      const res = await axios({
+        method: 'POST',
+        url: '/api/v1/housings',
+        data: {
+          phase: document.getElementById('phase-create').value,
+          block: document.getElementById('block-create').value,
+          lot: document.getElementById('lot-create').value,
+          street: document.getElementById('street-create').value,
+          status: document.getElementById('status-create').value,
+        },
+      });
+
+      if (res.data.status !== 'success') showAlert('error', 'Failed to create house');
+
+      showAlert('success', 'House created successfully');
+      await getHouses(queryString);
+      bootstrapCreateModal.hide();
+      document.querySelector('#createHouseForm').reset();
+      createButton.disabled = false;
+      createButton.innerHTML = 'Confirm';
+    } catch (err) {
+      showAlert('error', err.response.data.message);
+      console.error(err);
+      createButton.disabled = false;
+      createButton.innerHTML = 'Confirm';
+    }
   })
 }
 

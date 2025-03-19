@@ -8,6 +8,10 @@
       <div class="modal-body">
         <form id="editHouseForm">
           <div class="mb-3">
+            <label for="block" class="form-label">Phase</label>
+            <input type="number" class="form-control" id="phase" name="phase">
+          </div>
+          <div class="mb-3">
             <label for="block" class="form-label">Block</label>
             <input type="text" class="form-control" id="block" name="block">
           </div>
@@ -52,14 +56,56 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="createLabel">Create Address</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="createHouseForm">
+          <div class="mb-3">
+            <label for="block" class="form-label">Phase</label>
+            <input type="number" class="form-control" id="phase-create" name="phase" required>
+          </div>
+          <div class="mb-3">
+            <label for="block" class="form-label">Block</label>
+            <input type="text" class="form-control" id="block-create" name="block" required>
+          </div>
+          <div class="mb-3">
+            <label for="lot" class="form-label">Lot</label>
+            <input type="number" class="form-control" id="lot-create" name="lot" required>
+          </div>
+          <div class="mb-3">
+            <label for="street" class="form-label">Street</label>
+            <input type="text" class="form-control" id="street-create" name="street" required>
+          </div>
+          <div class="mb-3">
+            <label for="status" class="form-label m-0">Status</label>
+            <input type="text" class="form-control" id="status-create" name="status" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button id="create-btn" type="button" class="btn btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="m-2" id="address-container">
   <div class="container" style="border-style: solid;padding: 12px;">
     <h3>All Address</h3>
     <div id="action-bar" class="d-flex flex-column justify-content-between align-items-center flex-sm-column flex-md-column flex-lg-row flex-xl-row flex-xxl-row">
       <div class="d-flex my-2 gap-2">
-        <input type="search" class="form-control" placeholder="Search block, lot, street, status..." />
+        <input type="search" class="form-control" placeholder="Search phase, block, lot, street, status..." />
         <button class="btn btn-primary" type="button">
           <i class="bi bi-search"></i> Search
+        </button>
+        <button id="create-address" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#create">
+          Create Address
         </button>
       </div>
       <div class="d-flex align-items-center gap-2">
@@ -67,6 +113,7 @@
           <label class="form-label">Sort by:
             <select>
               <optgroup label="sort">
+                <option value="phase">Phase</option>
                 <option value="block">Block</option>
                 <option value="lot">Lot</option>
                 <option value="street">Street</option>
@@ -102,6 +149,7 @@
       <table class="table">
         <thead>
           <tr>
+            <th class="custom-width">Phase</th>
             <th class="custom-width">Block</th>
             <th class="custom-width">Lot</th>
             <th class="custom-width">Street</th>

@@ -43,63 +43,55 @@ class APIFeatures {
     const parsedQuery = JSON.parse(queryStr);
 
     // Create final query object
-    const finalQuery = {};
-
-    // Add parsed query conditions to final query
-    Object.keys(parsedQuery).forEach((key) => {
-      finalQuery[key] = parsedQuery[key];
-    });
+    const finalQuery = { ...parsedQuery };
 
     // Handle search parameter
     if (this.queryString.search) {
       const searchTerm = this.queryString.search;
-      const searchQuery = [];
-      const numericConditions = {};
+      const searchConditions = [];
 
-      // String fields with regex (always keep these as $or conditions)
-      searchQuery.push(
+      // Text search conditions
+      const textSearchConditions = [
         { street: { $regex: searchTerm, $options: 'i' } },
-        { status: { $regex: searchTerm, $options: 'i' } }
-      );
+        { status: { $regex: searchTerm, $options: 'i' } },
+      ];
 
-      // Check for "block X" pattern
+      // Extract numeric patterns
+      const phaseMatch = searchTerm.match(/phase\s+(\d+)/i);
       const blockMatch = searchTerm.match(/block\s+(\d+)/i);
-      if (blockMatch) {
-        numericConditions.block = Number(blockMatch[1]);
-      }
-
-      // Check for "lot X" pattern
       const lotMatch = searchTerm.match(/lot\s+(\d+)/i);
-      if (lotMatch) {
-        numericConditions.lot = Number(lotMatch[1]);
-      }
 
-      // Standalone numbers
-      if (!blockMatch && !lotMatch) {
+      // If we have specific field patterns, handle them separately from general search
+      if (phaseMatch || blockMatch || lotMatch) {
+        const numericConditions = {};
+
+        if (phaseMatch) numericConditions.phase = Number(phaseMatch[1]);
+        if (blockMatch) numericConditions.block = Number(blockMatch[1]);
+        if (lotMatch) numericConditions.lot = Number(lotMatch[1]);
+
+        // Add separate field conditions to search
+        searchConditions.push(numericConditions);
+      } else {
+        // For standalone searches without field specifiers
         const standaloneNumbers = searchTerm.match(/\b(\d+)\b/g);
         if (standaloneNumbers) {
           standaloneNumbers.forEach((num) => {
-            searchQuery.push({ block: Number(num) }, { lot: Number(num) });
+            searchConditions.push(
+              { phase: Number(num) },
+              { block: Number(num) },
+              { lot: Number(num) },
+            );
           });
         }
       }
 
-      // Combine the searches correctly
-      const combinedSearch = [];
+      // Add text search conditions to the search array
+      searchConditions.push(...textSearchConditions);
 
-      // Add text search fields
-      combinedSearch.push(...searchQuery);
-
-      // Add numeric conditions as a combined AND if both block and lot are specified
-      if (Object.keys(numericConditions).length > 0) {
-        combinedSearch.push(numericConditions);
-      }
-
-      // Add $or condition to final query
-      finalQuery.$or = combinedSearch;
+      // Add combined search to the query
+      finalQuery.$or = searchConditions;
     }
 
-    // Apply combined query
     this.query = this.query.find(finalQuery);
     return this;
   }
