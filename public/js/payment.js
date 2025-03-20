@@ -14,6 +14,6 @@ export const payWithStripe = async (amount, dateRange) =>{
       sessionId: session.data.session.id
     });
   } catch(err) {
-    showAlert('error', err.message);
+    showAlert('error', err.response.data.message);
   }
 }
