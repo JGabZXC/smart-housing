@@ -156,6 +156,7 @@ if (forumMessages) {
 }
 
 export const submitMessagesProject = async (projectid) => {
+    const submitMessageBtn = document.querySelector('#submit-message-btn');
   try {
     const res = await axios({
       method: 'POST',
@@ -165,14 +166,19 @@ export const submitMessagesProject = async (projectid) => {
       },
     });
     const message = res.data;
-
+    submitMessageBtn.disabled = true;
+    submitMessageBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
     if (message.status === 'success') {
       showAlert('success', 'Message uploaded!');
       document.querySelector('#message').value = '';
       await getMessagesProject(projectid);
     }
+    submitMessageBtn.disabled = false;
+    submitMessageBtn.innerHTML = 'Submit';
   } catch (err) {
     showAlert('error', err.response.data.message);
+    submitMessageBtn.disabled = false;
+    submitMessageBtn.innerHTML = 'Submit';
   }
 };
 

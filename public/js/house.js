@@ -292,10 +292,9 @@ if(actionBar) {
       createButton.disabled = false;
       createButton.innerHTML = 'Confirm';
     } catch (err) {
-      showAlert('error', err.response.data.message);
-      console.error(err);
       createButton.disabled = false;
       createButton.innerHTML = 'Confirm';
+      showAlert('error', err.response.data.message);
     }
   })
 }

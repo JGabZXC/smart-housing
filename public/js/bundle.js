@@ -13193,12 +13193,13 @@ if (forumMessages) {
 }
 var submitMessagesProject = exports.submitMessagesProject = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(projectid) {
-    var res, message;
+    var submitMessageBtn, res, message;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
-          _context3.prev = 0;
-          _context3.next = 3;
+          submitMessageBtn = document.querySelector('#submit-message-btn');
+          _context3.prev = 1;
+          _context3.next = 4;
           return (0, _axios.default)({
             method: 'POST',
             url: "/api/v1/projects/".concat(projectid, "/messages"),
@@ -13206,29 +13207,35 @@ var submitMessagesProject = exports.submitMessagesProject = /*#__PURE__*/functio
               message: document.querySelector('#message').value
             }
           });
-        case 3:
+        case 4:
           res = _context3.sent;
           message = res.data;
+          submitMessageBtn.disabled = true;
+          submitMessageBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
           if (!(message.status === 'success')) {
-            _context3.next = 10;
+            _context3.next = 13;
             break;
           }
           (0, _alerts.showAlert)('success', 'Message uploaded!');
           document.querySelector('#message').value = '';
-          _context3.next = 10;
+          _context3.next = 13;
           return getMessagesProject(projectid);
-        case 10:
-          _context3.next = 15;
+        case 13:
+          submitMessageBtn.disabled = false;
+          submitMessageBtn.innerHTML = 'Submit';
+          _context3.next = 22;
           break;
-        case 12:
-          _context3.prev = 12;
-          _context3.t0 = _context3["catch"](0);
+        case 17:
+          _context3.prev = 17;
+          _context3.t0 = _context3["catch"](1);
           (0, _alerts.showAlert)('error', _context3.t0.response.data.message);
-        case 15:
+          submitMessageBtn.disabled = false;
+          submitMessageBtn.innerHTML = 'Submit';
+        case 22:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[0, 12]]);
+    }, _callee3, null, [[1, 17]]);
   }));
   return function submitMessagesProject(_x9) {
     return _ref3.apply(this, arguments);
@@ -13751,16 +13758,15 @@ if (actionBar) {
           document.querySelector('#createHouseForm').reset();
           createButton.disabled = false;
           createButton.innerHTML = 'Confirm';
-          _context7.next = 22;
+          _context7.next = 21;
           break;
         case 16:
           _context7.prev = 16;
           _context7.t0 = _context7["catch"](2);
-          (0, _alerts.showAlert)('error', _context7.t0.response.data.message);
-          console.error(_context7.t0);
           createButton.disabled = false;
           createButton.innerHTML = 'Confirm';
-        case 22:
+          (0, _alerts.showAlert)('error', _context7.t0.response.data.message);
+        case 21:
         case "end":
           return _context7.stop();
       }
