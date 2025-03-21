@@ -8,7 +8,7 @@ const paymentSchema = new mongoose.Schema({
   },
   address: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Address',
+    ref: 'House',
     required: [true, 'A payment must have an address'],
   },
   amount: {

@@ -36,16 +36,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     dateRange,
   );
 
-  if (process.env.NODE_ENV === 'development')
-    if (overlaps)
-      return next(new AppError(`Payment for ${dateRange} already exists`, 400));
-
-  // for client
   if (overlaps)
-    return res.status(400).json({
-      status: 'error',
-      message: `Payment for ${dateRange} already exists`,
-    });
+    return next(new AppError(`Payment for ${dateRange} already exists`, 400));
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -85,7 +77,32 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   res.redirect(req.originalUrl.split('?')[0]);
 });
 
-exports.getAllPayments = handler.getAll(Payment);
+exports.getAllPayments = catchAsync(async (req, res, next) => {
+  let filter = {};
+  let user;
+
+  if (req.query.email) {
+    user = await User.findOne({ email: req.query.email });
+    if (!user)
+      return next(new AppError('No user found with that email address', 404));
+    filter = { user: user._id };
+  }
+
+  const payments = await Payment.find(filter)
+    .populate({
+      path: 'user',
+      select: 'email name',
+    })
+    .populate('address');
+
+  res.status(200).json({
+    status: 'success',
+    results: payments.length,
+    data: {
+      doc: payments,
+    },
+  });
+});
 exports.getPayment = handler.getOne(Payment);
 // exports.createPayment = handler.createOne(Payment);
 exports.createPayment = catchAsync(async (req, res, next) => {

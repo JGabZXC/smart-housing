@@ -93,6 +93,20 @@ exports.getAdminDashboard = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.getPayment = catchAsync(async (req, res, next) => {
+  const payment = await Payment.find()
+    .populate({
+      path: 'user',
+      select: 'email name',
+    })
+    .populate('address');
+  // console.log(payment);
+
+  res.status(200).render('payment', {
+    title: 'Payment',
+  });
+});
+
 exports.getAddress = catchAsync(async (req, res, next) => {
   res.status(200).render('address', {
     title: 'Address',

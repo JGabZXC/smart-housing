@@ -33,6 +33,14 @@ router
   );
 
 router
+  .route('/payment')
+  .get(
+    authController.protect,
+    authController.protectTo('admin'),
+    viewController.getPayment,
+  );
+
+router
   .route('/address')
   .get(
     authController.protect,
