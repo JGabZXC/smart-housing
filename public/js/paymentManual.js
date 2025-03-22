@@ -94,13 +94,15 @@ if(payDuesForm) {
 
 if(searchResidentDue) {
   // table.innerHTML = '<p>Try searching a resident email to view their dues</p>';
+
   const tableBody = table.querySelector('tbody');
   searchResidentDue.addEventListener('click', async () => {
     const emailValue = document.querySelector('#resident-email').value.trim();
     tableBody.innerHTML = '';
 
     if(emailValue === '') return showAlert('error', 'Please enter a valid email');
-
+    searchResidentDue.disabled = true;
+    searchResidentDue.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Searching...';
     try {
       const res = await axios({
         method: 'GET',
@@ -138,8 +140,13 @@ if(searchResidentDue) {
 
         tableBody.appendChild(row);
       });
+
+      searchResidentDue.disabled = false;
+      searchResidentDue.innerHTML = 'Search';
     } catch (err) {
       showAlert('error', err.response.data.message);
+      searchResidentDue.disabled = false;
+      searchResidentDue.innerHTML = 'Search';
     }
   })
 }

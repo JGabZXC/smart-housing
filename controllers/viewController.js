@@ -88,20 +88,39 @@ exports.getLogin = catchAsync(async (req, res, next) => {
 // ADMIN
 
 exports.getAdminDashboard = catchAsync(async (req, res, next) => {
+  const featuredProject = await Project.findOne({ isFeatured: true });
+  const featuredEvent = await Event.findOne({ isFeatured: true });
+
+  if (featuredProject?.imageCover) {
+    const getObjectParams = {
+      Bucket: process.env.S3_NAME,
+      Key: featuredProject.imageCover,
+    };
+    const command = new GetObjectCommand(getObjectParams);
+    featuredProject.imageCoverUrl = await getSignedUrl(s3, command, {
+      expiresIn: 3600,
+    });
+  }
+
+  if (featuredEvent?.imageCover) {
+    const getObjectParams = {
+      Bucket: process.env.S3_NAME,
+      Key: featuredEvent.imageCover,
+    };
+    const command = new GetObjectCommand(getObjectParams);
+    featuredEvent.imageCoverUrl = await getSignedUrl(s3, command, {
+      expiresIn: 3600,
+    });
+  }
+
   res.status(200).render('dashboard', {
     title: 'Dashboard',
+    featuredProject,
+    featuredEvent,
   });
 });
 
 exports.getPayment = catchAsync(async (req, res, next) => {
-  const payment = await Payment.find()
-    .populate({
-      path: 'user',
-      select: 'email name',
-    })
-    .populate('address');
-  // console.log(payment);
-
   res.status(200).render('payment', {
     title: 'Payment',
   });

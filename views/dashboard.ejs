@@ -1,1 +1,120 @@
-<h1>Admin dashboard</h1>
+<div class="container">
+    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-2 row-cols-xxl-2">
+        <div class="col" style="padding: 12px;">
+            <div style="border-style: solid;border-radius: 19px;padding: 10px;">
+                <% if(featuredProject) { %>
+                    <h2>Featured Project</h2>
+                    <p><%= featuredProject.name %></p>
+                    <img src="<%= featuredProject.imageCoverUrl %>" class="fit-cover" style="width: 100%;height: 210px;border-radius: 10px;" />
+                    <div class="d-flex justify-content-end mt-2 gap-2">
+                        <a class="btn btn-primary" type="button" href="project/<%= featuredProject.slug %>">View</a>
+                        <a class="btn btn-warning" type="button" href="project/<%= featuredProject.slug %>/edit">Edit</a>
+                    </div>
+                <% } else { %>
+                    <h2>No Featured Project</h2>
+                <% } %>
+            </div>
+        </div>
+        <div class="col" style="padding: 12px;">
+            <div style="border-style: solid;border-radius: 19px;padding: 10px;">
+                <%if(featuredEvent) { %>
+                    <h2>Featured Event</h2>
+                    <p>Title of Event</p>
+                    <img class="fit-cover" style="width: 100%;height: 210px;border-radius: 10px;" />
+                    <div class="d-flex justify-content-end mt-2 gap-2">
+                        <button class="btn btn-primary" type="button">View</button>
+                        <button class="btn btn-warning" type="button">Edit</button>
+                    </div>
+                <% } else { %>
+                    <h2>No Featured Event</h2>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--                PROJECTS                -->
+<div class="m-2">
+    <div class="container" style="border-style: solid;padding: 12px;">
+        <h3>All Projects</h3>
+        <div class="d-flex flex-column justify-content-between align-items-center flex-sm-column flex-md-column flex-lg-row flex-xl-row flex-xxl-row">
+            <div class="d-flex my-2 gap-2"><input type="search" /><button class="btn btn-primary" type="button">Search Project</button></div>
+            <div class="d-flex align-items-center gap-2">
+                <div><label class="form-label">Sort by: </label><select>
+                        <optgroup label="Sort">
+                            <option value="12">Date</option>
+                            <option value="13">Title</option>
+                        </optgroup>
+                    </select></div>
+                <div><label class="form-label">Show item: </label><select>
+                        <optgroup label="This is a group">
+                            <option value="12" selected>10</option>
+                            <option value="13">20</option>
+                            <option value="50">50</option>
+                        </optgroup>
+                    </select></div>
+            </div>
+        </div>
+        <div class="table-responsive" style="border-style: solid;margin-top: 0px;">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="custom-width">Title</th>
+                    <th class="custom-width">Date</th>
+                    <th class="actions-column">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Vaccine Village</td>
+                    <td>January 25, 2003</td>
+                    <td class="d-flex gap-2"><button class="btn btn-primary" type="button">View</button><button class="btn btn-warning" type="button">Edit</button><button class="btn btn-danger" type="button">Delete</button></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!--                EVENTS              -->
+<div class="m-2">
+    <div class="container" style="border-style: solid;padding: 12px;">
+        <h3>All Events</h3>
+        <div class="d-flex flex-column justify-content-between align-items-center flex-sm-column flex-md-column flex-lg-row flex-xl-row flex-xxl-row">
+            <div class="d-flex my-2 gap-2"><input type="search" /><button class="btn btn-primary" type="button">Search Event</button></div>
+            <div class="d-flex align-items-center gap-2">
+                <div><label class="form-label">Sort by: </label><select>
+                        <optgroup label="Sort">
+                            <option value="12">Date</option>
+                            <option value="13">Title</option>
+                        </optgroup>
+                    </select></div>
+                <div><label class="form-label">Show item: </label><select>
+                        <optgroup label="This is a group">
+                            <option value="12" selected>10</option>
+                            <option value="13">20</option>
+                            <option value="50">50</option>
+                        </optgroup>
+                    </select></div>
+            </div>
+        </div>
+        <div class="table-responsive" style="border-style: solid;margin-top: 0px;">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="custom-width">Title</th>
+                    <th class="custom-width">Date</th>
+                    <th class="actions-column">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Vaccine Village</td>
+                    <td>January 25, 2003</td>
+                    <td class="d-flex gap-2"><button class="btn btn-primary" type="button">View</button><button class="btn btn-warning" type="button">Edit</button><button class="btn btn-danger" type="button">Delete</button></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

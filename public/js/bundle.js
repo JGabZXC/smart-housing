@@ -13918,6 +13918,7 @@ if (payDuesForm) {
 }
 if (searchResidentDue) {
   // table.innerHTML = '<p>Try searching a resident email to view their dues</p>';
+
   var tableBody = table.querySelector('tbody');
   searchResidentDue.addEventListener('click', /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
     var emailValue, res, data;
@@ -13932,23 +13933,25 @@ if (searchResidentDue) {
           }
           return _context3.abrupt("return", (0, _alerts.showAlert)('error', 'Please enter a valid email'));
         case 4:
-          _context3.prev = 4;
-          _context3.next = 7;
+          searchResidentDue.disabled = true;
+          searchResidentDue.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Searching...';
+          _context3.prev = 6;
+          _context3.next = 9;
           return (0, _axios.default)({
             method: 'GET',
             url: "/api/v1/payments?email=".concat(emailValue)
           });
-        case 7:
+        case 9:
           res = _context3.sent;
           data = res.data.data.doc;
           console.log(data);
           if (!(data.length === 0)) {
-            _context3.next = 13;
+            _context3.next = 15;
             break;
           }
           tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No payment records found for this email</td></tr>';
           return _context3.abrupt("return");
-        case 13:
+        case 15:
           data.forEach(function (payment) {
             var _payment$address;
             var row = document.createElement('tr');
@@ -13963,17 +13966,21 @@ if (searchResidentDue) {
             row.innerHTML = "\n          <td>".concat(payment.user.email || emailValue, "</td>\n          <td>").concat(payment.user.name || 'N/A', "</td>\n          <td>").concat(((_payment$address = payment.address) === null || _payment$address === void 0 ? void 0 : _payment$address.completeAddress) || 'N/A', "</td>\n          <td>").concat(payment.amount, "</td>\n          <td>").concat(payment.dateRange, "</td>\n          <td>").concat(formattedDate, "</td>\n        ");
             tableBody.appendChild(row);
           });
-          _context3.next = 19;
+          searchResidentDue.disabled = false;
+          searchResidentDue.innerHTML = 'Search';
+          _context3.next = 25;
           break;
-        case 16:
-          _context3.prev = 16;
-          _context3.t0 = _context3["catch"](4);
+        case 20:
+          _context3.prev = 20;
+          _context3.t0 = _context3["catch"](6);
           (0, _alerts.showAlert)('error', _context3.t0.response.data.message);
-        case 19:
+          searchResidentDue.disabled = false;
+          searchResidentDue.innerHTML = 'Search';
+        case 25:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[4, 16]]);
+    }, _callee3, null, [[6, 20]]);
   })));
 }
 },{"axios":"../../node_modules/axios/index.js","./alerts":"alerts.js"}],"index.js":[function(require,module,exports) {
@@ -14220,7 +14227,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62264" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50129" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
