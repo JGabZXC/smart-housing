@@ -31,8 +31,6 @@ const sendErrorDev = (err, req, res) => {
     });
   }
 
-  console.log(err);
-
   // Rendered Website
   return res.status(err.statusCode).render('error', {
     title: 'Something went wrong!',
@@ -78,6 +76,8 @@ const sendErrorProd = (err, req, res) => {
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
+
+  console.log(err);
 
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, req, res);

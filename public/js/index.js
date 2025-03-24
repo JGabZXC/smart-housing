@@ -13,7 +13,8 @@ import { showAlert } from './alerts';
 import { getProjects } from './projects';
 import { getEvents } from './events';
 import { getHouses } from './house';
-import { paymentManual } from './paymentManual';
+import './paymentManual';
+import './dashboard'
 
 const email = document.querySelector('#email');
 const password = document.querySelector('#password');

@@ -1,4 +1,8 @@
-const { PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const {
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const multer = require('multer');
 const s3 = require('../utils/s3Bucket');
@@ -146,12 +150,77 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
 });
 exports.getProject = handler.getOne(Project);
 exports.createProject = handler.createOne(Project);
-exports.updateProject = handler.updateOne(Project);
-exports.deleteProject = catchAsync(async (req, res, next) => {
-  const projectId = req.params.id;
+exports.updateProject = catchAsync(async (req, res, next) => {
+  const project = await Project.findById(req.params.id);
+  if (!project) return next(new AppError('No project found with that ID', 404));
 
-  await Project.findByIdAndDelete(projectId);
-  await Message.deleteMany({ event: projectId });
+  if (req.body.imageCover && project.imageCover) {
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.S3_NAME,
+        Key: project.imageCover,
+      }),
+    );
+  }
+
+  if (req.body.images && project.images.length > 0) {
+    await Promise.all(
+      project.images.map(async (image) => {
+        await s3.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.S3_NAME,
+            Key: image,
+          }),
+        );
+      }),
+    );
+  }
+
+  const updatedProject = await Project.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      updatedProject,
+    },
+  });
+});
+
+exports.deleteProject = catchAsync(async (req, res, next) => {
+  const project = await Project.findById(req.params.id);
+  if (!project) return next(new AppError('No project found with that ID', 404));
+
+  if (project.imageCover) {
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.S3_NAME,
+        Key: project.imageCover,
+      }),
+    );
+  }
+
+  if (project.images && project.images.length > 0) {
+    await Promise.all(
+      project.images.map(async (image) => {
+        await s3.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.S3_NAME,
+            Key: image,
+          }),
+        );
+      }),
+    );
+  }
+
+  await Project.findByIdAndDelete(req.params.id);
+  await Message.deleteMany({ event: req.params.id });
 
   res.status(204).json({
     status: 'success',
