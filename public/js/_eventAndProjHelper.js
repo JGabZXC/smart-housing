@@ -7,8 +7,9 @@ export function renderPagination(
   currentPage,
   hasNextPage,
   changePageFunction,
+  paginationSelector = '.pagination'
 ) {
-  const pagination = document.querySelector('.pagination');
+  const pagination = document.querySelector(paginationSelector);
   pagination.innerHTML = '';
 
   const prevButton = document.createElement('li');
@@ -91,6 +92,7 @@ export async function fetchData(
   currentPage,
   itemsPerPage,
   changePage,
+  paginationSelector = '.pagination'
 ) {
   try {
     const res = await axios({
@@ -100,7 +102,7 @@ export async function fetchData(
 
     if (res.data.results === 0) {
       container.innerHTML = `<p>No items found</p>`;
-      document.querySelector('.pagination').innerHTML = '';
+      if(document.querySelector(paginationSelector)) document.querySelector(paginationSelector).innerHTML = '';
       return;
     }
 
@@ -111,7 +113,7 @@ export async function fetchData(
     items.forEach((item) => renderFunction(item, container));
 
     const hasNextPage = items.length === itemsPerPage;
-    renderPagination(totalPages, currentPage, hasNextPage, changePage);
+    renderPagination(totalPages, currentPage, hasNextPage, changePage, paginationSelector);
   } catch (err) {
     console.error(err);
   }

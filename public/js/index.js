@@ -21,9 +21,11 @@ const password = document.querySelector('#password');
 const hero = document.querySelector('.hero-index');
 const projectContainer = document.querySelector('#project-container');
 const projectListContainer = document.querySelector('#project-list-container');
+const adminProjectContainer = document.querySelector('#admin-project-container');
 
 // const eventContainer = document.querySelector('#event-container');
 const eventListContainer = document.querySelector('#event-list-container');
+const adminEventContainer = document.querySelector('#admin-event-container');
 const addressContainer = document.querySelector('#address-container');
 
 const loginForm = document.querySelector('#login-form');
@@ -60,7 +62,7 @@ if (projectContainer) {
   getMessagesProject(projectId);
 }
 
-if (projectListContainer) {
+if (projectListContainer || adminProjectContainer) {
   getProjects();
 }
 
@@ -117,7 +119,7 @@ if (paymentForm) {
   });
 }
 
-if (eventListContainer) {
+if (eventListContainer || adminEventContainer) {
   getEvents();
 }
 

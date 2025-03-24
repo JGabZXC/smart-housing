@@ -3,6 +3,8 @@
 import { fetchData } from './_eventAndProjHelper';
 
 const projectListContainer = document.querySelector('#project-list-container');
+const adminProjectContainer = document.querySelector('#admin-project-container');
+const adminProjectTableBodyList = document.querySelector('#admin-project-tablebody-list');
 
 let currentPage = 1;
 const projectsPerPage = 10;
@@ -23,7 +25,43 @@ function renderProject(project, container) {
   container.innerHTML += markup;
 }
 
+function renderProjectAdmin (project, container) {
+  let date;
+  if(project.date)  {
+    date = new Date(project.date);
+    date = date.toLocaleString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'Asia/Manila',
+    });
+  }
+
+  const markup =
+    `
+    <tr>
+        <td>${project.name}</td>
+        <td>${date || 'No date specified'}</td>
+        <td class="d-flex gap-2">
+            <a class="btn btn-primary" type="button" href="project/${project.slug}">View</a>
+            <a class="btn btn-warning" type="button" href="project/${project.slug}/edit">Edit</a>
+            <button class="btn btn-danger" type="button">Delete</button>
+        </td>
+    </tr>
+    `
+  container.innerHTML += markup;
+}
+
 export const getProjects = async () => {
+  if(adminProjectContainer) return await fetchData(
+    `/api/v1/projects`,
+    adminProjectTableBodyList,
+    renderProjectAdmin,
+    currentPage,
+    projectsPerPage,
+    changeProjectPage,
+  );
+
   await fetchData(
     `/api/v1/projects`,
     projectListContainer,

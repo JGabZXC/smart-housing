@@ -23,7 +23,7 @@
                         <% payment.forEach(due => { %>
                         <tr>
                             <td><%= due.dateRange %></td>
-                            <td><%= due.amount %></td>
+                            <td>₱<%= due.amount %></td>
                             <td><%= new Intl.DateTimeFormat("en-us", {
                                     year: "numeric",
                                     month: "long",

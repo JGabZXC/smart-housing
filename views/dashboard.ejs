@@ -35,24 +35,33 @@
 
 <!--                PROJECTS                -->
 <div class="m-2">
-    <div class="container" style="border-style: solid;padding: 12px;">
+    <div id="admin-project-container" class="container" style="border-style: solid;padding: 12px;">
         <h3>All Projects</h3>
         <div class="d-flex flex-column justify-content-between align-items-center flex-sm-column flex-md-column flex-lg-row flex-xl-row flex-xxl-row">
-            <div class="d-flex my-2 gap-2"><input type="search" /><button class="btn btn-primary" type="button">Search Project</button></div>
+            <div class="d-flex my-2 gap-2">
+                <input type="search" placeholder="project-slug" />
+                <button class="btn btn-primary" type="button">Search Project</button>
+            </div>
             <div class="d-flex align-items-center gap-2">
-                <div><label class="form-label">Sort by: </label><select>
+                <div>
+                    <label class="form-label">Sort by: </label>
+                    <select>
                         <optgroup label="Sort">
                             <option value="12">Date</option>
                             <option value="13">Title</option>
                         </optgroup>
-                    </select></div>
-                <div><label class="form-label">Show item: </label><select>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Show item: </label>
+                    <select>
                         <optgroup label="This is a group">
                             <option value="12" selected>10</option>
                             <option value="13">20</option>
                             <option value="50">50</option>
                         </optgroup>
-                    </select></div>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="table-responsive" style="border-style: solid;margin-top: 0px;">
@@ -64,38 +73,62 @@
                     <th class="actions-column">Actions</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="admin-project-tablebody-list">
                 <tr>
                     <td>Vaccine Village</td>
                     <td>January 25, 2003</td>
-                    <td class="d-flex gap-2"><button class="btn btn-primary" type="button">View</button><button class="btn btn-warning" type="button">Edit</button><button class="btn btn-danger" type="button">Delete</button></td>
+                    <td class="d-flex gap-2">
+                        <button class="btn btn-primary" type="button">View</button>
+                        <button class="btn btn-warning" type="button">Edit</button>
+                        <button class="btn btn-danger" type="button">Delete</button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
+            <nav style="margin-top: 12px;">
+                <ul id="#pagination-admin-project" class="pagination">
+                    <li class="page-item"><a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">4</a></li>
+                    <li class="page-item"><a class="page-link" href="#">5</a></li>
+                    <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
 
 <!--                EVENTS              -->
 <div class="m-2">
-    <div class="container" style="border-style: solid;padding: 12px;">
+    <div id="admin-event-container" class="container" style="border-style: solid;padding: 12px;">
         <h3>All Events</h3>
         <div class="d-flex flex-column justify-content-between align-items-center flex-sm-column flex-md-column flex-lg-row flex-xl-row flex-xxl-row">
-            <div class="d-flex my-2 gap-2"><input type="search" /><button class="btn btn-primary" type="button">Search Event</button></div>
+            <div class="d-flex my-2 gap-2">
+                <input type="search" placeholder="event-slug" />
+                <button class="btn btn-primary" type="button">Search Event</button>
+            </div>
             <div class="d-flex align-items-center gap-2">
-                <div><label class="form-label">Sort by: </label><select>
+                <div>
+                    <label class="form-label">Sort by: </label>
+                    <select>
                         <optgroup label="Sort">
                             <option value="12">Date</option>
                             <option value="13">Title</option>
                         </optgroup>
-                    </select></div>
-                <div><label class="form-label">Show item: </label><select>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Show item: </label>
+                    <select>
                         <optgroup label="This is a group">
                             <option value="12" selected>10</option>
                             <option value="13">20</option>
                             <option value="50">50</option>
                         </optgroup>
-                    </select></div>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="table-responsive" style="border-style: solid;margin-top: 0px;">
@@ -107,14 +140,29 @@
                     <th class="actions-column">Actions</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="admin-event-tablebody-list">
                 <tr>
                     <td>Vaccine Village</td>
                     <td>January 25, 2003</td>
-                    <td class="d-flex gap-2"><button class="btn btn-primary" type="button">View</button><button class="btn btn-warning" type="button">Edit</button><button class="btn btn-danger" type="button">Delete</button></td>
+                    <td class="d-flex gap-2">
+                        <button class="btn btn-primary" type="button">View</button>
+                        <button class="btn btn-warning" type="button">Edit</button>
+                        <button class="btn btn-danger" type="button">Delete</button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
+            <nav style="margin-top: 12px;">
+                <ul id="pagination-admin-event" class="pagination">
+                    <li class="page-item"><a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">4</a></li>
+                    <li class="page-item"><a class="page-link" href="#">5</a></li>
+                    <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
+                </ul>
+            </nav>
         </div>
     </div>
 </div>

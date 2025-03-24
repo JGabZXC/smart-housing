@@ -133,7 +133,7 @@ if(searchResidentDue) {
           <td>${payment.user.email || emailValue}</td>
           <td>${payment.user.name || 'N/A'}</td>
           <td>${payment.address?.completeAddress || 'N/A'}</td>
-          <td>${payment.amount}</td>
+          <td>₱${payment.amount}</td>
           <td>${payment.dateRange}</td>
           <td>${formattedDate}</td>
         `;

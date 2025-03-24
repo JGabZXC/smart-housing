@@ -1,9 +1,10 @@
 /* eslint-disable */
 
-import axios from 'axios';
 import {fetchData} from './_eventAndProjHelper';
 
 const eventListContainer = document.querySelector('#event-list-container');
+const adminEventContainer = document.querySelector('#admin-event-container');
+const adminEventTableBodyList = document.querySelector('#admin-event-tablebody-list');
 
 let currentPage = 1;
 const projectsPerPage = 10;
@@ -22,10 +23,38 @@ function renderEvent (event, container) {
         </div>
       </div>
       `;
-  eventListContainer.innerHTML += markup;
+  container.innerHTML += markup;
+}
+
+function renderEventAdmin (event, container) {
+  let date;
+  if(event.date)  {
+    date = new Date(event.date);
+    date = date.toLocaleString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'Asia/Manila',
+    });
+  }
+
+  const markup =
+    `
+      <tr>
+        <td>${event.name}</td>
+        <td>${date || 'No date specified'}</td>
+        <td>
+          <a href="/event/${event.slug}" class="btn btn-primary">View</a>
+          <a href="/admin/event/${event.slug}" class="btn btn-warning">Edit</a>
+        </td>
+      </tr>
+      `;
+  container.innerHTML += markup;
 }
 
 export const getEvents = async () => {
+  if(adminEventContainer) return await fetchData(`/api/v1/events`, adminEventTableBodyList, renderEventAdmin, currentPage, projectsPerPage, changeEventPage, '#pagination-admin-event');
+
   await fetchData(`/api/v1/events`, eventListContainer, renderEvent, currentPage, projectsPerPage, changeEventPage);
 }
 
