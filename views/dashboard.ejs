@@ -1,13 +1,13 @@
 <!--                MODAL                -->
-<div class="modal fade" id="create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="modalDashboard" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDashboard" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="createLabel">Edit Address</h5>
+                <h5 class="modal-title" id="createLabel">Create</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form id="create-form">
+            <form id="createDashboardForm">
+                <div class="modal-body">
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>
                         <input type="text" class="form-control" id="name" name="name" required />
@@ -32,12 +32,32 @@
                         <label for="images" class="form-label">Images</label>
                         <input class="form-control" type="file" id="images" name="images" multiple>
                     </div>
-                </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="saveBtnDashboard" type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDeleteDashboard" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteDashboard" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="createLabel">Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button id="save-btn" type="button" class="btn btn-primary">Create</button>
-            </div>
+            <form id="deleteDashboardForm">
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this <span id="title" style="font-weight: 600;"></span>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="deleteBtnDashboard" type="submit" class="btn btn-danger">Confirm</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -82,7 +102,7 @@
     <div id="admin-project-container" class="container" style="border-style: solid;padding: 12px;">
         <div class="d-flex justify-content-between">
             <h3>All Projects</h3>
-            <button id="project-create-button" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create">Create Project</button>
+            <button id="project-create-button" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDashboard">Create Project</button>
         </div>
         <div class="d-flex flex-column justify-content-between align-items-center flex-sm-column flex-md-column flex-lg-row flex-xl-row flex-xxl-row">
             <div class="d-flex my-2 gap-2">
@@ -152,7 +172,7 @@
     <div id="admin-event-container" class="container" style="border-style: solid;padding: 12px;">
         <div class="d-flex justify-content-between">
             <h3>All Events</h3>
-            <button id="event-create-button" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create">Create Event</button>
+            <button id="event-create-button" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDashboard">Create Event</button>
         </div>
         <div class="d-flex flex-column justify-content-between align-items-center flex-sm-column flex-md-column flex-lg-row flex-xl-row flex-xxl-row">
             <div class="d-flex my-2 gap-2">

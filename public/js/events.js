@@ -46,6 +46,7 @@ function renderEventAdmin (event, container) {
         <td>
           <a href="/event/${event.slug}" class="btn btn-primary">View</a>
           <a href="/admin/event/${event.slug}" class="btn btn-warning">Edit</a>
+          <button data-id="${event._id}" data-title="${event.name}" class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#modalDeleteDashboard">Delete</button>
         </td>
       </tr>
       `;

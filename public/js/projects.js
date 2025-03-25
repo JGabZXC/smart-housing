@@ -45,7 +45,7 @@ function renderProjectAdmin (project, container) {
         <td class="d-flex gap-2">
             <a class="btn btn-primary" type="button" href="project/${project.slug}">View</a>
             <a class="btn btn-warning" type="button" href="project/${project.slug}/edit">Edit</a>
-            <button class="btn btn-danger" type="button">Delete</button>
+            <button data-id="${project._id}" data-title="${project.name}" class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#modalDeleteDashboard">Delete</button>
         </td>
     </tr>
     `

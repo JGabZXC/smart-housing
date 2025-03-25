@@ -7,6 +7,7 @@ const Project = require('../models/projectModel');
 const Event = require('../models/eventModel');
 const Garbage = require('../models/garbageModel');
 const Payment = require('../models/paymentModel');
+const AppError = require('../utils/appError');
 
 exports.getIndex = catchAsync(async (req, res, next) => {
   const garbages = await Garbage.find();
@@ -41,7 +42,8 @@ exports.getAllProject = catchAsync(async (req, res, next) => {
 
 exports.getProject = catchAsync(async (req, res, next) => {
   const project = await Project.findOne({ slug: req.params.slug });
-  // console.log(project);
+  if (!project) return next(new AppError('No project found was found', 404));
+
   res.status(200).render('project-single', {
     title: project.name,
     project,
