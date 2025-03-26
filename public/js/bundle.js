@@ -14394,7 +14394,7 @@ if (createResidentForm) {
             confirmPassword = document.querySelector('#confirmPassword').value;
             _context.prev = 10;
             createResidentSubmitButton.disabled = true;
-            createResidentForm.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+            createResidentSubmitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
             _context.next = 15;
             return (0, _axios.default)({
               method: 'POST',
@@ -14418,14 +14418,14 @@ if (createResidentForm) {
             if (res.data.status === 'success') (0, _alerts.showAlert)(res.data.message, 'success');
             createResidentForm.reset();
             createResidentSubmitButton.disabled = false;
-            createResidentForm.innerHTML = 'Create Resident';
+            createResidentSubmitButton.innerHTML = 'Create Resident';
             _context.next = 28;
             break;
           case 22:
             _context.prev = 22;
             _context.t0 = _context["catch"](10);
             createResidentSubmitButton.disabled = false;
-            createResidentForm.innerHTML = 'Create Resident';
+            createResidentSubmitButton.innerHTML = 'Create Resident';
             (0, _alerts.showAlert)('error', _context.t0.response.data.message);
             console.error(_context.t0.response.data.message);
           case 28:

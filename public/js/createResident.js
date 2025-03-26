@@ -21,7 +21,7 @@ if(createResidentForm) {
 
     try {
       createResidentSubmitButton.disabled = true;
-      createResidentForm.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+      createResidentSubmitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
       const res = await axios({
         method: 'POST',
         url: `/api/v1/users/signup`,
@@ -43,10 +43,10 @@ if(createResidentForm) {
       if(res.data.status === 'success') showAlert(res.data.message, 'success');
       createResidentForm.reset();
       createResidentSubmitButton.disabled = false;
-      createResidentForm.innerHTML = 'Create Resident';
+      createResidentSubmitButton.innerHTML = 'Create Resident';
     } catch (err) {
       createResidentSubmitButton.disabled = false;
-      createResidentForm.innerHTML = 'Create Resident';
+      createResidentSubmitButton.innerHTML = 'Create Resident';
       showAlert('error', err.response.data.message)
       console.error(err.response.data.message)
     }
