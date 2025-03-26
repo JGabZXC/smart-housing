@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const House = require('./houseModel');
-const validateHouse = require('../utils/validateHouse');
+// const validateHouse = require('../utils/validateHouse');
 
 const userSchema = new mongoose.Schema(
   {
@@ -72,11 +72,11 @@ userSchema.pre('save', async function (next) {
 });
 
 // House Checker
-userSchema.pre('save', async function (next) {
-  await validateHouse(this.address);
-
-  next();
-});
+// userSchema.pre('save', async function (next) {
+// await validateHouse(this.address);
+//
+//   next();
+// });
 
 userSchema.post('save', async function () {
   const house = await House.findOne(this.address);

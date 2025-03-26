@@ -3,6 +3,7 @@
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
+const Message = require('../models/messageModel');
 const AppError = require('../utils/appError');
 const handlerFactory = require('./handlerController');
 const catchAsync = require('../utils/catchAsync');
@@ -88,15 +89,41 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     },
   });
 });
+exports.deleteUser = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if(!user) return next(new AppError('User not found', 404));
+
+  await Message.deleteMany({user: req.params.id})
+  await User.findByIdAndDelete(req.params.id);
+  await House.findOneAndUpdate({ _id: user.address }, {status: 'unoccupied'}, {new: true, runValidators: true});
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
 
 exports.signup = catchAsync(async (req, res, next) => {
+  let { address } = req.body;
+
+  console.log(req.body)
+
+  if (typeof address !== 'object') {
+    await validateHouse(address);
+  } else {
+    const { phase, block, lot, street } = req.body.address;
+    const house = await validateHouse({ phase, block, lot, street });
+    address = house._id;
+  }
+
   const newUser = await User.create({
     name: req.body.name,
     contactNumber: req.body.contactNumber,
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
-    address: req.body.address,
+    address,
   });
 
   res.status(201).json({

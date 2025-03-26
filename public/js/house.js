@@ -89,6 +89,7 @@ if(tableBody) {
     const getHouse = house.find((h) => h._id === houseId);
 
     if(target.id === 'edit-btn') if(getHouse) {
+      document.getElementById('phase').value = getHouse.phase;
       document.getElementById('block').value = getHouse.block;
       document.getElementById('lot').value = getHouse.lot;
       document.getElementById('street').value = getHouse.street;

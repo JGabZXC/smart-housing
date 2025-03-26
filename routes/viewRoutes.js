@@ -48,4 +48,6 @@ router
     viewController.getAddress,
   );
 
+router.route('/admin/signup').get(authController.protect, authController.protectTo('admin'), viewController.getResident);
+
 module.exports = router;
