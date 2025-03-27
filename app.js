@@ -17,6 +17,7 @@ const projectRoute = require('./routes/projectRoutes');
 const paymentRoute = require('./routes/paymentRoutes');
 const s3ImageRoute = require('./routes/s3ImageRoutes');
 const viewRoute = require('./routes/viewRoutes');
+const eventResidentRoute = require('./routes/eventResidentRoutes');
 
 const app = express();
 
@@ -35,6 +36,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use('/', viewRoute);
 app.use('/api/v1/events', eventRoute);
+app.use('/api/v1/eventsresident', eventResidentRoute);
 app.use('/api/v1/projects', projectRoute);
 app.use('/api/v1/messages', messageRoute);
 app.use('/api/v1/garbages', garbageRoute);

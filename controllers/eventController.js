@@ -132,3 +132,21 @@ exports.getEvent = handler.getOne(Event);
 exports.createEvent = handler.createOne(Event);
 exports.updateEvent = handler.updateOne(Event);
 exports.deleteEvent = handler.deleteOne(Event);
+exports.attendEvent = catchAsync(async (req, res, next) => {
+  const event = await Event.findById(req.params.id);
+
+  if (!event) return next(new AppError('Event not found!'));
+
+  if (event.attendees.includes(req.user._id))
+    return next(new AppError('You are already attending this event!'));
+
+  event.attendees.push(req.user._id);
+  await event.save();
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      event,
+    },
+  });
+});

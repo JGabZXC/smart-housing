@@ -34,4 +34,8 @@ router
     eventController.deleteEvent,
   );
 
+router
+  .route('/:id/attend')
+  .post(authController.protect, eventController.attendEvent);
+
 module.exports = router;

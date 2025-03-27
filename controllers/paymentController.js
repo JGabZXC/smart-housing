@@ -48,7 +48,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
           currency: 'php',
           product_data: {
             name: 'Payment for dues',
-            description: `Payment for ${dateRange}`,
+            description: `Payment for ${dateRange}. Do not forget to screenshot the payment confirmation.`,
           },
           unit_amount: amount * 100,
         },
