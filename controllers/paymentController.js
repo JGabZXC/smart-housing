@@ -8,20 +8,17 @@ const User = require('../models/userModel');
 const isDateRangeAlreadyPaid = async function (userId, addressId, dateRange) {
   const [startMonth, endMonth] = dateRange.split('-');
 
-  if (!startMonth || !endMonth) return { overlaps: false };
-
   const existingPayments = await Payment.find({
     user: userId,
     address: addressId,
   });
 
   const overlappingPayment = existingPayments.find((payment) => {
-    if (!payment.dateRange) return false;
-
     const [paidStart, paidEnd] = payment.dateRange.split('-');
 
-    return !(endMonth < paidStart || startMonth > paidEnd);
+    return +startMonth === +paidStart || +endMonth === +paidEnd;
   });
+
   return overlappingPayment
     ? { overlaps: true, payment: overlappingPayment }
     : { overlaps: false };
