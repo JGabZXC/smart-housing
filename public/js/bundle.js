@@ -12996,7 +12996,7 @@ function _fetchData() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.submitMessages = exports.getMessagesType = exports.getMessagesProject = exports.getMessages = void 0;
+exports.submitMessages = exports.getMessagesType = exports.getMessages = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 var _alerts = require("./alerts");
 var _eventAndProjHelper = require("./_eventAndProjHelper");
@@ -13008,28 +13008,41 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 var currentPage = 1;
 var messagesPerPage = 10;
 var hasNextPage = false;
+var userID;
+var type;
+var typeID;
+if (document.querySelector('#project-id')) {
+  userID = document.querySelector('#project-id').dataset.userid;
+  typeID = document.querySelector('#project-id').dataset.projectid;
+  type = 'projects';
+}
+if (document.querySelector('#event-id')) {
+  userID = document.querySelector('#event-id').dataset.userid;
+  typeID = document.querySelector('#event-id').dataset.eventid;
+  type = 'events';
+}
 function handleMessageUpdate(_x, _x2, _x3, _x4) {
   return _handleMessageUpdate.apply(this, arguments);
 }
 function _handleMessageUpdate() {
-  _handleMessageUpdate = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6(target, message, prevValue, messageID) {
+  _handleMessageUpdate = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(target, message, prevValue, messageID) {
     var newMessage, res;
-    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
-      while (1) switch (_context6.prev = _context6.next) {
+    return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+      while (1) switch (_context5.prev = _context5.next) {
         case 0:
           if (target.classList.contains('btn-success')) {
-            _context6.next = 6;
+            _context5.next = 6;
             break;
           }
           target.innerHTML = '<i class="bi bi-check"></i> Confirm';
           target.classList.remove('btn-primary');
           target.classList.add('btn-success');
           message.innerHTML = "<input type=\"text\" value=\"".concat(prevValue, "\">");
-          return _context6.abrupt("return");
+          return _context5.abrupt("return");
         case 6:
           newMessage = message.querySelector('input').value;
-          _context6.prev = 7;
-          _context6.next = 10;
+          _context5.prev = 7;
+          _context5.next = 10;
           return (0, _axios.default)({
             method: 'PATCH',
             url: "/api/v1/messages/".concat(messageID),
@@ -13038,30 +13051,30 @@ function _handleMessageUpdate() {
             }
           });
         case 10:
-          res = _context6.sent;
+          res = _context5.sent;
           message.innerHTML = '';
           if (!(res.data.status === 'success')) {
-            _context6.next = 16;
+            _context5.next = 16;
             break;
           }
           (0, _alerts.showAlert)('success', 'Message updated!');
-          _context6.next = 16;
-          return getMessagesProject(document.querySelector('#project-id').dataset.projectid);
+          _context5.next = 16;
+          return getMessages(type, typeID);
         case 16:
           target.innerHTML = '<i class="bi bi-pencil">';
           target.classList.remove('btn-success');
           target.classList.add('btn-primary');
-          _context6.next = 24;
+          _context5.next = 24;
           break;
         case 21:
-          _context6.prev = 21;
-          _context6.t0 = _context6["catch"](7);
-          (0, _alerts.showAlert)('error', _context6.t0.response.data.message);
+          _context5.prev = 21;
+          _context5.t0 = _context5["catch"](7);
+          (0, _alerts.showAlert)('error', _context5.t0.response.data.message);
         case 24:
         case "end":
-          return _context6.stop();
+          return _context5.stop();
       }
-    }, _callee6, null, [[7, 21]]);
+    }, _callee5, null, [[7, 21]]);
   }));
   return _handleMessageUpdate.apply(this, arguments);
 }
@@ -13069,53 +13082,41 @@ function handleMessageDelete(_x5, _x6) {
   return _handleMessageDelete.apply(this, arguments);
 }
 function _handleMessageDelete() {
-  _handleMessageDelete = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee7(target, messageID) {
-    return _regeneratorRuntime().wrap(function _callee7$(_context7) {
-      while (1) switch (_context7.prev = _context7.next) {
+  _handleMessageDelete = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6(target, messageID) {
+    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+      while (1) switch (_context6.prev = _context6.next) {
         case 0:
           if (!target.classList.contains('for-delete')) {
-            _context7.next = 12;
+            _context6.next = 12;
             break;
           }
-          _context7.prev = 1;
-          _context7.next = 4;
+          _context6.prev = 1;
+          _context6.next = 4;
           return (0, _axios.default)({
             method: 'DELETE',
             url: "/api/v1/messages/".concat(messageID)
           });
         case 4:
           (0, _alerts.showAlert)('success', 'Message deleted!');
-          _context7.next = 7;
-          return getMessagesProject(
-            // document.querySelector('#project-id').dataset.projectid,
-          );
+          _context6.next = 7;
+          return getMessagesType(type, typeID);
         case 7:
-          _context7.next = 12;
+          _context6.next = 12;
           break;
         case 9:
-          _context7.prev = 9;
-          _context7.t0 = _context7["catch"](1);
-          (0, _alerts.showAlert)('error', _context7.t0.response.data.message);
+          _context6.prev = 9;
+          _context6.t0 = _context6["catch"](1);
+          (0, _alerts.showAlert)('error', _context6.t0.response.data.message);
         case 12:
           target.innerHTML = '<i class="bi bi-check"></i> Confirm';
           target.classList.add('for-delete');
         case 14:
         case "end":
-          return _context7.stop();
+          return _context6.stop();
       }
-    }, _callee7, null, [[1, 9]]);
+    }, _callee6, null, [[1, 9]]);
   }));
   return _handleMessageDelete.apply(this, arguments);
-}
-var userID;
-var type;
-if (document.querySelector('#project-id')) {
-  userID = document.querySelector('#project-id').dataset.userid;
-  type = 'projects';
-}
-if (document.querySelector('#event-id')) {
-  userID = document.querySelector('#event-id').dataset.userid;
-  type = 'events';
 }
 var forumMessages = document.querySelector('#forum-messages');
 var getMessages = exports.getMessages = /*#__PURE__*/function () {
@@ -13229,8 +13230,8 @@ var submitMessages = exports.submitMessages = /*#__PURE__*/function () {
     return _ref2.apply(this, arguments);
   };
 }();
-var getMessagesProject = exports.getMessagesProject = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(projectid) {
+var getMessagesType = exports.getMessagesType = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(type, id) {
     var res, messages, totalPages, messageContainer, div;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
@@ -13239,7 +13240,7 @@ var getMessagesProject = exports.getMessagesProject = /*#__PURE__*/function () {
           _context3.next = 3;
           return (0, _axios.default)({
             method: 'GET',
-            url: "/api/v1/projects/".concat(projectid, "/messages/message?page=").concat(currentPage, "&limit=").concat(messagesPerPage, "&sort=-date")
+            url: "/api/v1/".concat(type, "/").concat(id, "/messages/message?page=").concat(currentPage, "&limit=").concat(messagesPerPage, "&sort=-date")
           });
         case 3:
           res = _context3.sent;
@@ -13286,105 +13287,44 @@ var getMessagesProject = exports.getMessagesProject = /*#__PURE__*/function () {
       }
     }, _callee3, null, [[0, 13]]);
   }));
-  return function getMessagesProject(_x11) {
+  return function getMessagesType(_x11, _x12) {
     return _ref3.apply(this, arguments);
-  };
-}();
-var getMessagesType = exports.getMessagesType = /*#__PURE__*/function () {
-  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(type, id) {
-    var res, messages, totalPages, messageContainer, div;
-    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-      while (1) switch (_context4.prev = _context4.next) {
-        case 0:
-          _context4.prev = 0;
-          _context4.next = 3;
-          return (0, _axios.default)({
-            method: 'GET',
-            url: "/api/v1/".concat(type, "/").concat(id, "/messages/message?page=").concat(currentPage, "&limit=").concat(messagesPerPage, "&sort=-date")
-          });
-        case 3:
-          res = _context4.sent;
-          messages = res.data.messages;
-          totalPages = res.data.totalPages;
-          messageContainer = document.querySelector('#forum-messages');
-          messageContainer.innerHTML = '';
-          if (messages.length > 0) {
-            messages.forEach(function (message) {
-              var div = document.createElement('div');
-              div.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-2', 'gap-1');
-              var date = new Date(message.date);
-              var finalDate = date.toLocaleString('en-US', {
-                timeZone: 'Asia/Manila'
-              });
-              div.innerHTML = "\n          <div class=\"d-flex gap-1\">\n            <p class=\"top-message\">".concat(message.user.name.split(' ')[0], " <span class=\"date-message\">(").concat(finalDate, ")</span>: </p>\n            <p class=\"text-break bottom-message\">").concat(message.message, "</p>\n          </div>\n            ").concat(message.user._id === userID ? "\n          <div class=\"d-flex gap-2 btn-actions\">\n            <button class=\"btn btn-primary edit-message\" data-id=\"".concat(message._id, "\"><i class=\"bi bi-pencil\"></i></button>\n            <button class=\"btn btn-danger delete-message\" data-id=\"").concat(message._id, "\"><i class=\"bi bi-trash\"></i></button>\n          </div>\n          ") : '', "\n        ");
-              messageContainer.appendChild(div);
-            });
-          } else {
-            div = document.createElement('div');
-            div.innerHTML = "\n        <p class=\"text-break\" style=\"width: 80%\">No messages yet!</p>\n      ";
-            messageContainer.appendChild(div);
-          }
-
-          // Infer hasNextPage
-          hasNextPage = messages.length === messagesPerPage;
-
-          // Render pagination
-          (0, _eventAndProjHelper.renderPagination)(totalPages, currentPage, hasNextPage, changePage);
-          _context4.next = 16;
-          break;
-        case 13:
-          _context4.prev = 13;
-          _context4.t0 = _context4["catch"](0);
-          if (_context4.t0.response.data.status === 'error') {
-            (0, _alerts.showAlert)('error', _context4.t0.response.data.message);
-            window.setTimeout(function () {
-              location.assign('/');
-            }, 2000);
-          }
-        case 16:
-        case "end":
-          return _context4.stop();
-      }
-    }, _callee4, null, [[0, 13]]);
-  }));
-  return function getMessagesType(_x12, _x13) {
-    return _ref4.apply(this, arguments);
   };
 }();
 if (forumMessages) {
   forumMessages.addEventListener('click', /*#__PURE__*/function () {
-    var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(e) {
+    var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(e) {
       var target, parentOfParentElement, messageID, message, messagePrevVal;
-      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-        while (1) switch (_context5.prev = _context5.next) {
+      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+        while (1) switch (_context4.prev = _context4.next) {
           case 0:
             target = e.target;
             if (target.tagName.toLowerCase() === 'i') target = target.parentElement;
             parentOfParentElement = target.parentElement.parentElement;
             messageID = target.dataset.id;
             if (!target.classList.contains('edit-message')) {
-              _context5.next = 9;
+              _context4.next = 9;
               break;
             }
             message = parentOfParentElement.querySelector('.bottom-message');
             messagePrevVal = message.innerHTML;
-            _context5.next = 9;
+            _context4.next = 9;
             return handleMessageUpdate(target, message, messagePrevVal, messageID);
           case 9:
             if (!target.classList.contains('delete-message')) {
-              _context5.next = 12;
+              _context4.next = 12;
               break;
             }
-            _context5.next = 12;
+            _context4.next = 12;
             return handleMessageDelete(target, messageID);
           case 12:
           case "end":
-            return _context5.stop();
+            return _context4.stop();
         }
-      }, _callee5);
+      }, _callee4);
     }));
-    return function (_x14) {
-      return _ref5.apply(this, arguments);
+    return function (_x13) {
+      return _ref4.apply(this, arguments);
     };
   }());
 }

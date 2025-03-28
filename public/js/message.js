@@ -7,6 +7,21 @@ let currentPage = 1;
 const messagesPerPage = 10;
 let hasNextPage = false;
 
+let userID;
+let type;
+let typeID;
+if (document.querySelector('#project-id')) {
+  userID = document.querySelector('#project-id').dataset.userid;
+  typeID = document.querySelector('#project-id').dataset.projectid;
+  type = 'projects';
+}
+
+if(document.querySelector('#event-id')) {
+  userID = document.querySelector('#event-id').dataset.userid;
+  typeID = document.querySelector('#event-id').dataset.eventid;
+  type = 'events';
+}
+
 async function handleMessageUpdate(target, message, prevValue, messageID) {
   if (!target.classList.contains('btn-success')) {
     target.innerHTML = '<i class="bi bi-check"></i> Confirm';
@@ -29,8 +44,9 @@ async function handleMessageUpdate(target, message, prevValue, messageID) {
     message.innerHTML = '';
     if (res.data.status === 'success') {
       showAlert('success', 'Message updated!');
-      await getMessagesProject(
-        document.querySelector('#project-id').dataset.projectid,
+      await getMessages(
+        type,
+        typeID
       );
     }
 
@@ -50,8 +66,9 @@ async function handleMessageDelete(target, messageID) {
         url: `/api/v1/messages/${messageID}`,
       });
       showAlert('success', 'Message deleted!');
-      await getMessagesProject(
-        // document.querySelector('#project-id').dataset.projectid,
+      await getMessagesType(
+        type,
+        typeID
       );
     } catch (err) {
       showAlert('error', err.response.data.message);
@@ -59,18 +76,6 @@ async function handleMessageDelete(target, messageID) {
   }
   target.innerHTML = '<i class="bi bi-check"></i> Confirm';
   target.classList.add('for-delete');
-}
-
-let userID;
-let type;
-if (document.querySelector('#project-id')) {
-  userID = document.querySelector('#project-id').dataset.userid;
-  type = 'projects';
-}
-
-if(document.querySelector('#event-id')) {
-  userID = document.querySelector('#event-id').dataset.userid;
-  type = 'events';
 }
 
 const forumMessages = document.querySelector('#forum-messages');
@@ -166,73 +171,6 @@ export const submitMessages = async (type, id) => {
     showAlert('error', err.response.data.message);
     submitMessageBtn.disabled = false;
     submitMessageBtn.innerHTML = 'Submit';
-  }
-};
-
-export const getMessagesProject = async (projectid) => {
-  try {
-    const res = await axios({
-      method: 'GET',
-      url: `/api/v1/projects/${projectid}/messages/message?page=${currentPage}&limit=${messagesPerPage}&sort=-date`,
-    });
-
-    const messages = res.data.messages;
-    const totalPages = res.data.totalPages;
-    const messageContainer = document.querySelector('#forum-messages');
-    messageContainer.innerHTML = '';
-
-    if (messages.length > 0) {
-      messages.forEach((message) => {
-        const div = document.createElement('div');
-        div.classList.add(
-          'd-flex',
-          'justify-content-between',
-          'align-items-center',
-          'mb-2',
-          'gap-1',
-        );
-        const date = new Date(message.date);
-        const finalDate = date.toLocaleString('en-US', {
-          timeZone: 'Asia/Manila',
-        });
-        div.innerHTML = `
-          <div class="d-flex gap-1">
-            <p class="top-message">${message.user.name.split(' ')[0]} <span class="date-message">(${finalDate})</span>: </p>
-            <p class="text-break bottom-message">${message.message}</p>
-          </div>
-            ${
-              message.user._id === userID
-                ? `
-          <div class="d-flex gap-2 btn-actions">
-            <button class="btn btn-primary edit-message" data-id="${message._id}"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-danger delete-message" data-id="${message._id}"><i class="bi bi-trash"></i></button>
-          </div>
-          `
-                : ''
-            }
-        `;
-        messageContainer.appendChild(div);
-      });
-    } else {
-      const div = document.createElement('div');
-      div.innerHTML = `
-        <p class="text-break" style="width: 80%">No messages yet!</p>
-      `;
-      messageContainer.appendChild(div);
-    }
-
-    // Infer hasNextPage
-    hasNextPage = messages.length === messagesPerPage;
-
-    // Render pagination
-    renderPagination(totalPages, currentPage, hasNextPage, changePage);
-  } catch (err) {
-    if (err.response.data.status === 'error') {
-      showAlert('error', err.response.data.message);
-      window.setTimeout(() => {
-        location.assign('/');
-      }, 2000);
-    }
   }
 };
 

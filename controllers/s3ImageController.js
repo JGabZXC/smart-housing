@@ -53,8 +53,6 @@ exports.getImages = (type) =>
       item = await Event.findOne({ slug: req.params.slug });
     }
 
-
-
     let coverPhotoUrl = null;
     const imageUrls = [];
 
