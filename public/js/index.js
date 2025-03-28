@@ -16,6 +16,7 @@ import { getHouses } from './house';
 import './paymentManual';
 import './dashboard'
 import './createResident'
+import './updateResident'
 
 const email = document.querySelector('#email');
 const password = document.querySelector('#password');

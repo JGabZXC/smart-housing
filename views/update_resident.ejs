@@ -1,0 +1,67 @@
+<div>
+    <div class="container">
+        <form id="updateSearchEmailForm" class="mx-auto w-75 my-0">
+            <div>
+                <label class="form-label" for="searchEmail">Search Resident Id by Email</label>
+                <input class="form-control" type="email" placeholder="holidayhomes@gmail.com" id="searchEmail" />
+            </div>
+            <div class="text-end mt-2">
+                <button id="searchEmailButton" class="btn btn-primary" type="submit">Check</button>
+            </div>
+        </form>
+        <form id="updateResidentForm" class="mx-auto w-75 my-0">
+            <div>
+                <label class="form-label">ID</label>
+                <input id="residentId" class="bg-dark form-control text-white" type="text" disabled="true" />
+            </div>
+            <div class="mt-2">
+                <label class="form-label" for="updateName">Name</label>
+                <input id="updateName" class="form-control" type="text" placeholder="John Doe" />
+            </div>
+            <div class="mt-2">
+                <label class="form-label">Email</label>
+                <input id="updateEmail" class="form-control" type="email" placeholder="holidayhomes@gmail.com" />
+            </div>
+            <div class="mt-2">
+                <label class="form-label">Contact Number</label>
+                <input id="updateContactNumber" class="form-control" type="tel" maxlength="11" placeholder="00000000000" placeholder="00000000000" />
+            </div>
+            <div class="mt-2">
+                <label class="form-label">Role</label>
+                <input id="updateRole" class="form-control" type="text" placeholder="user &amp; admin" />
+            </div>
+            <div class="mt-2">
+                <label class="form-label mb-0">Address</label>
+                <div class="d-flex justify-content-between gap-2">
+                    <div class="mt-0">
+                        <label class="form-label">Phase</label>
+                        <input id="updatePhase" class="form-control" type="number" placeholder="e.g. 1" />
+                    </div>
+                    <div class="mt-0">
+                        <label class="form-label">Block</label>
+                        <input id="updateBlock" class="form-control" type="number" placeholder="e.g. 2" />
+                    </div>
+                    <div class="mt-0">
+                        <label class="form-label">Lot</label>
+                        <input id="updateLot" class="form-control" type="number" placeholder="e.g. 3" />
+                    </div>
+                    <div class="mt-0">
+                        <label class="form-label">Street</label>
+                        <input id="updateStreet" class="form-control" type="text" placeholder="e.g. Maligaya" />
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <label class="form-label">Password</label>
+                <input id="updatePassword" class="form-control" type="text" placeholder="new password" />
+            </div>
+            <div class="mt-2">
+                <label class="form-label">Confirm Password</label>
+                <input id="updateConfirmPassword" class="form-control" type="text" placeholder="retype new password" />
+            </div>
+            <div class="text-end mt-2">
+                <button id="updateResidentButton" class="btn btn-primary" type="submit">Update</button>
+            </div>
+        </form>
+    </div>
+</div>

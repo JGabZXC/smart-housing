@@ -9,6 +9,7 @@ const handlerFactory = require('./handlerController');
 const catchAsync = require('../utils/catchAsync');
 const validateHouse = require('../utils/validateHouse');
 const House = require('../models/houseModel');
+const GetIds = require('../utils/getIds');
 
 const cookieOptions = {
   expires: new Date(
@@ -43,8 +44,6 @@ const sendToken = (user, statusCode, res) => {
 exports.getAllUsers = handlerFactory.getAll(User);
 exports.getUser = handlerFactory.getOne(User, 'address');
 exports.updateUser = catchAsync(async (req, res, next) => {
-  const updatedFields = {};
-
   const user = await User.findOne({ _id: req.params.id });
   if (!user) return next(new AppError('User not found', 404));
 
@@ -52,19 +51,19 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     if (req.body.password !== req.body.confirmPassword)
       return next(new AppError('Passwords do not match', 400));
 
-    updatedFields.password = req.body.password;
-    updatedFields.confirmPassword = req.body.confirmPassword;
+    user.password = req.body.password;
+    user.confirmPassword = req.body.confirmPassword;
   }
 
-  updatedFields.name = req.body.name || user.name;
-  updatedFields.contactNumber = req.body.contactNumber || user.contactNumber;
-  updatedFields.email = req.body.email || user.email;
-  updatedFields.role = req.body.role || user.role;
+  if (typeof req.body.address === 'object') {
+    const { phase, block, lot, street } = req.body.address;
+    if (!phase && !block && !lot && !street) req.body.address = '';
+  }
 
   if (req.body.address) {
     const newAddress = await validateHouse(req.body.address);
 
-    updatedFields.address = newAddress._id;
+    user.address = newAddress._id;
     await House.findOneAndUpdate(
       { _id: newAddress._id },
       { status: 'occupied' },
@@ -80,23 +79,33 @@ exports.updateUser = catchAsync(async (req, res, next) => {
       );
     }
   }
-  await User.updateOne({ _id: user._id }, updatedFields);
+
+  if(req.body.name) user.name = req.body.name;
+  if(req.body.contactNumber) user.contactNumber = req.body.contactNumber;
+  if(req.body.email) user.email = req.body.email;
+  if(req.body.role) user.role = req.body.role;
+
+  await user.save();
 
   res.status(200).json({
     status: 'success',
     data: {
-      user: await User.findById(user._id),
+      user,
     },
   });
 });
 exports.deleteUser = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.params.id);
 
-  if(!user) return next(new AppError('User not found', 404));
+  if (!user) return next(new AppError('User not found', 404));
 
-  await Message.deleteMany({user: req.params.id})
+  await Message.deleteMany({ user: req.params.id });
   await User.findByIdAndDelete(req.params.id);
-  await House.findOneAndUpdate({ _id: user.address }, {status: 'unoccupied'}, {new: true, runValidators: true});
+  await House.findOneAndUpdate(
+    { _id: user.address },
+    { status: 'unoccupied' },
+    { new: true, runValidators: true },
+  );
 
   res.status(204).json({
     status: 'success',
@@ -106,8 +115,6 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   let { address } = req.body;
-
-  console.log(req.body)
 
   if (typeof address !== 'object') {
     await validateHouse(address);
@@ -240,3 +247,17 @@ exports.reRoute = (req, res, next) => {
   if (res.locals.user) return res.redirect('/');
   next();
 };
+
+exports.getIds = catchAsync(async (req, res, next) => {
+  const { type, object, message = 'Nothing was found' } = req.body;
+  const result = await GetIds(type, object);
+
+  if (result.length === 0) return next(new AppError(message, 404));
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      doc: result,
+    },
+  });
+});

@@ -134,8 +134,14 @@ exports.getAddress = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getResident = catchAsync(async (req, res, next) => {
+exports.getCreateResident = catchAsync(async (req, res, next) => {
   res.status(200).render('create_resident', {
     title: 'Create Resident',
+  });
+});
+
+exports.getUpdateResident = catchAsync(async (req, res, next) => {
+  res.status(200).render('update_resident', {
+    title: 'Update Resident',
   });
 });
