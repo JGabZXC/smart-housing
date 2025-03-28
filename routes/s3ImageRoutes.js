@@ -16,6 +16,10 @@ router
   .route('/getFeaturedCover/event')
   .get(s3ImageController.getFeaturedCover('event'));
 
+router
+  .route('/getImages/event/:slug')
+  .get(s3ImageController.getImages('event'));
+
 router.use(authController.protect);
 router.use(authController.protectTo('admin'));
 router.route('/').get(s3ImageController.getAllImages);

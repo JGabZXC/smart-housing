@@ -12752,6 +12752,7 @@ function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyri
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } /* eslint-disable */
 var featuredPhoto = document.querySelector('.featured-photo');
+var featuredPhotoBg = document.querySelector('.featured-photo-bg');
 var getFeatured = exports.getFeatured = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(type) {
     var res, coverImage;
@@ -12786,7 +12787,7 @@ var getFeatured = exports.getFeatured = /*#__PURE__*/function () {
 }();
 var getImages = exports.getImages = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(type, slug) {
-    var res, carousel, projectImages, carouselInner, carouselIndicators;
+    var res, carousel, typeImages, carouselInner, carouselIndicators;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -12799,22 +12800,31 @@ var getImages = exports.getImages = /*#__PURE__*/function () {
         case 3:
           res = _context2.sent;
           if (!res.data.message) {
-            _context2.next = 9;
+            _context2.next = 11;
             break;
           }
           carousel = document.querySelector('#carousel-1');
           carousel.innerHTML = '';
-          featuredPhoto.remove();
-          return _context2.abrupt("return");
-        case 9:
+          if (featuredPhoto) featuredPhoto.remove();
+          if (featuredPhotoBg) {
+            featuredPhotoBg.style.backgroundImage = "url('https://cdn.bootstrapstudio.io/placeholders/1400x800.png')";
+            featuredPhotoBg.style.backgroundSize = 'cover';
+          }
           ;
-          projectImages = res.data;
-          featuredPhoto.src = projectImages.coverPhotoUrl;
+          return _context2.abrupt("return");
+        case 11:
+          ;
+          typeImages = res.data;
+          if (featuredPhoto) featuredPhoto.src = typeImages.coverPhotoUrl;
+          if (featuredPhotoBg) {
+            featuredPhotoBg.style.backgroundImage = "url(".concat(typeImages.coverPhotoUrl, ")");
+            featuredPhotoBg.style.backgroundSize = 'cover';
+          }
           carouselInner = document.querySelector('.carousel-inner');
           carouselInner.innerHTML = '';
           carouselIndicators = document.querySelector('.carousel-indicators');
           carouselIndicators.innerHTML = '';
-          projectImages.imageUrls.forEach(function (image, index) {
+          typeImages.imageUrls.forEach(function (image, index) {
             var div = document.createElement('div');
             div.classList.add('carousel-item');
             if (index === 0) div.classList.add('active');
@@ -12833,17 +12843,17 @@ var getImages = exports.getImages = /*#__PURE__*/function () {
             if (index === 0) indicator.classList.add('active');
             carouselIndicators.appendChild(indicator);
           });
-          _context2.next = 22;
+          _context2.next = 25;
           break;
-        case 19:
-          _context2.prev = 19;
+        case 22:
+          _context2.prev = 22;
           _context2.t0 = _context2["catch"](0);
           console.error(_context2.t0);
-        case 22:
+        case 25:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 19]]);
+    }, _callee2, null, [[0, 22]]);
   }));
   return function getImages(_x2, _x3) {
     return _ref2.apply(this, arguments);
@@ -12986,7 +12996,7 @@ function _fetchData() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.submitMessagesProject = exports.getMessagesProject = void 0;
+exports.submitMessages = exports.getMessagesType = exports.getMessagesProject = exports.getMessages = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 var _alerts = require("./alerts");
 var _eventAndProjHelper = require("./_eventAndProjHelper");
@@ -12998,33 +13008,28 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 var currentPage = 1;
 var messagesPerPage = 10;
 var hasNextPage = false;
-var userID;
-if (document.querySelector('#project-id')) {
-  userID = document.querySelector('#project-id').dataset.userid;
-}
-var forumMessages = document.querySelector('#forum-messages');
 function handleMessageUpdate(_x, _x2, _x3, _x4) {
   return _handleMessageUpdate.apply(this, arguments);
 }
 function _handleMessageUpdate() {
-  _handleMessageUpdate = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(target, message, prevValue, messageID) {
+  _handleMessageUpdate = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6(target, message, prevValue, messageID) {
     var newMessage, res;
-    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-      while (1) switch (_context4.prev = _context4.next) {
+    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+      while (1) switch (_context6.prev = _context6.next) {
         case 0:
           if (target.classList.contains('btn-success')) {
-            _context4.next = 6;
+            _context6.next = 6;
             break;
           }
           target.innerHTML = '<i class="bi bi-check"></i> Confirm';
           target.classList.remove('btn-primary');
           target.classList.add('btn-success');
           message.innerHTML = "<input type=\"text\" value=\"".concat(prevValue, "\">");
-          return _context4.abrupt("return");
+          return _context6.abrupt("return");
         case 6:
           newMessage = message.querySelector('input').value;
-          _context4.prev = 7;
-          _context4.next = 10;
+          _context6.prev = 7;
+          _context6.next = 10;
           return (0, _axios.default)({
             method: 'PATCH',
             url: "/api/v1/messages/".concat(messageID),
@@ -13033,30 +13038,30 @@ function _handleMessageUpdate() {
             }
           });
         case 10:
-          res = _context4.sent;
+          res = _context6.sent;
           message.innerHTML = '';
           if (!(res.data.status === 'success')) {
-            _context4.next = 16;
+            _context6.next = 16;
             break;
           }
           (0, _alerts.showAlert)('success', 'Message updated!');
-          _context4.next = 16;
+          _context6.next = 16;
           return getMessagesProject(document.querySelector('#project-id').dataset.projectid);
         case 16:
           target.innerHTML = '<i class="bi bi-pencil">';
           target.classList.remove('btn-success');
           target.classList.add('btn-primary');
-          _context4.next = 24;
+          _context6.next = 24;
           break;
         case 21:
-          _context4.prev = 21;
-          _context4.t0 = _context4["catch"](7);
-          (0, _alerts.showAlert)('error', _context4.t0.response.data.message);
+          _context6.prev = 21;
+          _context6.t0 = _context6["catch"](7);
+          (0, _alerts.showAlert)('error', _context6.t0.response.data.message);
         case 24:
         case "end":
-          return _context4.stop();
+          return _context6.stop();
       }
-    }, _callee4, null, [[7, 21]]);
+    }, _callee6, null, [[7, 21]]);
   }));
   return _handleMessageUpdate.apply(this, arguments);
 }
@@ -13064,44 +13069,57 @@ function handleMessageDelete(_x5, _x6) {
   return _handleMessageDelete.apply(this, arguments);
 }
 function _handleMessageDelete() {
-  _handleMessageDelete = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(target, messageID) {
-    return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-      while (1) switch (_context5.prev = _context5.next) {
+  _handleMessageDelete = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee7(target, messageID) {
+    return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+      while (1) switch (_context7.prev = _context7.next) {
         case 0:
           if (!target.classList.contains('for-delete')) {
-            _context5.next = 12;
+            _context7.next = 12;
             break;
           }
-          _context5.prev = 1;
-          _context5.next = 4;
+          _context7.prev = 1;
+          _context7.next = 4;
           return (0, _axios.default)({
             method: 'DELETE',
             url: "/api/v1/messages/".concat(messageID)
           });
         case 4:
           (0, _alerts.showAlert)('success', 'Message deleted!');
-          _context5.next = 7;
-          return getMessagesProject(document.querySelector('#project-id').dataset.projectid);
+          _context7.next = 7;
+          return getMessagesProject(
+            // document.querySelector('#project-id').dataset.projectid,
+          );
         case 7:
-          _context5.next = 12;
+          _context7.next = 12;
           break;
         case 9:
-          _context5.prev = 9;
-          _context5.t0 = _context5["catch"](1);
-          (0, _alerts.showAlert)('error', _context5.t0.response.data.message);
+          _context7.prev = 9;
+          _context7.t0 = _context7["catch"](1);
+          (0, _alerts.showAlert)('error', _context7.t0.response.data.message);
         case 12:
           target.innerHTML = '<i class="bi bi-check"></i> Confirm';
           target.classList.add('for-delete');
         case 14:
         case "end":
-          return _context5.stop();
+          return _context7.stop();
       }
-    }, _callee5, null, [[1, 9]]);
+    }, _callee7, null, [[1, 9]]);
   }));
   return _handleMessageDelete.apply(this, arguments);
 }
-var getMessagesProject = exports.getMessagesProject = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(projectid) {
+var userID;
+var type;
+if (document.querySelector('#project-id')) {
+  userID = document.querySelector('#project-id').dataset.userid;
+  type = 'projects';
+}
+if (document.querySelector('#event-id')) {
+  userID = document.querySelector('#event-id').dataset.userid;
+  type = 'events';
+}
+var forumMessages = document.querySelector('#forum-messages');
+var getMessages = exports.getMessages = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(type, id) {
     var res, messages, totalPages, messageContainer, div;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
@@ -13110,7 +13128,7 @@ var getMessagesProject = exports.getMessagesProject = /*#__PURE__*/function () {
           _context.next = 3;
           return (0, _axios.default)({
             method: 'GET',
-            url: "/api/v1/projects/".concat(projectid, "/messages/message?page=").concat(currentPage, "&limit=").concat(messagesPerPage, "&sort=-date")
+            url: "/api/v1/".concat(type, "/").concat(id, "/messages/message?page=").concat(currentPage, "&limit=").concat(messagesPerPage, "&sort=-date")
           });
         case 3:
           res = _context.sent;
@@ -13157,102 +13175,230 @@ var getMessagesProject = exports.getMessagesProject = /*#__PURE__*/function () {
       }
     }, _callee, null, [[0, 13]]);
   }));
-  return function getMessagesProject(_x7) {
+  return function getMessages(_x7, _x8) {
     return _ref.apply(this, arguments);
+  };
+}();
+var submitMessages = exports.submitMessages = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(type, id) {
+    var submitMessageBtn, res, message;
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) switch (_context2.prev = _context2.next) {
+        case 0:
+          submitMessageBtn = document.querySelector('#submit-message-btn');
+          _context2.prev = 1;
+          _context2.next = 4;
+          return (0, _axios.default)({
+            method: 'POST',
+            url: "/api/v1/".concat(type, "/").concat(id, "/messages"),
+            data: {
+              message: document.querySelector('#message').value
+            }
+          });
+        case 4:
+          res = _context2.sent;
+          message = res.data;
+          submitMessageBtn.disabled = true;
+          submitMessageBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+          if (!(message.status === 'success')) {
+            _context2.next = 13;
+            break;
+          }
+          (0, _alerts.showAlert)('success', 'Message uploaded!');
+          document.querySelector('#message').value = '';
+          _context2.next = 13;
+          return getMessagesType(type, id);
+        case 13:
+          submitMessageBtn.disabled = false;
+          submitMessageBtn.innerHTML = 'Submit';
+          _context2.next = 22;
+          break;
+        case 17:
+          _context2.prev = 17;
+          _context2.t0 = _context2["catch"](1);
+          (0, _alerts.showAlert)('error', _context2.t0.response.data.message);
+          submitMessageBtn.disabled = false;
+          submitMessageBtn.innerHTML = 'Submit';
+        case 22:
+        case "end":
+          return _context2.stop();
+      }
+    }, _callee2, null, [[1, 17]]);
+  }));
+  return function submitMessages(_x9, _x10) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var getMessagesProject = exports.getMessagesProject = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(projectid) {
+    var res, messages, totalPages, messageContainer, div;
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
+        case 0:
+          _context3.prev = 0;
+          _context3.next = 3;
+          return (0, _axios.default)({
+            method: 'GET',
+            url: "/api/v1/projects/".concat(projectid, "/messages/message?page=").concat(currentPage, "&limit=").concat(messagesPerPage, "&sort=-date")
+          });
+        case 3:
+          res = _context3.sent;
+          messages = res.data.messages;
+          totalPages = res.data.totalPages;
+          messageContainer = document.querySelector('#forum-messages');
+          messageContainer.innerHTML = '';
+          if (messages.length > 0) {
+            messages.forEach(function (message) {
+              var div = document.createElement('div');
+              div.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-2', 'gap-1');
+              var date = new Date(message.date);
+              var finalDate = date.toLocaleString('en-US', {
+                timeZone: 'Asia/Manila'
+              });
+              div.innerHTML = "\n          <div class=\"d-flex gap-1\">\n            <p class=\"top-message\">".concat(message.user.name.split(' ')[0], " <span class=\"date-message\">(").concat(finalDate, ")</span>: </p>\n            <p class=\"text-break bottom-message\">").concat(message.message, "</p>\n          </div>\n            ").concat(message.user._id === userID ? "\n          <div class=\"d-flex gap-2 btn-actions\">\n            <button class=\"btn btn-primary edit-message\" data-id=\"".concat(message._id, "\"><i class=\"bi bi-pencil\"></i></button>\n            <button class=\"btn btn-danger delete-message\" data-id=\"").concat(message._id, "\"><i class=\"bi bi-trash\"></i></button>\n          </div>\n          ") : '', "\n        ");
+              messageContainer.appendChild(div);
+            });
+          } else {
+            div = document.createElement('div');
+            div.innerHTML = "\n        <p class=\"text-break\" style=\"width: 80%\">No messages yet!</p>\n      ";
+            messageContainer.appendChild(div);
+          }
+
+          // Infer hasNextPage
+          hasNextPage = messages.length === messagesPerPage;
+
+          // Render pagination
+          (0, _eventAndProjHelper.renderPagination)(totalPages, currentPage, hasNextPage, changePage);
+          _context3.next = 16;
+          break;
+        case 13:
+          _context3.prev = 13;
+          _context3.t0 = _context3["catch"](0);
+          if (_context3.t0.response.data.status === 'error') {
+            (0, _alerts.showAlert)('error', _context3.t0.response.data.message);
+            window.setTimeout(function () {
+              location.assign('/');
+            }, 2000);
+          }
+        case 16:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3, null, [[0, 13]]);
+  }));
+  return function getMessagesProject(_x11) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var getMessagesType = exports.getMessagesType = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(type, id) {
+    var res, messages, totalPages, messageContainer, div;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.prev = 0;
+          _context4.next = 3;
+          return (0, _axios.default)({
+            method: 'GET',
+            url: "/api/v1/".concat(type, "/").concat(id, "/messages/message?page=").concat(currentPage, "&limit=").concat(messagesPerPage, "&sort=-date")
+          });
+        case 3:
+          res = _context4.sent;
+          messages = res.data.messages;
+          totalPages = res.data.totalPages;
+          messageContainer = document.querySelector('#forum-messages');
+          messageContainer.innerHTML = '';
+          if (messages.length > 0) {
+            messages.forEach(function (message) {
+              var div = document.createElement('div');
+              div.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-2', 'gap-1');
+              var date = new Date(message.date);
+              var finalDate = date.toLocaleString('en-US', {
+                timeZone: 'Asia/Manila'
+              });
+              div.innerHTML = "\n          <div class=\"d-flex gap-1\">\n            <p class=\"top-message\">".concat(message.user.name.split(' ')[0], " <span class=\"date-message\">(").concat(finalDate, ")</span>: </p>\n            <p class=\"text-break bottom-message\">").concat(message.message, "</p>\n          </div>\n            ").concat(message.user._id === userID ? "\n          <div class=\"d-flex gap-2 btn-actions\">\n            <button class=\"btn btn-primary edit-message\" data-id=\"".concat(message._id, "\"><i class=\"bi bi-pencil\"></i></button>\n            <button class=\"btn btn-danger delete-message\" data-id=\"").concat(message._id, "\"><i class=\"bi bi-trash\"></i></button>\n          </div>\n          ") : '', "\n        ");
+              messageContainer.appendChild(div);
+            });
+          } else {
+            div = document.createElement('div');
+            div.innerHTML = "\n        <p class=\"text-break\" style=\"width: 80%\">No messages yet!</p>\n      ";
+            messageContainer.appendChild(div);
+          }
+
+          // Infer hasNextPage
+          hasNextPage = messages.length === messagesPerPage;
+
+          // Render pagination
+          (0, _eventAndProjHelper.renderPagination)(totalPages, currentPage, hasNextPage, changePage);
+          _context4.next = 16;
+          break;
+        case 13:
+          _context4.prev = 13;
+          _context4.t0 = _context4["catch"](0);
+          if (_context4.t0.response.data.status === 'error') {
+            (0, _alerts.showAlert)('error', _context4.t0.response.data.message);
+            window.setTimeout(function () {
+              location.assign('/');
+            }, 2000);
+          }
+        case 16:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4, null, [[0, 13]]);
+  }));
+  return function getMessagesType(_x12, _x13) {
+    return _ref4.apply(this, arguments);
   };
 }();
 if (forumMessages) {
   forumMessages.addEventListener('click', /*#__PURE__*/function () {
-    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
+    var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(e) {
       var target, parentOfParentElement, messageID, message, messagePrevVal;
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) switch (_context2.prev = _context2.next) {
+      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+        while (1) switch (_context5.prev = _context5.next) {
           case 0:
             target = e.target;
             if (target.tagName.toLowerCase() === 'i') target = target.parentElement;
             parentOfParentElement = target.parentElement.parentElement;
             messageID = target.dataset.id;
             if (!target.classList.contains('edit-message')) {
-              _context2.next = 9;
+              _context5.next = 9;
               break;
             }
             message = parentOfParentElement.querySelector('.bottom-message');
             messagePrevVal = message.innerHTML;
-            _context2.next = 9;
+            _context5.next = 9;
             return handleMessageUpdate(target, message, messagePrevVal, messageID);
           case 9:
             if (!target.classList.contains('delete-message')) {
-              _context2.next = 12;
+              _context5.next = 12;
               break;
             }
-            _context2.next = 12;
+            _context5.next = 12;
             return handleMessageDelete(target, messageID);
           case 12:
           case "end":
-            return _context2.stop();
+            return _context5.stop();
         }
-      }, _callee2);
+      }, _callee5);
     }));
-    return function (_x8) {
-      return _ref2.apply(this, arguments);
+    return function (_x14) {
+      return _ref5.apply(this, arguments);
     };
   }());
 }
-var submitMessagesProject = exports.submitMessagesProject = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(projectid) {
-    var submitMessageBtn, res, message;
-    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-      while (1) switch (_context3.prev = _context3.next) {
-        case 0:
-          submitMessageBtn = document.querySelector('#submit-message-btn');
-          _context3.prev = 1;
-          _context3.next = 4;
-          return (0, _axios.default)({
-            method: 'POST',
-            url: "/api/v1/projects/".concat(projectid, "/messages"),
-            data: {
-              message: document.querySelector('#message').value
-            }
-          });
-        case 4:
-          res = _context3.sent;
-          message = res.data;
-          submitMessageBtn.disabled = true;
-          submitMessageBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
-          if (!(message.status === 'success')) {
-            _context3.next = 13;
-            break;
-          }
-          (0, _alerts.showAlert)('success', 'Message uploaded!');
-          document.querySelector('#message').value = '';
-          _context3.next = 13;
-          return getMessagesProject(projectid);
-        case 13:
-          submitMessageBtn.disabled = false;
-          submitMessageBtn.innerHTML = 'Submit';
-          _context3.next = 22;
-          break;
-        case 17:
-          _context3.prev = 17;
-          _context3.t0 = _context3["catch"](1);
-          (0, _alerts.showAlert)('error', _context3.t0.response.data.message);
-          submitMessageBtn.disabled = false;
-          submitMessageBtn.innerHTML = 'Submit';
-        case 22:
-        case "end":
-          return _context3.stop();
-      }
-    }, _callee3, null, [[1, 17]]);
-  }));
-  return function submitMessagesProject(_x9) {
-    return _ref3.apply(this, arguments);
-  };
-}();
 window.changePage = function (newPage) {
-  var projectId = document.querySelector('#project-id').dataset.projectid;
+  var id;
+  if (document.querySelector('#project-id')) {
+    id = document.querySelector('#project-id').dataset.projectid;
+  }
+  if (document.querySelector('#event-id')) {
+    id = document.querySelector('#event-id').dataset.eventid;
+  }
   if (newPage < 1) return; // Prevent going to page 0 or negative
   currentPage = newPage;
-  getMessagesProject(projectId);
+  getMessages(type, id);
 };
 },{"axios":"../../node_modules/axios/index.js","./alerts":"alerts.js","./_eventAndProjHelper":"_eventAndProjHelper.js"}],"payment.js":[function(require,module,exports) {
 "use strict";
@@ -14135,7 +14281,7 @@ if (projectCreateButton) {
 if (eventCreateButton) {
   eventCreateButton.addEventListener('click', function () {
     var modalBody = document.querySelector('.modal-body');
-    var markup = "\n      <div class=\"mb-3\">\n           <label for=\"place\" class=\"form-label\">Place</label>\n           <input type=\"text\" class=\"form-control\" id=\"place\" name=\"place\" required />\n       </div>\n      ";
+    var markup = "\n      <div class=\"mb-3\">\n           <label for=\"place\" class=\"form-label\">Place</label>\n           <input type=\"text\" class=\"form-control\" id=\"place\" name=\"place\" required />\n       </div>\n       <div class=\"mb-3\">\n           <label for=\"time\" class=\"form-label\">Time</label>\n           <input type=\"time\" class=\"form-control\" id=\"time\" name=\"time\" required />\n       </div>\n      ";
     modalDashboard.classList.add('add-event-modal');
     modalBody.insertAdjacentHTML('afterbegin', markup);
     modalDashboardForm.addEventListener('submit', /*#__PURE__*/function () {
@@ -14147,7 +14293,7 @@ if (eventCreateButton) {
               e.preventDefault();
               place = document.querySelector('#place').value;
               name = document.querySelector('#name').value;
-              date = document.querySelector('#date').value;
+              date = new Date("".concat(document.querySelector('#date').value, "T").concat(document.querySelector('#time').value));
               summary = document.querySelector('#richDescription').value;
               description = document.querySelector('#description').value;
               imageCover = document.querySelector('#imageCover').files;
@@ -14489,23 +14635,24 @@ if (updateSearchEmailForm) {
             data = res.data.data.doc[0];
             if (res.data.status === 'success') (0, _alerts.showAlert)('success', 'Email was found!');
             residentId.value = data._id;
-            _context.next = 20;
+            updateSearchEmailForm.reset();
+            _context.next = 21;
             break;
-          case 16:
-            _context.prev = 16;
+          case 17:
+            _context.prev = 17;
             _context.t0 = _context["catch"](4);
             console.error(_context.t0);
             (0, _alerts.showAlert)('error', _context.t0.response.data.message);
-          case 20:
-            _context.prev = 20;
+          case 21:
+            _context.prev = 21;
             searchEmailButton.disabled = false;
             searchEmailButton.innerHTML = 'Check';
-            return _context.finish(20);
-          case 24:
+            return _context.finish(21);
+          case 25:
           case "end":
             return _context.stop();
         }
-      }, _callee, null, [[4, 16, 20, 24]]);
+      }, _callee, null, [[4, 17, 21, 25]]);
     }));
     return function (_x) {
       return _ref.apply(this, arguments);
@@ -14736,8 +14883,7 @@ var hero = document.querySelector('.hero-index');
 var projectContainer = document.querySelector('#project-container');
 var projectListContainer = document.querySelector('#project-list-container');
 var adminProjectContainer = document.querySelector('#admin-project-container');
-
-// const eventContainer = document.querySelector('#event-container');
+var eventContainer = document.querySelector('#event-container');
 var eventListContainer = document.querySelector('#event-list-container');
 var adminEventContainer = document.querySelector('#admin-event-container');
 var addressContainer = document.querySelector('#address-container');
@@ -14767,18 +14913,25 @@ if (projectContainer) {
   var slug = projectContainer.dataset.slug;
   var projectId = document.querySelector('#project-id').dataset.projectid;
   (0, _getS3Image.getImages)('project', slug);
-  (0, _message.getMessagesProject)(projectId);
+  (0, _message.getMessages)('projects', projectId);
 }
 if (projectListContainer || adminProjectContainer) {
   (0, _projects.getProjects)();
 }
 
 // MESSAGES
-if (submitMessageForm) {
+if (projectContainer && submitMessageForm) {
   var _projectId = document.querySelector('#project-id').dataset.projectid;
   submitMessageForm.addEventListener('submit', function (e) {
     e.preventDefault();
-    (0, _message.submitMessagesProject)(_projectId);
+    (0, _message.submitMessages)('projects', _projectId);
+  }, false);
+}
+if (eventContainer && submitMessageForm) {
+  var eventId = document.querySelector('#event-id').dataset.eventid;
+  submitMessageForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    (0, _message.submitMessages)('events', eventId);
   }, false);
 }
 if (paymentForm) {
@@ -14796,13 +14949,21 @@ if (paymentForm) {
     (0, _payment.payWithStripe)(amount, dateRange);
   });
 }
+
+// EVENTS
+if (eventContainer) {
+  var _slug = eventContainer.dataset.slug;
+  var _eventId = document.querySelector('#event-id').dataset.eventid;
+  (0, _getS3Image.getImages)('event', _slug);
+  (0, _message.getMessages)('events', _eventId);
+}
 if (eventListContainer || adminEventContainer) {
   (0, _events.getEvents)();
 }
 
 // HOUSES | ADMIN
 if (addressContainer) {
-  (0, _house.getHouses)();
+  // getHouses();
 }
 },{"core-js/modules/es6.array.copy-within.js":"../../node_modules/core-js/modules/es6.array.copy-within.js","core-js/modules/es6.array.fill.js":"../../node_modules/core-js/modules/es6.array.fill.js","core-js/modules/es6.array.filter.js":"../../node_modules/core-js/modules/es6.array.filter.js","core-js/modules/es6.array.find.js":"../../node_modules/core-js/modules/es6.array.find.js","core-js/modules/es6.array.find-index.js":"../../node_modules/core-js/modules/es6.array.find-index.js","core-js/modules/es7.array.flat-map.js":"../../node_modules/core-js/modules/es7.array.flat-map.js","core-js/modules/es6.array.from.js":"../../node_modules/core-js/modules/es6.array.from.js","core-js/modules/es7.array.includes.js":"../../node_modules/core-js/modules/es7.array.includes.js","core-js/modules/es6.array.iterator.js":"../../node_modules/core-js/modules/es6.array.iterator.js","core-js/modules/es6.array.map.js":"../../node_modules/core-js/modules/es6.array.map.js","core-js/modules/es6.array.of.js":"../../node_modules/core-js/modules/es6.array.of.js","core-js/modules/es6.array.slice.js":"../../node_modules/core-js/modules/es6.array.slice.js","core-js/modules/es6.array.species.js":"../../node_modules/core-js/modules/es6.array.species.js","core-js/modules/es6.date.to-primitive.js":"../../node_modules/core-js/modules/es6.date.to-primitive.js","core-js/modules/es6.function.has-instance.js":"../../node_modules/core-js/modules/es6.function.has-instance.js","core-js/modules/es6.function.name.js":"../../node_modules/core-js/modules/es6.function.name.js","core-js/modules/es6.map.js":"../../node_modules/core-js/modules/es6.map.js","core-js/modules/es6.math.acosh.js":"../../node_modules/core-js/modules/es6.math.acosh.js","core-js/modules/es6.math.asinh.js":"../../node_modules/core-js/modules/es6.math.asinh.js","core-js/modules/es6.math.atanh.js":"../../node_modules/core-js/modules/es6.math.atanh.js","core-js/modules/es6.math.cbrt.js":"../../node_modules/core-js/modules/es6.math.cbrt.js","core-js/modules/es6.math.clz32.js":"../../node_modules/core-js/modules/es6.math.clz32.js","core-js/modules/es6.math.cosh.js":"../../node_modules/core-js/modules/es6.math.cosh.js","core-js/modules/es6.math.expm1.js":"../../node_modules/core-js/modules/es6.math.expm1.js","core-js/modules/es6.math.fround.js":"../../node_modules/core-js/modules/es6.math.fround.js","core-js/modules/es6.math.hypot.js":"../../node_modules/core-js/modules/es6.math.hypot.js","core-js/modules/es6.math.imul.js":"../../node_modules/core-js/modules/es6.math.imul.js","core-js/modules/es6.math.log1p.js":"../../node_modules/core-js/modules/es6.math.log1p.js","core-js/modules/es6.math.log10.js":"../../node_modules/core-js/modules/es6.math.log10.js","core-js/modules/es6.math.log2.js":"../../node_modules/core-js/modules/es6.math.log2.js","core-js/modules/es6.math.sign.js":"../../node_modules/core-js/modules/es6.math.sign.js","core-js/modules/es6.math.sinh.js":"../../node_modules/core-js/modules/es6.math.sinh.js","core-js/modules/es6.math.tanh.js":"../../node_modules/core-js/modules/es6.math.tanh.js","core-js/modules/es6.math.trunc.js":"../../node_modules/core-js/modules/es6.math.trunc.js","core-js/modules/es6.number.constructor.js":"../../node_modules/core-js/modules/es6.number.constructor.js","core-js/modules/es6.number.epsilon.js":"../../node_modules/core-js/modules/es6.number.epsilon.js","core-js/modules/es6.number.is-finite.js":"../../node_modules/core-js/modules/es6.number.is-finite.js","core-js/modules/es6.number.is-integer.js":"../../node_modules/core-js/modules/es6.number.is-integer.js","core-js/modules/es6.number.is-nan.js":"../../node_modules/core-js/modules/es6.number.is-nan.js","core-js/modules/es6.number.is-safe-integer.js":"../../node_modules/core-js/modules/es6.number.is-safe-integer.js","core-js/modules/es6.number.max-safe-integer.js":"../../node_modules/core-js/modules/es6.number.max-safe-integer.js","core-js/modules/es6.number.min-safe-integer.js":"../../node_modules/core-js/modules/es6.number.min-safe-integer.js","core-js/modules/es6.number.parse-float.js":"../../node_modules/core-js/modules/es6.number.parse-float.js","core-js/modules/es6.number.parse-int.js":"../../node_modules/core-js/modules/es6.number.parse-int.js","core-js/modules/es6.object.assign.js":"../../node_modules/core-js/modules/es6.object.assign.js","core-js/modules/es7.object.define-getter.js":"../../node_modules/core-js/modules/es7.object.define-getter.js","core-js/modules/es7.object.define-setter.js":"../../node_modules/core-js/modules/es7.object.define-setter.js","core-js/modules/es7.object.entries.js":"../../node_modules/core-js/modules/es7.object.entries.js","core-js/modules/es6.object.freeze.js":"../../node_modules/core-js/modules/es6.object.freeze.js","core-js/modules/es6.object.get-own-property-descriptor.js":"../../node_modules/core-js/modules/es6.object.get-own-property-descriptor.js","core-js/modules/es7.object.get-own-property-descriptors.js":"../../node_modules/core-js/modules/es7.object.get-own-property-descriptors.js","core-js/modules/es6.object.get-own-property-names.js":"../../node_modules/core-js/modules/es6.object.get-own-property-names.js","core-js/modules/es6.object.get-prototype-of.js":"../../node_modules/core-js/modules/es6.object.get-prototype-of.js","core-js/modules/es7.object.lookup-getter.js":"../../node_modules/core-js/modules/es7.object.lookup-getter.js","core-js/modules/es7.object.lookup-setter.js":"../../node_modules/core-js/modules/es7.object.lookup-setter.js","core-js/modules/es6.object.prevent-extensions.js":"../../node_modules/core-js/modules/es6.object.prevent-extensions.js","core-js/modules/es6.object.to-string.js":"../../node_modules/core-js/modules/es6.object.to-string.js","core-js/modules/es6.object.is.js":"../../node_modules/core-js/modules/es6.object.is.js","core-js/modules/es6.object.is-frozen.js":"../../node_modules/core-js/modules/es6.object.is-frozen.js","core-js/modules/es6.object.is-sealed.js":"../../node_modules/core-js/modules/es6.object.is-sealed.js","core-js/modules/es6.object.is-extensible.js":"../../node_modules/core-js/modules/es6.object.is-extensible.js","core-js/modules/es6.object.keys.js":"../../node_modules/core-js/modules/es6.object.keys.js","core-js/modules/es6.object.seal.js":"../../node_modules/core-js/modules/es6.object.seal.js","core-js/modules/es7.object.values.js":"../../node_modules/core-js/modules/es7.object.values.js","core-js/modules/es6.promise.js":"../../node_modules/core-js/modules/es6.promise.js","core-js/modules/es7.promise.finally.js":"../../node_modules/core-js/modules/es7.promise.finally.js","core-js/modules/es6.reflect.apply.js":"../../node_modules/core-js/modules/es6.reflect.apply.js","core-js/modules/es6.reflect.construct.js":"../../node_modules/core-js/modules/es6.reflect.construct.js","core-js/modules/es6.reflect.define-property.js":"../../node_modules/core-js/modules/es6.reflect.define-property.js","core-js/modules/es6.reflect.delete-property.js":"../../node_modules/core-js/modules/es6.reflect.delete-property.js","core-js/modules/es6.reflect.get.js":"../../node_modules/core-js/modules/es6.reflect.get.js","core-js/modules/es6.reflect.get-own-property-descriptor.js":"../../node_modules/core-js/modules/es6.reflect.get-own-property-descriptor.js","core-js/modules/es6.reflect.get-prototype-of.js":"../../node_modules/core-js/modules/es6.reflect.get-prototype-of.js","core-js/modules/es6.reflect.has.js":"../../node_modules/core-js/modules/es6.reflect.has.js","core-js/modules/es6.reflect.is-extensible.js":"../../node_modules/core-js/modules/es6.reflect.is-extensible.js","core-js/modules/es6.reflect.own-keys.js":"../../node_modules/core-js/modules/es6.reflect.own-keys.js","core-js/modules/es6.reflect.prevent-extensions.js":"../../node_modules/core-js/modules/es6.reflect.prevent-extensions.js","core-js/modules/es6.reflect.set.js":"../../node_modules/core-js/modules/es6.reflect.set.js","core-js/modules/es6.reflect.set-prototype-of.js":"../../node_modules/core-js/modules/es6.reflect.set-prototype-of.js","core-js/modules/es6.regexp.constructor.js":"../../node_modules/core-js/modules/es6.regexp.constructor.js","core-js/modules/es6.regexp.flags.js":"../../node_modules/core-js/modules/es6.regexp.flags.js","core-js/modules/es6.regexp.match.js":"../../node_modules/core-js/modules/es6.regexp.match.js","core-js/modules/es6.regexp.replace.js":"../../node_modules/core-js/modules/es6.regexp.replace.js","core-js/modules/es6.regexp.split.js":"../../node_modules/core-js/modules/es6.regexp.split.js","core-js/modules/es6.regexp.search.js":"../../node_modules/core-js/modules/es6.regexp.search.js","core-js/modules/es6.regexp.to-string.js":"../../node_modules/core-js/modules/es6.regexp.to-string.js","core-js/modules/es6.set.js":"../../node_modules/core-js/modules/es6.set.js","core-js/modules/es6.symbol.js":"../../node_modules/core-js/modules/es6.symbol.js","core-js/modules/es7.symbol.async-iterator.js":"../../node_modules/core-js/modules/es7.symbol.async-iterator.js","core-js/modules/es6.string.anchor.js":"../../node_modules/core-js/modules/es6.string.anchor.js","core-js/modules/es6.string.big.js":"../../node_modules/core-js/modules/es6.string.big.js","core-js/modules/es6.string.blink.js":"../../node_modules/core-js/modules/es6.string.blink.js","core-js/modules/es6.string.bold.js":"../../node_modules/core-js/modules/es6.string.bold.js","core-js/modules/es6.string.code-point-at.js":"../../node_modules/core-js/modules/es6.string.code-point-at.js","core-js/modules/es6.string.ends-with.js":"../../node_modules/core-js/modules/es6.string.ends-with.js","core-js/modules/es6.string.fixed.js":"../../node_modules/core-js/modules/es6.string.fixed.js","core-js/modules/es6.string.fontcolor.js":"../../node_modules/core-js/modules/es6.string.fontcolor.js","core-js/modules/es6.string.fontsize.js":"../../node_modules/core-js/modules/es6.string.fontsize.js","core-js/modules/es6.string.from-code-point.js":"../../node_modules/core-js/modules/es6.string.from-code-point.js","core-js/modules/es6.string.includes.js":"../../node_modules/core-js/modules/es6.string.includes.js","core-js/modules/es6.string.italics.js":"../../node_modules/core-js/modules/es6.string.italics.js","core-js/modules/es6.string.iterator.js":"../../node_modules/core-js/modules/es6.string.iterator.js","core-js/modules/es6.string.link.js":"../../node_modules/core-js/modules/es6.string.link.js","core-js/modules/es7.string.pad-start.js":"../../node_modules/core-js/modules/es7.string.pad-start.js","core-js/modules/es7.string.pad-end.js":"../../node_modules/core-js/modules/es7.string.pad-end.js","core-js/modules/es6.string.raw.js":"../../node_modules/core-js/modules/es6.string.raw.js","core-js/modules/es6.string.repeat.js":"../../node_modules/core-js/modules/es6.string.repeat.js","core-js/modules/es6.string.small.js":"../../node_modules/core-js/modules/es6.string.small.js","core-js/modules/es6.string.starts-with.js":"../../node_modules/core-js/modules/es6.string.starts-with.js","core-js/modules/es6.string.strike.js":"../../node_modules/core-js/modules/es6.string.strike.js","core-js/modules/es6.string.sub.js":"../../node_modules/core-js/modules/es6.string.sub.js","core-js/modules/es6.string.sup.js":"../../node_modules/core-js/modules/es6.string.sup.js","core-js/modules/es7.string.trim-left.js":"../../node_modules/core-js/modules/es7.string.trim-left.js","core-js/modules/es7.string.trim-right.js":"../../node_modules/core-js/modules/es7.string.trim-right.js","core-js/modules/es6.typed.array-buffer.js":"../../node_modules/core-js/modules/es6.typed.array-buffer.js","core-js/modules/es6.typed.int8-array.js":"../../node_modules/core-js/modules/es6.typed.int8-array.js","core-js/modules/es6.typed.uint8-array.js":"../../node_modules/core-js/modules/es6.typed.uint8-array.js","core-js/modules/es6.typed.uint8-clamped-array.js":"../../node_modules/core-js/modules/es6.typed.uint8-clamped-array.js","core-js/modules/es6.typed.int16-array.js":"../../node_modules/core-js/modules/es6.typed.int16-array.js","core-js/modules/es6.typed.uint16-array.js":"../../node_modules/core-js/modules/es6.typed.uint16-array.js","core-js/modules/es6.typed.int32-array.js":"../../node_modules/core-js/modules/es6.typed.int32-array.js","core-js/modules/es6.typed.uint32-array.js":"../../node_modules/core-js/modules/es6.typed.uint32-array.js","core-js/modules/es6.typed.float32-array.js":"../../node_modules/core-js/modules/es6.typed.float32-array.js","core-js/modules/es6.typed.float64-array.js":"../../node_modules/core-js/modules/es6.typed.float64-array.js","core-js/modules/es6.weak-map.js":"../../node_modules/core-js/modules/es6.weak-map.js","core-js/modules/es6.weak-set.js":"../../node_modules/core-js/modules/es6.weak-set.js","core-js/modules/web.timers.js":"../../node_modules/core-js/modules/web.timers.js","core-js/modules/web.immediate.js":"../../node_modules/core-js/modules/web.immediate.js","core-js/modules/web.dom.iterable.js":"../../node_modules/core-js/modules/web.dom.iterable.js","regenerator-runtime/runtime.js":"../../node_modules/regenerator-runtime/runtime.js","./test":"test.js","./login":"login.js","./getS3Image":"getS3Image.js","./message":"message.js","./payment":"payment.js","./alerts":"alerts.js","./projects":"projects.js","./events":"events.js","./house":"house.js","./paymentManual":"paymentManual.js","./dashboard":"dashboard.js","./createResident":"createResident.js","./updateResident":"updateResident.js"}],"../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -14829,7 +14990,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58296" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50637" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

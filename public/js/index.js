@@ -7,7 +7,7 @@ import { test } from './test';
 
 import { login, logout } from './login';
 import { getFeatured, getImages } from './getS3Image';
-import { getMessagesProject, submitMessagesProject } from './message';
+import { getMessages, submitMessages } from './message';
 import { payWithStripe } from './payment';
 import { showAlert } from './alerts';
 import { getProjects } from './projects';
@@ -26,7 +26,7 @@ const projectContainer = document.querySelector('#project-container');
 const projectListContainer = document.querySelector('#project-list-container');
 const adminProjectContainer = document.querySelector('#admin-project-container');
 
-// const eventContainer = document.querySelector('#event-container');
+const eventContainer = document.querySelector('#event-container');
 const eventListContainer = document.querySelector('#event-list-container');
 const adminEventContainer = document.querySelector('#admin-event-container');
 const addressContainer = document.querySelector('#address-container');
@@ -62,7 +62,7 @@ if (projectContainer) {
   const slug = projectContainer.dataset.slug;
   const projectId = document.querySelector('#project-id').dataset.projectid;
   getImages('project', slug);
-  getMessagesProject(projectId);
+  getMessages('projects', projectId);
 }
 
 if (projectListContainer || adminProjectContainer) {
@@ -70,14 +70,27 @@ if (projectListContainer || adminProjectContainer) {
 }
 
 // MESSAGES
-if (submitMessageForm) {
+if (projectContainer && submitMessageForm) {
   const projectId = document.querySelector('#project-id').dataset.projectid;
   submitMessageForm.addEventListener(
     'submit',
     (e) => {
       e.preventDefault();
 
-      submitMessagesProject(projectId);
+      submitMessages('projects', projectId);
+    },
+    false,
+  );
+}
+
+if(eventContainer && submitMessageForm) {
+  const eventId = document.querySelector('#event-id').dataset.eventid;
+  submitMessageForm.addEventListener(
+    'submit',
+    (e) => {
+      e.preventDefault();
+
+      submitMessages('events', eventId);
     },
     false,
   );
@@ -122,11 +135,19 @@ if (paymentForm) {
   });
 }
 
+// EVENTS
+if(eventContainer) {
+  const slug = eventContainer.dataset.slug;
+  const eventId = document.querySelector('#event-id').dataset.eventid;
+  getImages('event', slug);
+  getMessages('events', eventId);
+}
+
 if (eventListContainer || adminEventContainer) {
   getEvents();
 }
 
 // HOUSES | ADMIN
 if (addressContainer) {
-  getHouses();
+  // getHouses();
 }

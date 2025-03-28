@@ -48,9 +48,6 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   if (!user) return next(new AppError('User not found', 404));
 
   if (req.body.password && req.body.confirmPassword) {
-    if (req.body.password !== req.body.confirmPassword)
-      return next(new AppError('Passwords do not match', 400));
-
     user.password = req.body.password;
     user.confirmPassword = req.body.confirmPassword;
   }
@@ -80,10 +77,10 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     }
   }
 
-  if(req.body.name) user.name = req.body.name;
-  if(req.body.contactNumber) user.contactNumber = req.body.contactNumber;
-  if(req.body.email) user.email = req.body.email;
-  if(req.body.role) user.role = req.body.role;
+  if (req.body.name) user.name = req.body.name;
+  if (req.body.contactNumber) user.contactNumber = req.body.contactNumber;
+  if (req.body.email) user.email = req.body.email;
+  if (req.body.role) user.role = req.body.role;
 
   await user.save();
 

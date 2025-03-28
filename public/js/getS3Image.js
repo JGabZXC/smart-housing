@@ -2,6 +2,7 @@
 
 import axios from 'axios';
 const featuredPhoto = document.querySelector('.featured-photo');
+const featuredPhotoBg = document.querySelector('.featured-photo-bg');
 
 export const getFeatured = async (type) => {
   try {
@@ -17,8 +18,6 @@ export const getFeatured = async (type) => {
   }
 };
 
-
-
 export const getImages = async (type, slug) => {
   try {
     const res = await axios({
@@ -26,15 +25,24 @@ export const getImages = async (type, slug) => {
       url: `/api/v1/images/getImages/${type}/${slug}`,
     });
 
+    // If there is no image, remove the carousel and featuredPhoto
     if(res.data.message) {
       const carousel = document.querySelector('#carousel-1');
       carousel.innerHTML = '';
-      featuredPhoto.remove();
+      if (featuredPhoto) featuredPhoto.remove();
+      if (featuredPhotoBg) {
+        featuredPhotoBg.style.backgroundImage = `url('https://cdn.bootstrapstudio.io/placeholders/1400x800.png')`;
+        featuredPhotoBg.style.backgroundSize = 'cover';
+      };
       return;
     };
 
-    const projectImages = res.data;
-    featuredPhoto.src = projectImages.coverPhotoUrl;
+    const typeImages = res.data;
+    if(featuredPhoto) featuredPhoto.src = typeImages.coverPhotoUrl;
+    if(featuredPhotoBg) {
+      featuredPhotoBg.style.backgroundImage = `url(${typeImages.coverPhotoUrl})`;
+      featuredPhotoBg.style.backgroundSize = 'cover';
+    }
 
     const carouselInner = document.querySelector('.carousel-inner');
     carouselInner.innerHTML = '';
@@ -42,7 +50,7 @@ export const getImages = async (type, slug) => {
     const carouselIndicators = document.querySelector('.carousel-indicators');
     carouselIndicators.innerHTML = '';
 
-    projectImages.imageUrls.forEach((image, index) => {
+    typeImages.imageUrls.forEach((image, index) => {
       const div = document.createElement('div');
       div.classList.add('carousel-item');
       if (index === 0) div.classList.add('active');

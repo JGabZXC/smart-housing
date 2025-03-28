@@ -42,7 +42,7 @@ exports.getAllProject = catchAsync(async (req, res, next) => {
 
 exports.getProject = catchAsync(async (req, res, next) => {
   const project = await Project.findOne({ slug: req.params.slug });
-  if (!project) return next(new AppError('No project found was found', 404));
+  if (!project) return next(new AppError('No project was found', 404));
 
   res.status(200).render('project-single', {
     title: project.name,
@@ -67,6 +67,16 @@ exports.getAllEvent = catchAsync(async (req, res, next) => {
   res.status(200).render('events', {
     title: 'Events',
     featuredEvent,
+  });
+});
+
+exports.getEvent = catchAsync(async (req, res, next) => {
+  const event = await Event.findOne({ slug: req.params.slug });
+  if (!event) return next(new AppError('No event found was found', 404));
+
+  res.status(200).render('event-single', {
+    title: event.name,
+    event,
   });
 });
 

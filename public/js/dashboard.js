@@ -82,6 +82,10 @@ if(eventCreateButton) {
            <label for="place" class="form-label">Place</label>
            <input type="text" class="form-control" id="place" name="place" required />
        </div>
+       <div class="mb-3">
+           <label for="time" class="form-label">Time</label>
+           <input type="time" class="form-control" id="time" name="time" required />
+       </div>
       `
     modalDashboard.classList.add('add-event-modal');
     modalBody.insertAdjacentHTML('afterbegin', markup);
@@ -91,11 +95,12 @@ if(eventCreateButton) {
 
       const place = document.querySelector('#place').value;
       const name = document.querySelector('#name').value;
-      const date = document.querySelector('#date').value;
+      const date = new Date(`${document.querySelector('#date').value}T${document.querySelector('#time').value}`);
       const summary = document.querySelector('#richDescription').value;
       const description = document.querySelector('#description').value;
       const imageCover = document.querySelector('#imageCover').files;
       const images = document.querySelector('#images').files;
+
 
       const formData = new FormData();
       formData.append('name', name);

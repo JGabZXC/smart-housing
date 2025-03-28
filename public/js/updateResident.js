@@ -35,6 +35,7 @@ if(updateSearchEmailForm) {
 
       if(res.data.status === 'success') showAlert('success', 'Email was found!');
       residentId.value = data._id;
+      updateSearchEmailForm.reset();
     } catch(err) {
       console.error(err);
       showAlert('error', err.response.data.message);

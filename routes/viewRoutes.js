@@ -22,9 +22,16 @@ router.route('/project').get(viewController.getAllProject);
 router.route('/project/:slug').get(viewController.getProject);
 
 router.route('/event').get(viewController.getAllEvent);
-// router.route('/event/:slug').get(viewController.getEvent);
+router.route('/event/:slug').get(viewController.getEvent);
 
-router.route('/api/v1/getIds').post(authController.protect, authController.protectTo('admin'), authController.getIds);
+// To get the Ids
+router
+  .route('/api/v1/getIds')
+  .post(
+    authController.protect,
+    authController.protectTo('admin'),
+    authController.getIds,
+  );
 
 router
   .route('/admin')

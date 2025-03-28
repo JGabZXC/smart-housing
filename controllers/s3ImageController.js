@@ -42,16 +42,18 @@ exports.getFeaturedCover = (event) =>
     res.json(imageCoverWithUrls);
   });
 
-exports.getImages = (event) =>
+exports.getImages = (type) =>
   catchAsync(async (req, res, next) => {
     let item;
-    if (event === 'project') {
+    if (type === 'project') {
       item = await Project.findOne({ slug: req.params.slug });
     }
 
-    if (event === 'event') {
+    if (type === 'event') {
       item = await Event.findOne({ slug: req.params.slug });
     }
+
+
 
     let coverPhotoUrl = null;
     const imageUrls = [];
