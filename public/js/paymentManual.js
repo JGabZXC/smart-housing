@@ -62,7 +62,7 @@ if(payDuesForm) {
         }
       });
 
-      if(res.status === 200) showAlert('success', 'Payment inserted successfully');
+      if(res.data.status === 'success') showAlert('success', 'Payment inserted successfully');
     } catch (err) {
       showAlert('error', err.response.data.message);
     }

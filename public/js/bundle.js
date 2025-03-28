@@ -13948,7 +13948,7 @@ if (payDuesForm) {
           });
         case 19:
           res = _context2.sent;
-          if (res.status === 200) (0, _alerts.showAlert)('success', 'Payment inserted successfully');
+          if (res.data.status === 'success') (0, _alerts.showAlert)('success', 'Payment inserted successfully');
           _context2.next = 26;
           break;
         case 23:
@@ -14687,7 +14687,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50243" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50291" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

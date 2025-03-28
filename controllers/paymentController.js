@@ -16,7 +16,12 @@ const isDateRangeAlreadyPaid = async function (userId, addressId, dateRange) {
   const overlappingPayment = existingPayments.find((payment) => {
     const [paidStart, paidEnd] = payment.dateRange.split('-');
 
-    return +startMonth === +paidStart || +endMonth === +paidEnd;
+    return (
+      +startMonth === +paidStart ||
+      +startMonth === +paidEnd ||
+      +endMonth === +paidEnd ||
+      +endMonth === +paidStart
+    );
   });
 
   return overlappingPayment
