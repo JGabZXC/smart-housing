@@ -9,6 +9,10 @@ const searchEmailButton = document.querySelector('#searchEmailButton');
 const updateResidentForm = document.querySelector('#updateResidentForm');
 const updateResidentButton = document.querySelector('#updateResidentButton');
 
+if(updateResidentButton) {
+  updateResidentButton.disabled = true;
+}
+
 if(updateSearchEmailForm) {
   updateSearchEmailForm.addEventListener('submit', async(e) => {
     e.preventDefault();
@@ -36,6 +40,7 @@ if(updateSearchEmailForm) {
       if(res.data.status === 'success') showAlert('success', 'Email was found!');
       residentId.value = data._id;
       updateSearchEmailForm.reset();
+      updateResidentButton.disabled = false;
     } catch(err) {
       console.error(err);
       showAlert('error', err.response.data.message);

@@ -149,5 +149,5 @@ if (eventListContainer || adminEventContainer) {
 
 // HOUSES | ADMIN
 if (addressContainer) {
-  // getHouses();
+  getHouses();
 }
