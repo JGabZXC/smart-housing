@@ -1,7 +1,7 @@
 /* eslint-disable */
 import axios from 'axios';
 import { showAlert } from './alerts';
-import { renderPagination } from './_eventAndProjHelper';
+import { renderPagination, buttonSpinner } from './_eventAndProjHelper';
 
 let currentPage = 1;
 const messagesPerPage = 10;
@@ -61,6 +61,8 @@ async function handleMessageUpdate(target, message, prevValue, messageID) {
 async function handleMessageDelete(target, messageID) {
   if (target.classList.contains('for-delete')) {
     try {
+      target.disabled = true;
+      target.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...';
       await axios({
         method: 'DELETE',
         url: `/api/v1/messages/${messageID}`,
@@ -158,19 +160,16 @@ export const submitMessages = async (type, id) => {
       },
     });
     const message = res.data;
-    submitMessageBtn.disabled = true;
-    submitMessageBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+    buttonSpinner(submitMessageBtn, 'Submit', 'Submitting');
     if (message.status === 'success') {
       showAlert('success', 'Message uploaded!');
       document.querySelector('#message').value = '';
       await getMessagesType(type, id);
     }
-    submitMessageBtn.disabled = false;
-    submitMessageBtn.innerHTML = 'Submit';
   } catch (err) {
     showAlert('error', err.response.data.message);
-    submitMessageBtn.disabled = false;
-    submitMessageBtn.innerHTML = 'Submit';
+  } finally {
+    buttonSpinner(submitMessageBtn, 'Submit', 'Submitting');
   }
 };
 

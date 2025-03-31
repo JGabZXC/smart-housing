@@ -2,6 +2,7 @@
 
 import { fetchData } from './_eventAndProjHelper';
 
+
 const projectListContainer = document.querySelector('#project-list-container');
 const adminProjectContainer = document.querySelector('#admin-project-container');
 const adminProjectTableBodyList = document.querySelector('#admin-project-tablebody-list');

@@ -47,7 +47,7 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ _id: req.params.id });
   if (!user) return next(new AppError('User not found', 404));
 
-  if (req.body.password && req.body.confirmPassword) {
+  if (req.body.password || req.body.confirmPassword) {
     user.password = req.body.password;
     user.confirmPassword = req.body.confirmPassword;
   }
@@ -82,12 +82,12 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   if (req.body.email) user.email = req.body.email;
   if (req.body.role) user.role = req.body.role;
 
-  await user.save();
+  const updatedUser = await user.save({ validateModifiedOnly: true });
 
   res.status(200).json({
     status: 'success',
     data: {
-      user,
+      user: updatedUser,
     },
   });
 });

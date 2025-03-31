@@ -1,7 +1,7 @@
 /* eslint-disable */
 import axios from 'axios';
 import { showAlert } from './alerts';
-import { renderPagination } from './_eventAndProjHelper';
+import { renderPagination, buttonSpinner } from './_eventAndProjHelper';
 
 /*
 
@@ -101,8 +101,7 @@ if(tableBody) {
       saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
 
       newSaveBtn.addEventListener('click', async() => {
-        newSaveBtn.disabled = true;
-        newSaveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+        buttonSpinner(newSaveBtn, 'Save changes', 'Saving');
 
         try {
           const res = await axios({
@@ -121,11 +120,11 @@ if(tableBody) {
           showAlert('success', 'House updated successfully')
           await getHouses(queryString);
           bootstrapModal.hide();
-          newSaveBtn.disabled = false;
-          newSaveBtn.innerHTML = 'Save changes';
         } catch(err) {
           showAlert('error', err.response.data.message);
           console.error(err);
+        } finally {
+          buttonSpinner(newSaveBtn, 'Save changes', 'Saving');
         }
       })
     }
@@ -139,8 +138,7 @@ if(tableBody) {
       document.querySelector('#complete-address').textContent = getHouse.completeAddress;
 
       newDeleteBtn.addEventListener('click', async() => {
-        newDeleteBtn.disabled = true;
-        newDeleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...';
+        buttonSpinner(newDeleteBtn, 'Confirm', 'Deleting');
 
         try {
           const res = await axios({
@@ -153,11 +151,11 @@ if(tableBody) {
           showAlert('success', 'House deleted successfully');
           await getHouses(queryString);
           bootstrapDeleteModal.hide();
-          newDeleteBtn.disabled = false;
-          newDeleteBtn.innerHTML = 'Confirm';
         } catch(err) {
           showAlert('error', err.response.data.message);
           console.error(err);
+        } finally {
+          buttonSpinner(newDeleteBtn, 'Confirm', 'Deleting');
         }
       })
     }
@@ -168,12 +166,13 @@ if(tableBody) {
 
 if(actionBar) {
   const searchInput = actionBar.querySelector('input[type="search"]');
-  const searchButton = actionBar.querySelector('button.btn-primary');
+  const searchButton = actionBar.querySelector('#searchButtonAddress');
   // const createAddress = actionBar.querySelector('#create-address');
   const createButton = document.querySelector('#create-btn');
 
   searchButton.addEventListener('click', async () => {
     const searchValue = searchInput.value.trim();
+    buttonSpinner(searchButton, '<i class="bi bi-search"></i> Search', 'Searching');
 
     // Reset to page 1 when searching
     currentPage = 1;
@@ -203,6 +202,7 @@ if(actionBar) {
     }
 
     await getHouses();
+    buttonSpinner(searchButton, '<i class="bi bi-search"></i> Search', 'Searching');
   });
 
   // Allow search on Enter key press
@@ -268,9 +268,7 @@ if(actionBar) {
   })
 
   createButton.addEventListener('click', async () => {
-    createButton.disabled = true;
-    createButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
-
+    buttonSpinner(createButton, 'Confirm', 'Creating');
     try {
       const res = await axios({
         method: 'POST',
@@ -290,12 +288,10 @@ if(actionBar) {
       await getHouses(queryString);
       bootstrapCreateModal.hide();
       document.querySelector('#createHouseForm').reset();
-      createButton.disabled = false;
-      createButton.innerHTML = 'Confirm';
     } catch (err) {
-      createButton.disabled = false;
-      createButton.innerHTML = 'Confirm';
       showAlert('error', err.response.data.message);
+    } finally {
+      buttonSpinner(createButton, 'Confirm', 'Creating');
     }
   })
 }

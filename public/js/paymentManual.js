@@ -1,14 +1,12 @@
 /* eslint-disable */
 import axios from 'axios';
 import { showAlert } from './alerts';
+import { buttonSpinner } from './_eventAndProjHelper';
 
 const payDuesForm = document.querySelector('#pay-dues-form');
 const table = document.querySelector('#dues-table');
 const searchResidentDue = document.querySelector('#search-resident-due');
-
-export const paymentManual = async () => {
-  console.log('hi');
-}
+const insertPaymentButton = document.querySelector("#insert-payment-btn");
 
 if(payDuesForm) {
   document.querySelector('#insert-payment-btn').addEventListener('click', async () => {
@@ -51,6 +49,7 @@ if(payDuesForm) {
       );
 
     const dateRange = `${from}-${to}`;
+    buttonSpinner(insertPaymentButton, 'Confirm', 'Inserting payment');
     try {
       const res = await axios({
         method: 'POST',
@@ -65,8 +64,11 @@ if(payDuesForm) {
       if(res.data.status === 'success') showAlert('success', 'Payment inserted successfully');
     } catch (err) {
       showAlert('error', err.response.data.message);
+    } finally {
+      buttonSpinner(insertPaymentButton, 'Confirm', 'Inserting payment');
     }
   })
+
   document.querySelector('#to-date').addEventListener('change', () => {
     let from = document.querySelector('#from-date').value;
     from = new Date(from);
@@ -101,8 +103,7 @@ if(searchResidentDue) {
     tableBody.innerHTML = '';
 
     if(emailValue === '') return showAlert('error', 'Please enter a valid email');
-    searchResidentDue.disabled = true;
-    searchResidentDue.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Searching...';
+    buttonSpinner(searchResidentDue, 'Search', 'Searching');
     try {
       const res = await axios({
         method: 'GET',
@@ -110,8 +111,6 @@ if(searchResidentDue) {
       });
 
       const data = res.data.data.doc;
-
-      console.log(data);
 
       if (data.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No payment records found for this email</td></tr>';
@@ -140,13 +139,10 @@ if(searchResidentDue) {
 
         tableBody.appendChild(row);
       });
-
-      searchResidentDue.disabled = false;
-      searchResidentDue.innerHTML = 'Search';
     } catch (err) {
       showAlert('error', err.response.data.message);
-      searchResidentDue.disabled = false;
-      searchResidentDue.innerHTML = 'Search';
+    } finally {
+      buttonSpinner(searchResidentDue, 'Search', 'Searching');
     }
   })
 }

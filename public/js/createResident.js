@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { showAlert } from './alerts';
+import { buttonSpinner } from './_eventAndProjHelper';
 
 const createResidentForm = document.querySelector('#createResidentForm');
 const createResidentSubmitButton = document.querySelector('#createResidentSubmitButton');
@@ -20,8 +21,7 @@ if(createResidentForm) {
     const confirmPassword = document.querySelector('#confirmPassword').value;
 
     try {
-      createResidentSubmitButton.disabled = true;
-      createResidentSubmitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+      buttonSpinner(createResidentSubmitButton, 'Create Resident', 'Submitting')
       const res = await axios({
         method: 'POST',
         url: `/api/v1/users/signup`,
@@ -42,13 +42,11 @@ if(createResidentForm) {
 
       if(res.data.status === 'success') showAlert(res.data.message, 'success');
       createResidentForm.reset();
-      createResidentSubmitButton.disabled = false;
-      createResidentSubmitButton.innerHTML = 'Create Resident';
     } catch (err) {
-      createResidentSubmitButton.disabled = false;
-      createResidentSubmitButton.innerHTML = 'Create Resident';
       showAlert('error', err.response.data.message)
       console.error(err.response.data.message)
+    } finally {
+      buttonSpinner(createResidentSubmitButton, 'Create Resident', 'Submitting')
     }
   });
 }
