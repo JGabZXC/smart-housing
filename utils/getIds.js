@@ -9,7 +9,8 @@ const User = require('../models/userModel');
 
 async function GetIds(type, object) {
   if (type === 'event') return await Event.find(object).select('id');
-  if (type === 'eventResident') return await EventResident.find(object).select('id');
+  if (type === 'eventResident')
+    return await EventResident.find(object).select('id');
   if (type === 'garbage') return await Garbage.find(object).select('id');
   if (type === 'house') return await House.find(object).select('id');
   if (type === 'message') return await Message.find(object).select('id');

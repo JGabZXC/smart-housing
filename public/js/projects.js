@@ -1,11 +1,14 @@
 /* eslint-disable */
 
-import { fetchData } from './_eventAndProjHelper';
+import { fetchData, buttonSpinner } from './_eventAndProjHelper';
+import axios from 'axios';
+import { showAlert } from './alerts';
 
 
 const projectListContainer = document.querySelector('#project-list-container');
 const adminProjectContainer = document.querySelector('#admin-project-container');
 const adminProjectTableBodyList = document.querySelector('#admin-project-tablebody-list');
+const searchButtonProjectAdmin = document.querySelector('#searchButtonProjectAdmin');
 
 let currentPage = 1;
 const projectsPerPage = 10;
@@ -61,6 +64,7 @@ export const getProjects = async () => {
     currentPage,
     projectsPerPage,
     changeProjectPage,
+    '#pagination-admin-project'
   );
 
   await fetchData(
@@ -72,6 +76,56 @@ export const getProjects = async () => {
     changeProjectPage,
   );
 };
+
+// ADMIN DASHBOARD
+if(searchButtonProjectAdmin) {
+  searchButtonProjectAdmin.addEventListener('click', async () => {
+    const searchInput = document.querySelector('#searchInputProjectAdmin').value;
+
+    if(!searchInput) {
+      await fetchData(
+        `/api/v1/projects`,
+        adminProjectTableBodyList,
+        renderProjectAdmin,
+        currentPage,
+        projectsPerPage,
+        changeProjectPage,
+        '#pagination-admin-project'
+      );
+      return;
+    }
+
+    try {
+      buttonSpinner(searchButtonProjectAdmin, 'Search Project', 'Searching')
+      const res = await axios({
+        method: 'POST',
+        url: `/api/v1/getIds`,
+        data: {
+          type: 'project',
+          object: {
+            slug: searchInput
+          },
+          message: 'No project found with that slug'
+        }
+      })
+      const { _id } = res.data.data.doc[0];
+      if (!_id) {
+        showAlert('error', 'No project found with that slug');
+        return;
+      }
+
+      await fetchData(`/api/v1/projects/${_id}`, adminProjectTableBodyList,
+        renderProjectAdmin,
+        currentPage,
+        projectsPerPage,
+        changeProjectPage)
+    } catch (err) {
+      showAlert('error', err.response.data.message);
+    } finally {
+      buttonSpinner(searchButtonProjectAdmin, 'Search Project', 'Searching')
+    }
+  })
+}
 
 window.changeProjectPage = async function (newPage) {
   if (newPage < 1) return;

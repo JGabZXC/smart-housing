@@ -24,6 +24,10 @@
 /*    background-color: #eb4d4b;*/
 /*}*/
 
+.custom-width {
+    min-width: 200px;
+}
+
 .navbar-brand {
     font-size: 22px;
 }

@@ -126,13 +126,20 @@ export async function fetchData(
     }
 
     const items = res.data.data.doc;
-    const totalPages = res.data.totalPages;
+    const totalPages = res.data.totalPages || 1;
     container.innerHTML = '';
 
-    items.forEach((item) => renderFunction(item, container));
-
     const hasNextPage = items.length === itemsPerPage;
-    renderPagination(totalPages, currentPage, hasNextPage, changePage, paginationSelector);
+
+    if(items.length > 0) {
+      items.forEach((item) => renderFunction(item, container));
+    } else if (typeof items === 'object') {
+      renderFunction(items, container);
+    }
+
+    if(totalPages >= 1) {
+      renderPagination(totalPages, currentPage, hasNextPage, changePage, paginationSelector);
+    }
   } catch (err) {
     console.error(err);
   }

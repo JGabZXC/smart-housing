@@ -1,10 +1,13 @@
 /* eslint-disable */
 
-import {fetchData} from './_eventAndProjHelper';
+import { buttonSpinner, fetchData } from './_eventAndProjHelper';
+import axios from 'axios';
+import { showAlert } from './alerts';
 
 const eventListContainer = document.querySelector('#event-list-container');
 const adminEventContainer = document.querySelector('#admin-event-container');
 const adminEventTableBodyList = document.querySelector('#admin-event-tablebody-list');
+const searchButtonEventAdmin = document.querySelector('#searchButtonEventAdmin');
 
 let currentPage = 1;
 const projectsPerPage = 10;
@@ -54,9 +57,66 @@ function renderEventAdmin (event, container) {
 }
 
 export const getEvents = async () => {
-  if(adminEventContainer) return await fetchData(`/api/v1/events`, adminEventTableBodyList, renderEventAdmin, currentPage, projectsPerPage, changeEventPage, '#pagination-admin-event');
+  if(adminEventContainer) return await fetchData(
+    `/api/v1/events`,
+    adminEventTableBodyList,
+    renderEventAdmin,
+    currentPage,
+    projectsPerPage,
+    changeEventPage,
+    '#pagination-admin-event'
+  );
 
   await fetchData(`/api/v1/events`, eventListContainer, renderEvent, currentPage, projectsPerPage, changeEventPage);
+}
+
+// ADMIN DASHBOARD
+if(searchButtonEventAdmin) {
+  searchButtonEventAdmin.addEventListener('click', async () => {
+    const searchInput = document.querySelector('#searchInputEventAdmin').value;
+
+    if(!searchInput) {
+      await fetchData(
+        `/api/v1/events`,
+        adminEventTableBodyList,
+        renderEventAdmin,
+        currentPage,
+        projectsPerPage,
+        changeProjectPage,
+      );
+      return;
+    }
+
+    try {
+      buttonSpinner(searchButtonEventAdmin, 'Search Event', 'Searching')
+      const res = await axios({
+        method: 'POST',
+        url: `/api/v1/getIds`,
+        data: {
+          type: 'event',
+          object: {
+            slug: searchInput
+          },
+          message: 'No event found with that slug'
+        }
+      })
+      const { _id } = res.data.data.doc[0];
+      if (!_id) {
+        showAlert('error', 'No event found with that slug');
+        return;
+      }
+
+      await fetchData(`/api/v1/events/${_id}`, adminEventTableBodyList,
+        renderEventAdmin,
+        currentPage,
+        projectsPerPage,
+        changeProjectPage)
+    } catch (err) {
+      showAlert('error', err.response.data.message);
+    } finally {
+      buttonSpinner(searchButtonEventAdmin, 'Search Event', 'Searching')
+    }
+  })
 }
 
 window.changeEventPage = async function(newPage) {

@@ -1,4 +1,8 @@
-const { PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const {
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const multer = require('multer');
 const s3 = require('../utils/s3Bucket');
@@ -7,6 +11,7 @@ const handler = require('./handlerController');
 const catchAsync = require('../utils/catchAsync');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
+const Message = require('../models/messageModel');
 
 const multerStorage = multer.memoryStorage();
 
@@ -131,7 +136,40 @@ exports.getAllEvents = catchAsync(async (req, res, next) => {
 exports.getEvent = handler.getOne(Event);
 exports.createEvent = handler.createOne(Event);
 exports.updateEvent = handler.updateOne(Event);
-exports.deleteEvent = handler.deleteOne(Event);
+exports.deleteEvent = catchAsync(async (req, res, next) => {
+  const event = await Event.findById(req.params.id);
+  if (!event) return next(new AppError('No event found with that ID', 404));
+
+  if (event.imageCover) {
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.S3_NAME,
+        Key: event.imageCover,
+      }),
+    );
+  }
+
+  if (event.images && event.images.length > 0) {
+    await Promise.all(
+      event.images.map(async (image) => {
+        await s3.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.S3_NAME,
+            Key: image,
+          }),
+        );
+      }),
+    );
+  }
+
+  await Event.findByIdAndDelete(req.params.id);
+  await Message.deleteMany({ event: req.params.id });
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
 exports.attendEvent = catchAsync(async (req, res, next) => {
   const event = await Event.findById(req.params.id);
 

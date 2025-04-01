@@ -201,11 +201,9 @@ if(eventTable) {
             url: `api/v1/events/${eventId}`
           })
 
-          if (res.status === 204) {
-            showAlert('success', 'Project deleted successfully!');
-            await getProjects();
-          }
+          if (res.status === 204) showAlert('success', 'Event deleted successfully!');
           existingModalDelete.hide();
+          await getEvents();
           deleteBtnDashboard.disabled = false;
           deleteBtnDashboard.innerHTML = 'Confirm';
         } catch (err) {
