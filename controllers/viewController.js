@@ -98,7 +98,6 @@ exports.getLogin = catchAsync(async (req, res, next) => {
 });
 
 // ADMIN
-
 exports.getAdminDashboard = catchAsync(async (req, res, next) => {
   const featuredProject = await Project.findOne({ isFeatured: true });
   const featuredEvent = await Event.findOne({ isFeatured: true });

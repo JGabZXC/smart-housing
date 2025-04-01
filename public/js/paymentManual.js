@@ -37,8 +37,6 @@ if(payDuesForm) {
       (to.getMonth() + 1).toString().padStart(2, '0') +
       to.getFullYear();
 
-
-
     document.querySelector('#amount').value = amount;
 
     if (from === to)
@@ -133,7 +131,7 @@ if(searchResidentDue) {
           <td>${payment.user.name || 'N/A'}</td>
           <td>${payment.address?.completeAddress || 'N/A'}</td>
           <td>₱${payment.amount}</td>
-          <td>${payment.dateRange}</td>
+          <td>${payment.formattedDateRange}</td>
           <td>${formattedDate}</td>
         `;
 

@@ -172,7 +172,6 @@ if(actionBar) {
 
   searchButton.addEventListener('click', async () => {
     const searchValue = searchInput.value.trim();
-    buttonSpinner(searchButton, '<i class="bi bi-search"></i> Search', 'Searching');
 
     // Reset to page 1 when searching
     currentPage = 1;
@@ -201,8 +200,14 @@ if(actionBar) {
       if (limitMatch) queryString += `&limit=${limitMatch[1]}`;
     }
 
-    await getHouses();
-    buttonSpinner(searchButton, '<i class="bi bi-search"></i> Search', 'Searching');
+    try {
+      buttonSpinner(searchButton, '<i class="bi bi-search"></i> Search', 'Searching');
+      await getHouses();
+    } catch(err) {
+        showAlert('error', err.response.data.message);
+    } finally {
+      buttonSpinner(searchButton, '<i class="bi bi-search"></i> Search', 'Searching');
+    }
   });
 
   // Allow search on Enter key press

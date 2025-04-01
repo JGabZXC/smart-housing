@@ -13782,10 +13782,7 @@ if (actionBar) {
     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
       while (1) switch (_context4.prev = _context4.next) {
         case 0:
-          searchValue = searchInput.value.trim();
-          (0, _eventAndProjHelper.buttonSpinner)(searchButton, '<i class="bi bi-search"></i> Search', 'Searching');
-
-          // Reset to page 1 when searching
+          searchValue = searchInput.value.trim(); // Reset to page 1 when searching
           currentPage = 1;
 
           // Update query string with search parameter
@@ -13810,15 +13807,26 @@ if (actionBar) {
             limitMatch = queryString.match(/limit=([^&]*)/);
             if (limitMatch) queryString += "&limit=".concat(limitMatch[1]);
           }
-          _context4.next = 9;
-          return getHouses();
-        case 9:
+          _context4.prev = 6;
           (0, _eventAndProjHelper.buttonSpinner)(searchButton, '<i class="bi bi-search"></i> Search', 'Searching');
+          _context4.next = 10;
+          return getHouses();
         case 10:
+          _context4.next = 15;
+          break;
+        case 12:
+          _context4.prev = 12;
+          _context4.t0 = _context4["catch"](6);
+          (0, _alerts.showAlert)('error', _context4.t0.response.data.message);
+        case 15:
+          _context4.prev = 15;
+          (0, _eventAndProjHelper.buttonSpinner)(searchButton, '<i class="bi bi-search"></i> Search', 'Searching');
+          return _context4.finish(15);
+        case 18:
         case "end":
           return _context4.stop();
       }
-    }, _callee4);
+    }, _callee4, null, [[6, 12, 15, 18]]);
   })));
 
   // Allow search on Enter key press
@@ -14114,7 +14122,7 @@ if (searchResidentDue) {
               day: 'numeric',
               year: 'numeric'
             });
-            row.innerHTML = "\n          <td>".concat(payment.user.email || emailValue, "</td>\n          <td>").concat(payment.user.name || 'N/A', "</td>\n          <td>").concat(((_payment$address = payment.address) === null || _payment$address === void 0 ? void 0 : _payment$address.completeAddress) || 'N/A', "</td>\n          <td>\u20B1").concat(payment.amount, "</td>\n          <td>").concat(payment.dateRange, "</td>\n          <td>").concat(formattedDate, "</td>\n        ");
+            row.innerHTML = "\n          <td>".concat(payment.user.email || emailValue, "</td>\n          <td>").concat(payment.user.name || 'N/A', "</td>\n          <td>").concat(((_payment$address = payment.address) === null || _payment$address === void 0 ? void 0 : _payment$address.completeAddress) || 'N/A', "</td>\n          <td>\u20B1").concat(payment.amount, "</td>\n          <td>").concat(payment.formattedDateRange, "</td>\n          <td>").concat(formattedDate, "</td>\n        ");
             tableBody.appendChild(row);
           });
           _context2.next = 19;
@@ -14947,7 +14955,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50149" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50278" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

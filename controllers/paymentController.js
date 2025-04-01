@@ -4,6 +4,7 @@ const Payment = require('../models/paymentModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const User = require('../models/userModel');
+const APIFeautres = require('../utils/apiFeatures');
 
 const isDateRangeAlreadyPaid = async function (userId, addressId, dateRange) {
   const [startMonth, endMonth] = dateRange.split('-');
@@ -90,7 +91,13 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
     filter = { user: user._id };
   }
 
-  const payments = await Payment.find(filter)
+  const features = new APIFeautres(Payment.find(filter), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+
+  const payments = await features.query
     .populate({
       path: 'user',
       select: 'email name',
