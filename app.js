@@ -44,7 +44,7 @@ app.use(
         'js.stripe.com',
         'cdn.jsdelivr.net',
       ],
-      imgSrc: ["'self'", 'smarthousing-capstone.s3.ap-southeast-2.amazonaws.com'],
+      imgSrc: ["'self'", 'smarthousing-capstone.s3.ap-southeast-2.amazonaws.com', 'data'],
     },
   }),
 ); // Set security HTTP headers

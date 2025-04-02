@@ -58,22 +58,27 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   }
 
   if (req.body.address) {
+    // Validate new address
     const newAddress = await validateHouse(req.body.address);
 
-    user.address = newAddress._id;
-    await House.findOneAndUpdate(
-      { _id: newAddress._id },
-      { status: 'occupied' },
-      { new: true, runValidators: true },
-    );
+    // Get Previous Address
+    const prevAddress = await House.findOne({ _id: user.address });
 
-    if (user.address !== newAddress._id) {
-      const prevAddress = await House.findOne({ _id: user.address });
-      await House.findOneAndUpdate(
-        { _id: prevAddress._id },
-        { status: 'unoccupied' },
-        { new: true, runValidators: true },
-      );
+    // Compare new address with previous address
+    if (newAddress._id !== prevAddress._id) {
+      await Promise.all([
+        House.findOneAndUpdate(
+          { _id: prevAddress._id },
+          { status: 'unoccupied' },
+          { new: true, runValidators: true },
+        ),
+        House.findOneAndUpdate(
+          { _id: newAddress._id },
+          { status: 'occupied' },
+          { new: true, runValidators: true },
+        ),
+      ]);
+      user.address = newAddress._id;
     }
   }
 
