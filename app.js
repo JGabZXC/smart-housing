@@ -36,7 +36,7 @@ app.use(cookieParser());
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      defaultSrc: ["'self'", 'js.stripe.com'],
+      defaultSrc: ["'self'", 'js.stripe.com', 'ws://127.0.0.1:56122'], // ws://127.0.0.1:56122 for parcel
       scriptSrc: [
         "'self'",
         "'unsafe-inline'",
@@ -44,7 +44,11 @@ app.use(
         'js.stripe.com',
         'cdn.jsdelivr.net',
       ],
-      imgSrc: ["'self'", 'smarthousing-capstone.s3.ap-southeast-2.amazonaws.com', 'data'],
+      imgSrc: [
+        "'self'",
+        'smarthousing-capstone.s3.ap-southeast-2.amazonaws.com',
+        'data',
+      ],
     },
   }),
 ); // Set security HTTP headers

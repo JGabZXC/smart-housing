@@ -14140,70 +14140,77 @@ var table = document.querySelector('#dues-table');
 var searchResidentDue = document.querySelector('#search-resident-due');
 var insertPaymentButton = document.querySelector("#insert-payment-btn");
 if (payDuesForm) {
-  document.querySelector('#insert-payment-btn').addEventListener('click', /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-    var email, from, to, amount, dateRange, res;
-    return _regeneratorRuntime().wrap(function _callee$(_context) {
-      while (1) switch (_context.prev = _context.next) {
-        case 0:
-          email = document.querySelector('#email').value;
-          from = document.querySelector('#from-date').value;
-          from = new Date(from);
-          to = document.querySelector('#to-date').value;
-          to = new Date(to);
-          if (!(isNaN(from) || isNaN(to))) {
-            _context.next = 7;
-            break;
-          }
-          return _context.abrupt("return", (0, _alerts.showAlert)('error', 'Please select a valid date', 10));
-        case 7:
-          if (!(to < from)) {
-            _context.next = 9;
-            break;
-          }
-          return _context.abrupt("return", (0, _alerts.showAlert)('error', 'The "From" date must be earlier than the "To" date', 10));
-        case 9:
-          amount = ((to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth())) * 1000;
-          from = (from.getMonth() + 1).toString().padStart(2, '0') + from.getFullYear();
-          to = (to.getMonth() + 1).toString().padStart(2, '0') + to.getFullYear();
-          document.querySelector('#amount').value = amount;
-          if (!(from === to)) {
-            _context.next = 15;
-            break;
-          }
-          return _context.abrupt("return", (0, _alerts.showAlert)('error', 'The "From" date and "To" date must not be the same', 10));
-        case 15:
-          dateRange = "".concat(from, "-").concat(to);
-          (0, _eventAndProjHelper.buttonSpinner)(insertPaymentButton, 'Confirm', 'Inserting payment');
-          _context.prev = 17;
-          _context.next = 20;
-          return (0, _axios.default)({
-            method: 'POST',
-            url: '/api/v1/payments',
-            data: {
-              email: email,
-              amount: amount,
-              dateRange: dateRange
+  payDuesForm.addEventListener('submit', /*#__PURE__*/function () {
+    var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
+      var email, from, to, amount, dateRange, res;
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) switch (_context.prev = _context.next) {
+          case 0:
+            e.preventDefault();
+            email = document.querySelector('#email').value;
+            from = document.querySelector('#from-date').value;
+            from = new Date(from);
+            to = document.querySelector('#to-date').value;
+            to = new Date(to);
+            if (!(isNaN(from) || isNaN(to))) {
+              _context.next = 8;
+              break;
             }
-          });
-        case 20:
-          res = _context.sent;
-          if (res.data.status === 'success') (0, _alerts.showAlert)('success', 'Payment inserted successfully');
-          _context.next = 27;
-          break;
-        case 24:
-          _context.prev = 24;
-          _context.t0 = _context["catch"](17);
-          (0, _alerts.showAlert)('error', _context.t0.response.data.message);
-        case 27:
-          _context.prev = 27;
-          (0, _eventAndProjHelper.buttonSpinner)(insertPaymentButton, 'Confirm', 'Inserting payment');
-          return _context.finish(27);
-        case 30:
-        case "end":
-          return _context.stop();
-      }
-    }, _callee, null, [[17, 24, 27, 30]]);
-  })));
+            return _context.abrupt("return", (0, _alerts.showAlert)('error', 'Please select a valid date', 10));
+          case 8:
+            if (!(to < from)) {
+              _context.next = 10;
+              break;
+            }
+            return _context.abrupt("return", (0, _alerts.showAlert)('error', 'The "From" date must be earlier than the "To" date', 10));
+          case 10:
+            amount = ((to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth())) * 1000;
+            from = (from.getMonth() + 1).toString().padStart(2, '0') + from.getFullYear();
+            to = (to.getMonth() + 1).toString().padStart(2, '0') + to.getFullYear();
+            document.querySelector('#amount').value = amount;
+            if (!(from === to)) {
+              _context.next = 16;
+              break;
+            }
+            return _context.abrupt("return", (0, _alerts.showAlert)('error', 'The "From" date and "To" date must not be the same', 10));
+          case 16:
+            dateRange = "".concat(from, "-").concat(to);
+            (0, _eventAndProjHelper.buttonSpinner)(insertPaymentButton, 'Confirm', 'Inserting payment');
+            _context.prev = 18;
+            _context.next = 21;
+            return (0, _axios.default)({
+              method: 'POST',
+              url: '/api/v1/payments',
+              data: {
+                email: email,
+                amount: amount,
+                dateRange: dateRange
+              }
+            });
+          case 21:
+            res = _context.sent;
+            if (res.data.status === 'success') (0, _alerts.showAlert)('success', 'Payment inserted successfully');
+            payDuesForm.reset();
+            _context.next = 29;
+            break;
+          case 26:
+            _context.prev = 26;
+            _context.t0 = _context["catch"](18);
+            (0, _alerts.showAlert)('error', _context.t0.response.data.message);
+          case 29:
+            _context.prev = 29;
+            (0, _eventAndProjHelper.buttonSpinner)(insertPaymentButton, 'Confirm', 'Inserting payment');
+            return _context.finish(29);
+          case 32:
+          case "end":
+            return _context.stop();
+        }
+      }, _callee, null, [[18, 26, 29, 32]]);
+    }));
+    return function (_x) {
+      return _ref.apply(this, arguments);
+    };
+  }());
   document.querySelector('#to-date').addEventListener('change', function () {
     var from = document.querySelector('#from-date').value;
     from = new Date(from);
@@ -15089,7 +15096,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50325" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56122" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

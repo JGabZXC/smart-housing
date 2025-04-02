@@ -9,7 +9,8 @@ const searchResidentDue = document.querySelector('#search-resident-due');
 const insertPaymentButton = document.querySelector("#insert-payment-btn");
 
 if(payDuesForm) {
-  document.querySelector('#insert-payment-btn').addEventListener('click', async () => {
+  payDuesForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
     const email = document.querySelector('#email').value;
     let from = document.querySelector('#from-date').value;
     from = new Date(from);
@@ -60,6 +61,7 @@ if(payDuesForm) {
       });
 
       if(res.data.status === 'success') showAlert('success', 'Payment inserted successfully');
+      payDuesForm.reset();
     } catch (err) {
       showAlert('error', err.response.data.message);
     } finally {
