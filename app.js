@@ -33,7 +33,21 @@ app.set('layout', 'base.ejs');
 
 app.use(cookieParser());
 
-app.use(helmet()); // Set security HTTP headers
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'", 'js.stripe.com'],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'",
+        "'unsafe-eval'",
+        'js.stripe.com',
+        'cdn.jsdelivr.net',
+      ],
+      imgSrc: ["'self'", 'smarthousing-capstone.s3.ap-southeast-2.amazonaws.com'],
+    },
+  }),
+); // Set security HTTP headers
 app.use(mongoSanitize()); // Sanitize data against NoSQL query injection
 
 if (process.env.NODE_ENV === 'development') {

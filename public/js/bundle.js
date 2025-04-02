@@ -13184,21 +13184,18 @@ var getMessages = exports.getMessages = /*#__PURE__*/function () {
 
           // Render pagination
           (0, _eventAndProjHelper.renderPagination)(totalPages, currentPage, hasNextPage, changePage);
-          _context.next = 17;
+          _context.next = 16;
           break;
         case 13:
           _context.prev = 13;
           _context.t0 = _context["catch"](0);
-          if (_context.t0.response.status === 'fail') {
-            (0, _alerts.showAlert)('error', _context.t0.response.data.message);
-          }
           if (_context.t0.response.data.status === 'error') {
             (0, _alerts.showAlert)('error', _context.t0.response.data.message);
             window.setTimeout(function () {
               location.assign('/');
             }, 2000);
           }
-        case 17:
+        case 16:
         case "end":
           return _context.stop();
       }
@@ -13216,7 +13213,8 @@ var submitMessages = exports.submitMessages = /*#__PURE__*/function () {
         case 0:
           submitMessageBtn = document.querySelector('#submit-message-btn');
           _context2.prev = 1;
-          _context2.next = 4;
+          (0, _eventAndProjHelper.buttonSpinner)(submitMessageBtn, 'Submit', 'Submitting');
+          _context2.next = 5;
           return (0, _axios.default)({
             method: 'POST',
             url: "/api/v1/".concat(type, "/").concat(id, "/messages"),
@@ -13224,10 +13222,9 @@ var submitMessages = exports.submitMessages = /*#__PURE__*/function () {
               message: document.querySelector('#message').value
             }
           });
-        case 4:
+        case 5:
           res = _context2.sent;
           message = res.data;
-          (0, _eventAndProjHelper.buttonSpinner)(submitMessageBtn, 'Submit', 'Submitting');
           if (!(message.status === 'success')) {
             _context2.next = 12;
             break;

@@ -140,9 +140,6 @@ export const getMessages = async (type, id) => {
     // Render pagination
     renderPagination(totalPages, currentPage, hasNextPage, changePage);
   } catch (err) {
-    if (err.response.status === 'fail') {
-      showAlert('error', err.response.data.message);
-    }
     if (err.response.data.status === 'error') {
       showAlert('error', err.response.data.message);
       window.setTimeout(() => {
@@ -155,6 +152,7 @@ export const getMessages = async (type, id) => {
 export const submitMessages = async (type, id) => {
   const submitMessageBtn = document.querySelector('#submit-message-btn');
   try {
+    buttonSpinner(submitMessageBtn, 'Submit', 'Submitting');
     const res = await axios({
       method: 'POST',
       url: `/api/v1/${type}/${id}/messages`,
@@ -163,7 +161,6 @@ export const submitMessages = async (type, id) => {
       },
     });
     const message = res.data;
-    buttonSpinner(submitMessageBtn, 'Submit', 'Submitting');
     if (message.status === 'success') {
       showAlert('success', 'Message uploaded!');
       document.querySelector('#message').value = '';
