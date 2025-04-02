@@ -13184,18 +13184,21 @@ var getMessages = exports.getMessages = /*#__PURE__*/function () {
 
           // Render pagination
           (0, _eventAndProjHelper.renderPagination)(totalPages, currentPage, hasNextPage, changePage);
-          _context.next = 16;
+          _context.next = 17;
           break;
         case 13:
           _context.prev = 13;
           _context.t0 = _context["catch"](0);
+          if (_context.t0.response.status === 'fail') {
+            (0, _alerts.showAlert)('error', _context.t0.response.data.message);
+          }
           if (_context.t0.response.data.status === 'error') {
             (0, _alerts.showAlert)('error', _context.t0.response.data.message);
             window.setTimeout(function () {
               location.assign('/');
             }, 2000);
           }
-        case 16:
+        case 17:
         case "end":
           return _context.stop();
       }
@@ -15089,7 +15092,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50409" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50325" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

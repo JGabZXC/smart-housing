@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const expressLayouts = require('express-ejs-layouts');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
 
 mongoose.set('id', false); // Disable id on all virtuals
 
@@ -30,9 +33,26 @@ app.set('layout', 'base.ejs');
 
 app.use(cookieParser());
 
+app.use(helmet()); // Set security HTTP headers
+app.use(mongoSanitize()); // Sanitize data against NoSQL query injection
+
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+// Limit request
+const messageOptions = {
+  status: 'fail',
+  message: 'Too many requests, please try again in an hour',
+};
+
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000, // 1 hour,
+  message: messageOptions,
+});
+
+app.use('/api', limiter);
 
 app.use('/', viewRoute);
 app.use('/api/v1/events', eventRoute);

@@ -140,6 +140,9 @@ export const getMessages = async (type, id) => {
     // Render pagination
     renderPagination(totalPages, currentPage, hasNextPage, changePage);
   } catch (err) {
+    if (err.response.status === 'fail') {
+      showAlert('error', err.response.data.message);
+    }
     if (err.response.data.status === 'error') {
       showAlert('error', err.response.data.message);
       window.setTimeout(() => {
