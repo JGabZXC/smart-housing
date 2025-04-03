@@ -14311,73 +14311,142 @@ var eventTable = document.querySelector('#admin-event-tablebody-list');
 var existingModal, existingModalDelete;
 if (modalDashboard) existingModal = new bootstrap.Modal(modalDashboard);
 if (modalDeleteDashboard) existingModalDelete = new bootstrap.Modal(modalDeleteDashboard);
+function submitProjectForm(_x) {
+  return _submitProjectForm.apply(this, arguments);
+}
+function _submitProjectForm() {
+  _submitProjectForm = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(e) {
+    var name, date, summary, description, imageCover, images, formData, i, res, data;
+    return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+      while (1) switch (_context5.prev = _context5.next) {
+        case 0:
+          e.preventDefault();
+          name = document.querySelector('#name').value;
+          date = document.querySelector('#date').value;
+          summary = document.querySelector('#richDescription').value;
+          description = document.querySelector('#description').value;
+          imageCover = document.querySelector('#imageCover').files;
+          images = document.querySelector('#images').files;
+          formData = new FormData();
+          formData.append('name', name);
+          formData.append('date', date);
+          formData.append('richDescription', summary);
+          formData.append('description', description);
+          if (imageCover && imageCover.length > 0) {
+            formData.append("imageCover", imageCover[0]);
+          }
+          if (images && images.length > 0) {
+            for (i = 0; i < images.length; i++) {
+              formData.append("images", images[i]);
+            }
+          }
+          _context5.prev = 14;
+          saveBtnDashboard.disabled = true;
+          saveBtnDashboard.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+          _context5.next = 19;
+          return (0, _axios.default)({
+            method: 'POST',
+            url: 'api/v1/projects',
+            data: formData
+          });
+        case 19:
+          res = _context5.sent;
+          data = res.data;
+          if (data.status === 'success') (0, _alerts.showAlert)('success', 'Project created successfully!');
+          existingModal.hide();
+          saveBtnDashboard.disabled = false;
+          saveBtnDashboard.innerHTML = 'Create';
+          _context5.next = 27;
+          return (0, _projects.getProjects)();
+        case 27:
+          _context5.next = 35;
+          break;
+        case 29:
+          _context5.prev = 29;
+          _context5.t0 = _context5["catch"](14);
+          (0, _alerts.showAlert)('error', _context5.t0.response.data.message);
+          saveBtnDashboard.disabled = false;
+          saveBtnDashboard.innerHTML = 'Create';
+          console.log(_context5.t0);
+        case 35:
+        case "end":
+          return _context5.stop();
+      }
+    }, _callee5, null, [[14, 29]]);
+  }));
+  return _submitProjectForm.apply(this, arguments);
+}
+function submitEventForm(_x2) {
+  return _submitEventForm.apply(this, arguments);
+}
+function _submitEventForm() {
+  _submitEventForm = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6(e) {
+    var place, name, date, summary, description, imageCover, images, formData, i, res, data;
+    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+      while (1) switch (_context6.prev = _context6.next) {
+        case 0:
+          e.preventDefault();
+          place = document.querySelector('#place').value;
+          name = document.querySelector('#name').value;
+          date = new Date("".concat(document.querySelector('#date').value, "T").concat(document.querySelector('#time').value));
+          summary = document.querySelector('#richDescription').value;
+          description = document.querySelector('#description').value;
+          imageCover = document.querySelector('#imageCover').files;
+          images = document.querySelector('#images').files;
+          formData = new FormData();
+          formData.append('name', name);
+          formData.append('date', date);
+          formData.append('richDescription', summary);
+          formData.append('description', description);
+          formData.append('place', place);
+          if (imageCover && imageCover.length > 0) {
+            formData.append("imageCover", imageCover[0]);
+          }
+          if (images && images.length > 0) {
+            for (i = 0; i < images.length; i++) {
+              formData.append("images", images[i]);
+            }
+          }
+          _context6.prev = 16;
+          saveBtnDashboard.disabled = true;
+          saveBtnDashboard.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+          _context6.next = 21;
+          return (0, _axios.default)({
+            method: 'POST',
+            url: 'api/v1/events',
+            data: formData
+          });
+        case 21:
+          res = _context6.sent;
+          data = res.data;
+          if (data.status === 'success') (0, _alerts.showAlert)('success', 'Event created successfully!');
+          existingModal.hide();
+          saveBtnDashboard.disabled = false;
+          saveBtnDashboard.innerHTML = 'Create';
+          _context6.next = 29;
+          return (0, _events.getEvents)();
+        case 29:
+          _context6.next = 37;
+          break;
+        case 31:
+          _context6.prev = 31;
+          _context6.t0 = _context6["catch"](16);
+          (0, _alerts.showAlert)('error', _context6.t0.response.data.message);
+          saveBtnDashboard.disabled = false;
+          saveBtnDashboard.innerHTML = 'Create';
+          console.log(_context6.t0);
+        case 37:
+        case "end":
+          return _context6.stop();
+      }
+    }, _callee6, null, [[16, 31]]);
+  }));
+  return _submitEventForm.apply(this, arguments);
+}
 if (projectCreateButton) {
   projectCreateButton.addEventListener('click', function () {
     modalDashboard.classList.add('add-project-modal');
-    modalDashboardForm.addEventListener('submit', /*#__PURE__*/function () {
-      var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
-        var name, date, summary, description, imageCover, images, formData, i, res, data;
-        return _regeneratorRuntime().wrap(function _callee$(_context) {
-          while (1) switch (_context.prev = _context.next) {
-            case 0:
-              e.preventDefault();
-              name = document.querySelector('#name').value;
-              date = document.querySelector('#date').value;
-              summary = document.querySelector('#richDescription').value;
-              description = document.querySelector('#description').value;
-              imageCover = document.querySelector('#imageCover').files;
-              images = document.querySelector('#images').files;
-              formData = new FormData();
-              formData.append('name', name);
-              formData.append('date', date);
-              formData.append('richDescription', summary);
-              formData.append('description', description);
-              if (imageCover && imageCover.length > 0) {
-                formData.append("imageCover", imageCover[0]);
-              }
-              if (images && images.length > 0) {
-                for (i = 0; i < images.length; i++) {
-                  formData.append("images", images[i]);
-                }
-              }
-              _context.prev = 14;
-              saveBtnDashboard.disabled = true;
-              saveBtnDashboard.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
-              _context.next = 19;
-              return (0, _axios.default)({
-                method: 'POST',
-                url: 'api/v1/projects',
-                data: formData
-              });
-            case 19:
-              res = _context.sent;
-              data = res.data;
-              if (data.status === 'success') (0, _alerts.showAlert)('success', 'Project created successfully!');
-              existingModal.hide();
-              saveBtnDashboard.disabled = false;
-              saveBtnDashboard.innerHTML = 'Create';
-              _context.next = 27;
-              return (0, _projects.getProjects)();
-            case 27:
-              _context.next = 35;
-              break;
-            case 29:
-              _context.prev = 29;
-              _context.t0 = _context["catch"](14);
-              (0, _alerts.showAlert)('error', _context.t0.response.data.message);
-              saveBtnDashboard.disabled = false;
-              saveBtnDashboard.innerHTML = 'Create';
-              console.log(_context.t0);
-            case 35:
-            case "end":
-              return _context.stop();
-          }
-        }, _callee, null, [[14, 29]]);
-      }));
-      return function (_x) {
-        return _ref.apply(this, arguments);
-      };
-    }());
+    modalDashboardForm.addEventListener('submit', submitProjectForm);
   });
 }
 if (eventCreateButton) {
@@ -14386,83 +14455,90 @@ if (eventCreateButton) {
     var markup = "\n      <div class=\"mb-3\">\n           <label for=\"place\" class=\"form-label\">Place</label>\n           <input type=\"text\" class=\"form-control\" id=\"place\" name=\"place\" required />\n       </div>\n       <div class=\"mb-3\">\n           <label for=\"time\" class=\"form-label\">Time</label>\n           <input type=\"time\" class=\"form-control\" id=\"time\" name=\"time\" required />\n       </div>\n      ";
     modalDashboard.classList.add('add-event-modal');
     modalBody.insertAdjacentHTML('afterbegin', markup);
-    modalDashboardForm.addEventListener('submit', /*#__PURE__*/function () {
-      var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
-        var place, name, date, summary, description, imageCover, images, formData, i, res, data;
-        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
-            case 0:
-              e.preventDefault();
-              place = document.querySelector('#place').value;
-              name = document.querySelector('#name').value;
-              date = new Date("".concat(document.querySelector('#date').value, "T").concat(document.querySelector('#time').value));
-              summary = document.querySelector('#richDescription').value;
-              description = document.querySelector('#description').value;
-              imageCover = document.querySelector('#imageCover').files;
-              images = document.querySelector('#images').files;
-              formData = new FormData();
-              formData.append('name', name);
-              formData.append('date', date);
-              formData.append('richDescription', summary);
-              formData.append('description', description);
-              formData.append('place', place);
-              if (imageCover && imageCover.length > 0) {
-                formData.append("imageCover", imageCover[0]);
-              }
-              if (images && images.length > 0) {
-                for (i = 0; i < images.length; i++) {
-                  formData.append("images", images[i]);
-                }
-              }
-              _context2.prev = 16;
-              saveBtnDashboard.disabled = true;
-              saveBtnDashboard.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
-              _context2.next = 21;
-              return (0, _axios.default)({
-                method: 'POST',
-                url: 'api/v1/events',
-                data: formData
-              });
-            case 21:
-              res = _context2.sent;
-              data = res.data;
-              if (data.status === 'success') (0, _alerts.showAlert)('success', 'Event created successfully!');
-              existingModal.hide();
-              saveBtnDashboard.disabled = false;
-              saveBtnDashboard.innerHTML = 'Create';
-              _context2.next = 29;
-              return (0, _events.getEvents)();
-            case 29:
-              _context2.next = 37;
-              break;
-            case 31:
-              _context2.prev = 31;
-              _context2.t0 = _context2["catch"](16);
-              (0, _alerts.showAlert)('error', _context2.t0.response.data.message);
-              saveBtnDashboard.disabled = false;
-              saveBtnDashboard.innerHTML = 'Create';
-              console.log(_context2.t0);
-            case 37:
-            case "end":
-              return _context2.stop();
-          }
-        }, _callee2, null, [[16, 31]]);
-      }));
-      return function (_x2) {
-        return _ref2.apply(this, arguments);
-      };
-    }());
+    modalDashboardForm.addEventListener('submit', submitEventForm);
   });
 }
 if (projectTable) {
   projectTable.addEventListener('click', /*#__PURE__*/function () {
-    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(e) {
+    var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
       var projectId, titleText, deleteModal, title;
+      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+        while (1) switch (_context2.prev = _context2.next) {
+          case 0:
+            if (e.target.nodeName.toLowerCase() === 'button') {
+              projectId = e.target.dataset.id;
+              titleText = e.target.dataset.title;
+              deleteModal = document.querySelector('#deleteDashboardForm');
+              title = document.querySelector("#title");
+              title.innerHTML = titleText;
+              deleteModal.addEventListener('submit', /*#__PURE__*/function () {
+                var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
+                  var res;
+                  return _regeneratorRuntime().wrap(function _callee$(_context) {
+                    while (1) switch (_context.prev = _context.next) {
+                      case 0:
+                        e.preventDefault();
+                        _context.prev = 1;
+                        deleteBtnDashboard.disabled = true;
+                        deleteBtnDashboard.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...';
+                        _context.next = 6;
+                        return (0, _axios.default)({
+                          method: 'DELETE',
+                          url: "api/v1/projects/".concat(projectId)
+                        });
+                      case 6:
+                        res = _context.sent;
+                        if (!(res.status === 204)) {
+                          _context.next = 11;
+                          break;
+                        }
+                        (0, _alerts.showAlert)('success', 'Project deleted successfully!');
+                        _context.next = 11;
+                        return (0, _projects.getProjects)();
+                      case 11:
+                        existingModalDelete.hide();
+                        deleteBtnDashboard.disabled = false;
+                        deleteBtnDashboard.innerHTML = 'Confirm';
+                        _context.next = 22;
+                        break;
+                      case 16:
+                        _context.prev = 16;
+                        _context.t0 = _context["catch"](1);
+                        console.error(_context.t0);
+                        (0, _alerts.showAlert)('error', _context.t0.response.data.message);
+                        deleteBtnDashboard.disabled = false;
+                        deleteBtnDashboard.innerHTML = 'Confirm';
+                      case 22:
+                      case "end":
+                        return _context.stop();
+                    }
+                  }, _callee, null, [[1, 16]]);
+                }));
+                return function (_x4) {
+                  return _ref2.apply(this, arguments);
+                };
+              }());
+            }
+          case 1:
+          case "end":
+            return _context2.stop();
+        }
+      }, _callee2);
+    }));
+    return function (_x3) {
+      return _ref.apply(this, arguments);
+    };
+  }());
+}
+if (eventTable) {
+  eventTable.addEventListener('click', /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(e) {
+      var eventId, titleText, deleteModal, title;
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
           case 0:
             if (e.target.nodeName.toLowerCase() === 'button') {
-              projectId = e.target.dataset.id;
+              eventId = e.target.dataset.id;
               titleText = e.target.dataset.title;
               deleteModal = document.querySelector('#deleteDashboardForm');
               title = document.querySelector("#title");
@@ -14480,37 +14556,33 @@ if (projectTable) {
                         _context3.next = 6;
                         return (0, _axios.default)({
                           method: 'DELETE',
-                          url: "api/v1/projects/".concat(projectId)
+                          url: "api/v1/events/".concat(eventId)
                         });
                       case 6:
                         res = _context3.sent;
-                        if (!(res.status === 204)) {
-                          _context3.next = 11;
-                          break;
-                        }
-                        (0, _alerts.showAlert)('success', 'Project deleted successfully!');
-                        _context3.next = 11;
-                        return (0, _projects.getProjects)();
-                      case 11:
+                        if (res.status === 204) (0, _alerts.showAlert)('success', 'Event deleted successfully!');
                         existingModalDelete.hide();
+                        _context3.next = 11;
+                        return (0, _events.getEvents)();
+                      case 11:
                         deleteBtnDashboard.disabled = false;
                         deleteBtnDashboard.innerHTML = 'Confirm';
-                        _context3.next = 22;
+                        _context3.next = 21;
                         break;
-                      case 16:
-                        _context3.prev = 16;
+                      case 15:
+                        _context3.prev = 15;
                         _context3.t0 = _context3["catch"](1);
                         console.error(_context3.t0);
                         (0, _alerts.showAlert)('error', _context3.t0.response.data.message);
                         deleteBtnDashboard.disabled = false;
                         deleteBtnDashboard.innerHTML = 'Confirm';
-                      case 22:
+                      case 21:
                       case "end":
                         return _context3.stop();
                     }
-                  }, _callee3, null, [[1, 16]]);
+                  }, _callee3, null, [[1, 15]]);
                 }));
-                return function (_x4) {
+                return function (_x6) {
                   return _ref4.apply(this, arguments);
                 };
               }());
@@ -14521,84 +14593,21 @@ if (projectTable) {
         }
       }, _callee4);
     }));
-    return function (_x3) {
-      return _ref3.apply(this, arguments);
-    };
-  }());
-}
-if (eventTable) {
-  eventTable.addEventListener('click', /*#__PURE__*/function () {
-    var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6(e) {
-      var eventId, titleText, deleteModal, title;
-      return _regeneratorRuntime().wrap(function _callee6$(_context6) {
-        while (1) switch (_context6.prev = _context6.next) {
-          case 0:
-            if (e.target.nodeName.toLowerCase() === 'button') {
-              eventId = e.target.dataset.id;
-              titleText = e.target.dataset.title;
-              deleteModal = document.querySelector('#deleteDashboardForm');
-              title = document.querySelector("#title");
-              title.innerHTML = titleText;
-              deleteModal.addEventListener('submit', /*#__PURE__*/function () {
-                var _ref6 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(e) {
-                  var res;
-                  return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-                    while (1) switch (_context5.prev = _context5.next) {
-                      case 0:
-                        e.preventDefault();
-                        _context5.prev = 1;
-                        deleteBtnDashboard.disabled = true;
-                        deleteBtnDashboard.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...';
-                        _context5.next = 6;
-                        return (0, _axios.default)({
-                          method: 'DELETE',
-                          url: "api/v1/events/".concat(eventId)
-                        });
-                      case 6:
-                        res = _context5.sent;
-                        if (res.status === 204) (0, _alerts.showAlert)('success', 'Event deleted successfully!');
-                        existingModalDelete.hide();
-                        _context5.next = 11;
-                        return (0, _events.getEvents)();
-                      case 11:
-                        deleteBtnDashboard.disabled = false;
-                        deleteBtnDashboard.innerHTML = 'Confirm';
-                        _context5.next = 21;
-                        break;
-                      case 15:
-                        _context5.prev = 15;
-                        _context5.t0 = _context5["catch"](1);
-                        console.error(_context5.t0);
-                        (0, _alerts.showAlert)('error', _context5.t0.response.data.message);
-                        deleteBtnDashboard.disabled = false;
-                        deleteBtnDashboard.innerHTML = 'Confirm';
-                      case 21:
-                      case "end":
-                        return _context5.stop();
-                    }
-                  }, _callee5, null, [[1, 15]]);
-                }));
-                return function (_x6) {
-                  return _ref6.apply(this, arguments);
-                };
-              }());
-            }
-          case 1:
-          case "end":
-            return _context6.stop();
-        }
-      }, _callee6);
-    }));
     return function (_x5) {
-      return _ref5.apply(this, arguments);
+      return _ref3.apply(this, arguments);
     };
   }());
 }
 if (modalDashboard) {
   modalDashboard.addEventListener('hidden.bs.modal', function () {
+    // remove existing event listener on form
+    modalDashboardForm.removeEventListener('submit', submitProjectForm);
+    modalDashboardForm.removeEventListener('submit', submitEventForm);
     var place = document.querySelector('#place');
+    var time = document.querySelector('#time');
     if (place) {
       place.parentElement.remove();
+      time.parentElement.remove();
     }
     if (modalDashboard.classList.contains('add-project-modal') || modalDashboard.classList.contains('add-event-modal')) {
       modalDashboard.classList.remove('add-project-modal');
@@ -15096,7 +15105,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56122" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50727" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
