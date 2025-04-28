@@ -32,7 +32,7 @@ const houseSchema = mongoose.Schema(
 );
 
 houseSchema.virtual('completeAddress').get(function () {
-  return `Phase ${this.phase}, ${this.street}, Blk ${this.block}, Lot ${this.lot}`;
+  return `Phase ${this.phase}, Blk ${this.block}, Lot ${this.lot}, Street ${this.street}`;
 });
 
 houseSchema.pre('save', async function (next) {
@@ -43,7 +43,8 @@ houseSchema.pre('save', async function (next) {
     street: this.street,
   });
 
-  if (house) return next(new AppError('House already exists', 400));
+  if (house)
+    return next(new AppError('House already exists or under maintenance', 400));
 
   next();
 });
