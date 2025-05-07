@@ -1,9 +1,12 @@
 /* eslint-disable */
 import axios from 'axios';
 import { showAlert } from './alerts';
+import {buttonSpinner} from "./_eventAndProjHelper"
 
-export const login = async (email, password) => {
+export const login = async (email, password, targetButton) => {
+    const button = document.querySelector(targetButton);
   try {
+    buttonSpinner(button, "Login", "Logging in");
     const res = await axios({
       method: 'POST',
       url: '/api/v1/users/login',
@@ -22,6 +25,8 @@ export const login = async (email, password) => {
   } catch (err) {
     showAlert('error', err.response.data.message);
     // console.error(err.response.data.message);
+  } finally {
+    buttonSpinner(button, "Login", "Logging in");
   }
 };
 

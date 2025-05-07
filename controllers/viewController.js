@@ -8,6 +8,7 @@ const Event = require('../models/eventModel');
 const Garbage = require('../models/garbageModel');
 const Payment = require('../models/paymentModel');
 const AppError = require('../utils/appError');
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.getIndex = catchAsync(async (req, res, next) => {
   const garbages = await Garbage.find();
@@ -67,7 +68,7 @@ exports.getAllEvent = catchAsync(async (req, res, next) => {
       Bucket: process.env.S3_NAME,
       Key: featuredEvent.imageCover,
     };
-    const command = GetObjectCommand(objectParams);
+    const command = new GetObjectCommand(objectParams);
     featuredEvent.imageCoverUrl = await getSignedUrl(s3, command, {
       expiresIn: 3600,
     });
@@ -90,9 +91,23 @@ exports.getEvent = catchAsync(async (req, res, next) => {
 });
 
 exports.getMe = catchAsync(async (req, res, next) => {
-  const payment = await Payment.find({ user: req.user._id }).sort(
-    '-paymentDate',
-  );
+  // const payment = await Payment.find({ user: req.user._id }).sort(
+  //   '-paymentDate',
+  // );
+
+  req.query.limit = 50; // Only 50 payments will be shown to the client
+  req.query.sort = '-paymentDate'; // Sort payment to latest to oldest
+
+  const features = new APIFeatures(
+    Payment.find({ user: req.user._id }),
+    req.query,
+  )
+    .sort()
+    .paginate();
+
+  const { query } = features;
+
+  const payment = await query;
 
   res.status(200).render('me', {
     title: req.user.name,

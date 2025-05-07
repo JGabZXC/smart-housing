@@ -63,6 +63,7 @@
 <% } %>
 
 <!--    GARBAGE COLLECTION  -->
+<% if(locals.garbages) { %>
 <section>
     <div class="container py-4 py-xl-5">
         <h1 class="text-center fw-bold mb-3">GARBAGE COLLECTION</h1>
@@ -104,3 +105,10 @@
         </div>
     </div>
 </section>
+<% } else { %>
+<section>
+    <div class="container">
+        <p class="text-muted">There's no garbage collection schedule available.</p>
+    </div>
+</section>
+<% } %>

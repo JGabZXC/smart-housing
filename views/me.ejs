@@ -14,14 +14,16 @@
                     <table class="table">
                         <thead>
                         <tr>
+                            <th>No.</th>
                             <th>Month Range</th>
                             <th>Amount</th>
                             <th>Date Paid</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <% payment.forEach(due => { %>
+                        <% payment.forEach((due, i) => { %>
                         <tr>
+                            <td><%= i + 1 %></td>
                             <td><%= due.formattedDateRange %></td>
                             <td>₱<%= due.amount %></td>
                             <td><%= new Intl.DateTimeFormat("en-us", {
@@ -35,6 +37,7 @@
                         </tbody>
                     </table>
                 </div>
+            <p class="text-muted fs-12 mb-0 mt-2">You can only see 50 of your transactions. You can request transaction history at the office.</p>
             </div>
         </div>
     </div>

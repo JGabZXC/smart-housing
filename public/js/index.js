@@ -44,7 +44,7 @@ if (loginForm) {
     const emailValue = email.value;
     const passwordValue = password.value;
 
-    login(emailValue, passwordValue);
+    login(emailValue, passwordValue, ".login-button");
   });
 }
 
