@@ -1,74 +1,106 @@
-<% if(locals.featuredProject) { %>
-<div class="hero-index">
-  <section class="py-4 py-xl-5">
+<section class="text-white py-4 py-xl-5">
     <div class="container">
-      <div class="bg-dark border-0 border-dark overflow-hidden" style="border-radius: 24px;">
-        <div class="row g-0">
-          <div class="col-lg-6">
-            <div class="text-white p-4 p-md-5">
-              <h2 class="fw-bold text-white mb-3"><%= featuredProject.name %></h2>
-              <p class="mb-4"><%= featuredProject.richDescription %></p>
-              <div class="my-3"><a class="btn btn-light btn-lg" role="button" href="/project/<%= featuredProject.slug %>">Read More</a></div>
+        <div class="border rounded border-0 d-flex flex-column justify-content-center align-items-center p-4 py-5" style="background: linear-gradient(rgba(0,123,255,0.2), rgba(0,123,255,0.2)), url('/img/test-background.jpg') center / cover;height: 500px;">
+            <div class="text-center">
+                <h1 class="text-uppercase fw-bold mb-3">Welcome to<br />Holiday homes</h1>
+            </div>
+        </div>
+    </div>
+</section>
+<!--    FEATURED PROJECT    -->
+<% if(locals.featuredProject) { %>
+<section class="featured-project py-4 py-xl-5">
+    <div class="container">
+        <div class="bg-dark border-0 border-dark overflow-hidden" style="border-radius: 24px;">
+            <div class="row g-0">
+                <div class="col-lg-6">
+                    <div class="text-white p-4 p-md-5">
+                        <h2 class="fw-bold text-white mb-3"><%= featuredProject.name %></h2>
+                        <p class="mb-4"><%= featuredProject.richDescription %></p>
+                        <div class="my-3"><a class="btn btn-light btn-lg" role="button" href="/project/<%= featuredProject.slug %>">Read More</a></div>
+                    </div>
+                </div>
+                <div class="col-lg-6 order-first order-md-last" style="min-height: 250px;"><img class="featured-project-cover-photo w-100 h-100 fit-cover" loading="lazy"></div>
+            </div>
+        </div>
+    </div>
+</section>
+<% } else { %>
+<section>
+    <div class="container">
+        <p class="text-muted">There's no featured project😟</p>
+    </div>
+</section>
+<% } %>
+
+<!--    FEATURED EVENT  -->
+<% if(locals.featuredEvent) { %>
+<section class="featured-event py-4 py-xl-5">
+    <div class="container">
+        <div class="bg-dark border-0 border-dark overflow-hidden" style="border-radius: 24px;">
+            <div class="row g-0">
+                <div class="col-md-6">
+                    <div class="text-white p-4 p-md-5">
+                        <h2 class="fw-bold text-white mb-3 text-uppercase"><%= featuredEvent.name %> <br/> <%=featuredEvent.time %> <br/> <%=featuredEvent.place %></h2>
+                        <p class="mb-4"><%= featuredEvent.richDescription %></p>
+                        <div class="my-3">
+                            <a class="btn btn-primary btn-lg me-2" role="button" href="#">Attend</a>
+                            <a class="btn btn-light btn-lg" role="button" href="/event/<%= featuredEvent.slug %>">Read More</a>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-md-6 order-first order-md-last" style="min-height: 250px;"><img class="featured-event-cover-photo w-100 h-100 fit-cover" /></div>
+            </div>
+        </div>
+    </div>
+</section>
+<% } else { %>
+<section>
+    <div class="container">
+        <p class="text-muted">There's no featured event😟</p>
+    </div>
+</section>
+<% } %>
+
+<!--    GARBAGE COLLECTION  -->
+<section>
+    <div class="container py-4 py-xl-5">
+        <h1 class="text-center fw-bold mb-3">GARBAGE COLLECTION</h1>
+            <div>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <% const phase3 = garbages.filter(garbage => garbage.phase === 3); %>
+                    <tr>
+                      <% phase3.forEach(day => { %>
+                      <th><%= day.pickUpDay.day %></th>
+                      <% }); %>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <%
+                        // Find the maximum number of timeLocation entries across all days
+                        const maxTimeLocations = Math.max(...phase3.map(day => day.pickUpDay.timeLocation.length));
+                      %>
+                    <% for (let i = 0; i < maxTimeLocations; i++) { %>
+                    <tr>
+                      <% phase3.forEach(day => { %>
+                      <td>
+                        <% if (day.pickUpDay.timeLocation[i]) { %>
+                        <%= day.pickUpDay.timeLocation[i].time %> (<%= day.pickUpDay.timeLocation[i].street %>)
+                        <% } else { %>
+                        <!-- If no data for this row, leave the cell empty -->
+                        &nbsp;
+                        <% } %>
+                      </td>
+                      <% }); %>
+                    </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-          <div class="col-lg-6 order-first order-lg-last" style="min-height:250px;"><img class="w-100 h-100 fit-cover featured-photo" loading="lazy"></div>
         </div>
-      </div>
     </div>
-  </section>
-</div>
-<% } else { %>
-<div>
-  <section>
-    <div class="container">
-      <h1>There's no featured project...</h1>
-    </div>
-  </section>
-</div>
-<% } %>
-<div>
-  <div class="container">
-    <h1 class="text-center" style="font-weight: bold;">GARBAGE COLLECTION</h1>
-    <div>
-      <p style="font-size: 22px;"><strong>Phase 1</strong></p>
-    </div>
-    <div>
-      <p style="font-size: 22px;"><strong>Phase 2</strong></p>
-    </div>
-    <div>
-      <p style="font-size: 22px;"><strong>Phase 3</strong></p>
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <% const phase3 = garbages.filter(garbage => garbage.phase === 3); %>
-            <tr>
-              <% phase3.forEach(day => { %>
-              <th><%= day.pickUpDay.day %></th>
-              <% }); %>
-            </tr>
-          </thead>
-          <tbody>
-            <% 
-                // Find the maximum number of timeLocation entries across all days
-                const maxTimeLocations = Math.max(...phase3.map(day => day.pickUpDay.timeLocation.length));
-              %>
-            <% for (let i = 0; i < maxTimeLocations; i++) { %>
-            <tr>
-              <% phase3.forEach(day => { %>
-              <td>
-                <% if (day.pickUpDay.timeLocation[i]) { %>
-                <%= day.pickUpDay.timeLocation[i].time %> (<%= day.pickUpDay.timeLocation[i].street %>)
-                <% } else { %>
-                <!-- If no data for this row, leave the cell empty -->
-                &nbsp;
-                <% } %>
-              </td>
-              <% }); %>
-            </tr>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
+</section>

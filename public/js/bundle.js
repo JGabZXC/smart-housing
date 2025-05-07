@@ -12754,8 +12754,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 var featuredPhoto = document.querySelector('.featured-photo');
 var featuredPhotoBg = document.querySelector('.featured-photo-bg');
 var getFeatured = exports.getFeatured = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(type) {
-    var res, coverImage;
+  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(type, photoDestination) {
+    var res, photo, coverImage;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
@@ -12767,21 +12767,22 @@ var getFeatured = exports.getFeatured = /*#__PURE__*/function () {
           });
         case 3:
           res = _context.sent;
+          photo = document.querySelector(photoDestination);
           coverImage = res.data;
-          featuredPhoto.src = coverImage[0].imageUrl;
-          _context.next = 11;
+          photo.src = coverImage[0].imageUrl;
+          _context.next = 12;
           break;
-        case 8:
-          _context.prev = 8;
+        case 9:
+          _context.prev = 9;
           _context.t0 = _context["catch"](0);
           console.error(_context.t0);
-        case 11:
+        case 12:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 8]]);
+    }, _callee, null, [[0, 9]]);
   }));
-  return function getFeatured(_x) {
+  return function getFeatured(_x, _x2) {
     return _ref.apply(this, arguments);
   };
 }();
@@ -12855,7 +12856,7 @@ var getImages = exports.getImages = /*#__PURE__*/function () {
       }
     }, _callee2, null, [[0, 22]]);
   }));
-  return function getImages(_x2, _x3) {
+  return function getImages(_x3, _x4) {
     return _ref2.apply(this, arguments);
   };
 }();
@@ -14994,7 +14995,8 @@ require("./updateResident");
 
 var email = document.querySelector('#email');
 var password = document.querySelector('#password');
-var hero = document.querySelector('.hero-index');
+var featuredProject = document.querySelector('.featured-project');
+var featuredEvent = document.querySelector('.featured-event');
 var projectContainer = document.querySelector('#project-container');
 var projectListContainer = document.querySelector('#project-list-container');
 var adminProjectContainer = document.querySelector('#admin-project-container');
@@ -15019,8 +15021,11 @@ if (logoutBtn) {
     (0, _login.logout)();
   });
 }
-if (hero) {
-  (0, _getS3Image.getFeatured)('project');
+if (featuredProject) {
+  (0, _getS3Image.getFeatured)('project', '.featured-project-cover-photo');
+}
+if (featuredEvent) {
+  (0, _getS3Image.getFeatured)('event', ".featured-event-cover-photo");
 }
 
 // PROJECTS
@@ -15105,7 +15110,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50532" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57676" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

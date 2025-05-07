@@ -12,11 +12,20 @@ const AppError = require('../utils/appError');
 exports.getIndex = catchAsync(async (req, res, next) => {
   const garbages = await Garbage.find();
   const featuredProject = await Project.findOne({ isFeatured: true });
+  const featuredEvent = await Event.findOne({ isFeatured: true });
+
+  featuredEvent.time = featuredEvent.date.toLocaleString('en-PH', {
+    timeZone: 'Asia/Manila',
+    hour12: true,
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
   res.status(200).render('index', {
     title: 'Holiday Homes',
     garbages,
     featuredProject,
+    featuredEvent,
   });
 });
 

@@ -4,15 +4,17 @@ import axios from 'axios';
 const featuredPhoto = document.querySelector('.featured-photo');
 const featuredPhotoBg = document.querySelector('.featured-photo-bg');
 
-export const getFeatured = async (type) => {
+export const getFeatured = async (type, photoDestination) => {
   try {
     const res = await axios({
       method: 'GET',
       url: `/api/v1/images/getFeaturedCover/${type}`,
     });
 
+    const photo = document.querySelector(photoDestination);
+
     const coverImage = res.data;
-    featuredPhoto.src = coverImage[0].imageUrl;
+    photo.src = coverImage[0].imageUrl;
   } catch (err) {
     console.error(err);
   }

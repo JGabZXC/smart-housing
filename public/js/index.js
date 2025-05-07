@@ -21,7 +21,8 @@ import './updateResident'
 const email = document.querySelector('#email');
 const password = document.querySelector('#password');
 
-const hero = document.querySelector('.hero-index');
+const featuredProject = document.querySelector('.featured-project');
+const featuredEvent = document.querySelector('.featured-event');
 const projectContainer = document.querySelector('#project-container');
 const projectListContainer = document.querySelector('#project-list-container');
 const adminProjectContainer = document.querySelector('#admin-project-container');
@@ -53,8 +54,12 @@ if (logoutBtn) {
   });
 }
 
-if (hero) {
-  getFeatured('project');
+if (featuredProject) {
+  getFeatured('project', '.featured-project-cover-photo');
+}
+
+if(featuredEvent) {
+  getFeatured('event', ".featured-event-cover-photo");
 }
 
 // PROJECTS
