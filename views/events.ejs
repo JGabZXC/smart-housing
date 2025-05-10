@@ -21,7 +21,13 @@
                                     }).format(date) %>
                                     <p class="mb-3" style="color: #adb5bd;"> <%= featuredEvent.place %> (<%= finalDate %>) </p>
                                     <p class="mb-4"><%= featuredEvent.richDescription %></p>
-                                    <div class="my-3"></div><a class="btn btn-light btn-lg" role="button" href="/project/<%= featuredEvent.slug %>">Read More</a>
+                                    <div class="my-3">
+                                        <% if(locals.user) { %>
+                                            <a class="btn btn-primary btn-lg me-2" role="button" href="#">Attend</a>
+                                        <% } %>
+                                        <a class="btn btn-light btn-lg" role="button" href="/event/<%= featuredEvent.slug %>">Read More</a>
+                                    </div>
+
                                 </div>
                             </div>
                             <div class="col-lg-6  order-first order-lg-last" style="min-height: 250px;">

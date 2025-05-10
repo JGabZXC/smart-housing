@@ -27,4 +27,12 @@ router
     garbageController.deleteGarbage,
   );
 
+router
+  .route('/:garbageId/timeLocation/:timeLocationId')
+  .patch(
+    authController.protect,
+    authController.protectTo('admin'),
+    garbageController.updateTimeLocation,
+  );
+
 module.exports = router;

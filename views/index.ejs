@@ -44,7 +44,9 @@
                         <h2 class="fw-bold text-white mb-3 text-uppercase"><%= featuredEvent.name %> <br/> <%=featuredEvent.time %> <br/> <%=featuredEvent.place %></h2>
                         <p class="mb-4"><%= featuredEvent.richDescription %></p>
                         <div class="my-3">
-                            <a class="btn btn-primary btn-lg me-2" role="button" href="#">Attend</a>
+                            <% if(locals.user) { %>
+                                <a class="btn btn-primary btn-lg me-2" role="button" href="#">Attend</a>
+                            <% } %>
                             <a class="btn btn-light btn-lg" role="button" href="/event/<%= featuredEvent.slug %>">Read More</a>
                             </div>
                     </div>

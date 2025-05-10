@@ -11,7 +11,9 @@
                   <div class="text-white">
                       <h1 class="mb-3"><%= event.name %></h1>
                       <h4 class="mb-3"><%= event.place %> <br/> <small><%= date %></small></h4>
-                      <a class="btn btn-outline-light btn-lg" role="button" data-mdb-ripple-init href="#!">Attend Event</a>
+                      <% if(locals.user) { %>
+                          <a class="btn btn-outline-light btn-lg" role="button" href="#">Attend Event</a>
+                      <% } %>
                   </div>
               </div>
           </div>
