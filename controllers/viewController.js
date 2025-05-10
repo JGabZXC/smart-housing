@@ -24,7 +24,7 @@ exports.getIndex = catchAsync(async (req, res, next) => {
 
   res.status(200).render('index', {
     title: 'Holiday Homes',
-    garbages,
+    garbages: null,
     featuredProject,
     featuredEvent,
   });

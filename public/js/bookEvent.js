@@ -20,8 +20,6 @@ async function bookEvent() {
 
     if(data.status !== "success") throw new Error(data.message);
 
-    showAlert("success", "Event booked successfully");
-
     if(data.data.doc.length === 0) {
       eventTableBody.innerHTML = `<tr><td colspan="5" class="text-center">No events booked</td></tr>`;
       return;

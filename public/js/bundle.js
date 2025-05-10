@@ -14891,14 +14891,13 @@ function _bookEvent() {
           }
           throw new Error(data.message);
         case 8:
-          (0, _alerts.showAlert)("success", "Event booked successfully");
           if (!(data.data.doc.length === 0)) {
-            _context2.next = 12;
+            _context2.next = 11;
             break;
           }
           eventTableBody.innerHTML = "<tr><td colspan=\"5\" class=\"text-center\">No events booked</td></tr>";
           return _context2.abrupt("return");
-        case 12:
+        case 11:
           data.data.doc.forEach(function (event) {
             var eventDate = new Date(event.date);
             var formattedDate = eventDate.toLocaleString('en-US', {
@@ -14912,17 +14911,17 @@ function _bookEvent() {
             var row = "\n        <tr>\n          <td>".concat(formattedDate, "</td>\n          <td>").concat(event.place, "</td>\n          <td>").concat(event.approved ? "Approved" : "Pending", "</td>\n        </tr>\n      ");
             eventTableBody.insertAdjacentHTML("beforeend", row);
           });
-          _context2.next = 18;
+          _context2.next = 17;
           break;
-        case 15:
-          _context2.prev = 15;
+        case 14:
+          _context2.prev = 14;
           _context2.t0 = _context2["catch"](1);
           (0, _alerts.showAlert)("error", _context2.t0.message);
-        case 18:
+        case 17:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[1, 15]]);
+    }, _callee2, null, [[1, 14]]);
   }));
   return _bookEvent.apply(this, arguments);
 }

@@ -16,13 +16,13 @@ exports.updateTimeLocation = catchAsync(async (req, res, next) => {
 
   if (!garbage) return next(new AppError('No garbage found with that ID', 404));
 
-  const timeLocation = garbage.pickUpDay.timeLocation.id(timeLocationId);
+  const timeLocation = garbage.timeLocation.id(timeLocationId);
 
   if (!timeLocation)
     return next(new AppError('No timeLocation found with that ID', 404));
 
-  if (timeLocation.time) timeLocation.time = req.body.time;
-  if (timeLocation.street) timeLocation.street = req.body.street;
+  if (req.body.time) timeLocation.time = req.body.time;
+  if (req.body.street) timeLocation.street = req.body.street;
 
   const latestGarbage = await garbage.save();
 
