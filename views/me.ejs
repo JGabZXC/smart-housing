@@ -43,10 +43,10 @@
     </div>
     <div class="container">
         <h1>Book an Event Place</h1>
-        <form class="d-flex flex-column justify-content-between flex-sm-column flex-md-row flex-lg-row flex-xl-row flex-xxl-row gap-5">
+        <form id="bookEventPlace" class="d-flex flex-column justify-content-between flex-sm-column flex-md-row flex-lg-row flex-xl-row flex-xxl-row gap-5">
             <div style="width: 100%;">
-                <input class="form-control mb-3" type="date" />
-                <input class="form-control mb-3" type="time" />
+                <input class="form-control mb-3" name="date" id="date" type="date" />
+                <input class="form-control mb-3" name="time" id="time" type="time" />
                 <!--    PRE-SELECTED FOR NOW    -->
                 <!--    TODO:
                         1. Add a function to add more event places
@@ -54,32 +54,34 @@
                         3. Add a function to store the places in the database, so other places that will be built in the future will be added to the list
                 -->
                 <label class="form-label mb-0">Select Event Place</label>
-                <select class="form-select mb-3 mt-0">
-                    <option value="p3clubhouse">Phase 3 Clubhouse</option>
+                <select class="form-select mb-3 mt-0" name="place" id="place">
+                    <option value="ph3clubhouse">Phase 3 Clubhouse</option>
                     <option value="ph2clubhouse">Phase 2 Clubhouse</option>
                     <option value="ph3court">Phase 3 Court</option>
                     <option value="ph4court">Phase 4 Court</option>
                 </select>
-                <button class="btn btn-primary" type="button">Book Event Place</button>
+                <button id="buttonEventSubmit" class="btn btn-primary" type="submit">Book Event Place</button>
             </div>
             <div style="width: 100%;">
                 <h2>Event you booked</h2>
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>Event Date</th>
-                        <th>Place</th>
-                        <th>Approved</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+                <div class="table-responsive" style="overflow-y: auto; max-height: 200px;">
+                    <table id="eventBookedTable" class="table">
+                        <thead>
                         <tr>
-                            <td>March 08, 2025</td>
-                            <td>Phase 3 Court</td>
-                            <td>Pending</td>
+                            <th>Event Date</th>
+                            <th>Place</th>
+                            <th>Approved</th>
                         </tr>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody id="eventTableBody">
+                            <tr>
+                                <td>March 08, 2025</td>
+                                <td>Phase 3 Court</td>
+                                <td>Pending</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </form>
     </div>

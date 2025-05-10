@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.use(authController.protect);
 
-router.route('/myevent').get(eventResidentController.getResidentEvents);
+router.route('/myevent').get(eventResidentController.getMyEvent);
 
 router
   .route('/')
@@ -16,7 +16,7 @@ router
 router
   .route('/:id')
   .get(eventResidentController.getEvent)
-  .patch(eventResidentController.updateEvent)
-  .delete(eventResidentController.deleteEvent);
+  .patch(eventResidentController.updateMyEvent)
+  .delete(eventResidentController.deleteMyEvent);
 
 module.exports = router;

@@ -14,9 +14,10 @@ import { getProjects } from './projects';
 import { getEvents } from './events';
 import { getHouses } from './house';
 import './paymentManual';
-import './dashboard'
-import './createResident'
-import './updateResident'
+import './dashboard';
+import './createResident';
+import './updateResident';
+import './bookEvent';
 
 const email = document.querySelector('#email');
 const password = document.querySelector('#password');
