@@ -69,22 +69,22 @@
                   <thead>
                     <% const phase3 = garbages.filter(garbage => garbage.phase === 3); %>
                     <tr>
-                      <% phase3.forEach(day => { %>
-                      <th><%= day.pickUpDay.day %></th>
+                      <% phase3.forEach(gb => { %>
+                      <th><%= gb.day %></th>
                       <% }); %>
                     </tr>
                   </thead>
                   <tbody>
                     <%
                         // Find the maximum number of timeLocation entries across all days
-                        const maxTimeLocations = Math.max(...phase3.map(day => day.pickUpDay.timeLocation.length));
+                        const maxTimeLocations = Math.max(...phase3.map(day => day.timeLocation.length));
                       %>
                     <% for (let i = 0; i < maxTimeLocations; i++) { %>
                     <tr>
                       <% phase3.forEach(day => { %>
                       <td>
-                        <% if (day.pickUpDay.timeLocation[i]) { %>
-                        <%= day.pickUpDay.timeLocation[i].time %> (<%= day.pickUpDay.timeLocation[i].street %>)
+                        <% if (day.timeLocation[i]) { %>
+                        <%= day.timeLocation[i].time %> (<%= day.timeLocation[i].street %>)
                         <% } else { %>
                         <!-- If no data for this row, leave the cell empty -->
                         &nbsp;

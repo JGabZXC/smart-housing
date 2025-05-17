@@ -11,9 +11,14 @@ const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
 exports.getIndex = catchAsync(async (req, res, next) => {
-  const garbages = await Garbage.find();
-  const featuredProject = await Project.findOne({ isFeatured: true });
-  const featuredEvent = await Event.findOne({ isFeatured: true });
+  // const garbages = await Garbage.find();
+  // const featuredProject = await Project.findOne({ isFeatured: true });
+  // const featuredEvent = await Event.findOne({ isFeatured: true });
+  const [garbages, featuredProject, featuredEvent] = await Promise.all([
+    Garbage.find(),
+    Project.findOne({ isFeatured: true }),
+    Event.findOne({ isFeatured: true }),
+  ]);
 
   featuredEvent.time = featuredEvent.date.toLocaleString('en-PH', {
     timeZone: 'Asia/Manila',
@@ -24,7 +29,7 @@ exports.getIndex = catchAsync(async (req, res, next) => {
 
   res.status(200).render('index', {
     title: 'Holiday Homes',
-    garbages: null,
+    garbages,
     featuredProject,
     featuredEvent,
   });
