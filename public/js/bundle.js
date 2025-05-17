@@ -14147,10 +14147,41 @@ var payDuesForm = document.querySelector('#pay-dues-form');
 var table = document.querySelector('#dues-table');
 var searchResidentDue = document.querySelector('#search-resident-due');
 var insertPaymentButton = document.querySelector("#insert-payment-btn");
+var customAmount = document.querySelector('#custom-amount');
+var amountInput = document.querySelector('#amount');
 if (payDuesForm) {
+  var calculateAmount = function calculateAmount(from, to) {
+    return ((to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth())) * 1000;
+  };
+  var validateDates = function validateDates(from, to) {
+    if (isNaN(from) || isNaN(to)) {
+      (0, _alerts.showAlert)('error', 'Please select a valid date', 10);
+      return false;
+    }
+    if (to < from) {
+      (0, _alerts.showAlert)('error', 'The "From" date must be earlier than the "To" date', 10);
+      return false;
+    }
+    if (from.getTime() === to.getTime()) {
+      (0, _alerts.showAlert)('error', 'The "From" date and "To" date must not be the same', 10);
+      return false;
+    }
+    return true;
+  };
+  var toggleCustomAmount = function toggleCustomAmount(isCustom) {
+    if (isCustom) {
+      amountInput.removeAttribute('readonly');
+      amountInput.classList.remove('bg-secondary', 'text-white');
+      amountInput.classList.add('text-black');
+    } else {
+      amountInput.setAttribute('readonly', true);
+      amountInput.classList.add('bg-secondary', 'text-white');
+      amountInput.classList.remove('text-black');
+    }
+  };
   payDuesForm.addEventListener('submit', /*#__PURE__*/function () {
     var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
-      var email, from, to, amount, dateRange, res;
+      var email, from, to, amount, fromFormatted, toFormatted, dateRange, res, _err$response;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
@@ -14160,32 +14191,24 @@ if (payDuesForm) {
             from = new Date(from);
             to = document.querySelector('#to-date').value;
             to = new Date(to);
-            if (!(isNaN(from) || isNaN(to))) {
+            if (validateDates(from, to)) {
               _context.next = 8;
               break;
             }
-            return _context.abrupt("return", (0, _alerts.showAlert)('error', 'Please select a valid date', 10));
+            return _context.abrupt("return");
           case 8:
-            if (!(to < from)) {
-              _context.next = 10;
-              break;
+            amount = amountInput.value;
+            if (!customAmount.checked) {
+              amount = calculateAmount(from, to);
             }
-            return _context.abrupt("return", (0, _alerts.showAlert)('error', 'The "From" date must be earlier than the "To" date', 10));
-          case 10:
-            amount = ((to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth())) * 1000;
-            from = (from.getMonth() + 1).toString().padStart(2, '0') + from.getFullYear();
-            to = (to.getMonth() + 1).toString().padStart(2, '0') + to.getFullYear();
-            document.querySelector('#amount').value = amount;
-            if (!(from === to)) {
-              _context.next = 16;
-              break;
-            }
-            return _context.abrupt("return", (0, _alerts.showAlert)('error', 'The "From" date and "To" date must not be the same', 10));
-          case 16:
-            dateRange = "".concat(from, "-").concat(to);
+
+            // Format date strings
+            fromFormatted = (from.getMonth() + 1).toString().padStart(2, '0') + from.getFullYear();
+            toFormatted = (to.getMonth() + 1).toString().padStart(2, '0') + to.getFullYear();
+            dateRange = "".concat(fromFormatted, "-").concat(toFormatted);
             (0, _eventAndProjHelper.buttonSpinner)(insertPaymentButton, 'Confirm', 'Inserting payment');
-            _context.prev = 18;
-            _context.next = 21;
+            _context.prev = 14;
+            _context.next = 17;
             return (0, _axios.default)({
               method: 'POST',
               url: '/api/v1/payments',
@@ -14195,39 +14218,45 @@ if (payDuesForm) {
                 dateRange: dateRange
               }
             });
-          case 21:
+          case 17:
             res = _context.sent;
-            if (res.data.status === 'success') (0, _alerts.showAlert)('success', 'Payment inserted successfully');
-            payDuesForm.reset();
-            _context.next = 29;
+            if (res.data.status === 'success') {
+              (0, _alerts.showAlert)('success', 'Payment inserted successfully');
+              payDuesForm.reset();
+            }
+            _context.next = 24;
             break;
-          case 26:
-            _context.prev = 26;
-            _context.t0 = _context["catch"](18);
-            (0, _alerts.showAlert)('error', _context.t0.response.data.message);
-          case 29:
-            _context.prev = 29;
+          case 21:
+            _context.prev = 21;
+            _context.t0 = _context["catch"](14);
+            (0, _alerts.showAlert)('error', ((_err$response = _context.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || 'An error occurred');
+          case 24:
+            _context.prev = 24;
             (0, _eventAndProjHelper.buttonSpinner)(insertPaymentButton, 'Confirm', 'Inserting payment');
-            return _context.finish(29);
-          case 32:
+            toggleCustomAmount(false);
+            return _context.finish(24);
+          case 28:
           case "end":
             return _context.stop();
         }
-      }, _callee, null, [[18, 26, 29, 32]]);
+      }, _callee, null, [[14, 21, 24, 28]]);
     }));
     return function (_x) {
       return _ref.apply(this, arguments);
     };
   }());
   document.querySelector('#to-date').addEventListener('change', function () {
+    if (customAmount.checked) return;
     var from = document.querySelector('#from-date').value;
     from = new Date(from);
     var to = document.querySelector('#to-date').value;
     to = new Date(to);
-    if (isNaN(from) || isNaN(to)) return (0, _alerts.showAlert)('error', 'Please select a valid date', 10);
+    if (!validateDates(from, to)) return (0, _alerts.showAlert)('error', 'Please select a valid date', 10);
     if (to < from) return (0, _alerts.showAlert)('error', 'The "From" date must be earlier than the "To" date', 10);
-    var amount = ((to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth())) * 1000;
-    document.querySelector('#amount').value = amount;
+    amountInput.value = calculateAmount(from, to);
+  });
+  customAmount.addEventListener('change', function () {
+    toggleCustomAmount(customAmount.checked);
   });
 }
 if (searchResidentDue) {

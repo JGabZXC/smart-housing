@@ -47,7 +47,8 @@ app.use(
       imgSrc: [
         "'self'",
         'smarthousing-capstone.s3.ap-southeast-2.amazonaws.com',
-        'data',
+        'data:',
+        'www.w3.org',
       ],
     },
   }),

@@ -7,8 +7,45 @@ const payDuesForm = document.querySelector('#pay-dues-form');
 const table = document.querySelector('#dues-table');
 const searchResidentDue = document.querySelector('#search-resident-due');
 const insertPaymentButton = document.querySelector("#insert-payment-btn");
+const customAmount = document.querySelector('#custom-amount');
+const amountInput = document.querySelector('#amount');
 
 if(payDuesForm) {
+  const calculateAmount = (from, to) => {
+    return (
+      ((to.getFullYear() - from.getFullYear()) * 12 +
+        (to.getMonth() - from.getMonth())) *
+      1000
+    );
+  }
+  const validateDates = (from, to) => {
+    if (isNaN(from) || isNaN(to)) {
+      showAlert('error', 'Please select a valid date', 10);
+      return false;
+    }
+    if (to < from) {
+      showAlert('error', 'The "From" date must be earlier than the "To" date', 10);
+      return false;
+    }
+    if (from.getTime() === to.getTime()) {
+      showAlert('error', 'The "From" date and "To" date must not be the same', 10);
+      return false;
+    }
+    return true;
+  }
+  const toggleCustomAmount = (isCustom) => {
+    if (isCustom) {
+      amountInput.removeAttribute('readonly');
+      amountInput.classList.remove('bg-secondary', 'text-white');
+      amountInput.classList.add('text-black');
+    } else {
+      amountInput.setAttribute('readonly', true);
+      amountInput.classList.add('bg-secondary', 'text-white');
+      amountInput.classList.remove('text-black');
+    }
+  };
+
+
   payDuesForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.querySelector('#email').value;
@@ -17,66 +54,52 @@ if(payDuesForm) {
     let to = document.querySelector('#to-date').value;
     to = new Date(to);
 
-    if (isNaN(from) || isNaN(to))
-      return showAlert('error', 'Please select a valid date', 10);
+    if (!validateDates(from, to)) return;
 
-    if (to < from)
-      return showAlert(
-        'error',
-        'The "From" date must be earlier than the "To" date',
-        10,
-      );
+    let amount = amountInput.value;
 
-    const amount =
-      ((to.getFullYear() - from.getFullYear()) * 12 +
-        (to.getMonth() - from.getMonth())) *
-      1000;
-    from =
-      (from.getMonth() + 1).toString().padStart(2, '0') +
-      from.getFullYear();
-    to =
-      (to.getMonth() + 1).toString().padStart(2, '0') +
-      to.getFullYear();
+    if (!customAmount.checked) {
+      amount = calculateAmount(from, to);
+    }
 
-    document.querySelector('#amount').value = amount;
+    // Format date strings
+    const fromFormatted =
+      (from.getMonth() + 1).toString().padStart(2, '0') + from.getFullYear();
+    const toFormatted =
+      (to.getMonth() + 1).toString().padStart(2, '0') + to.getFullYear();
+    const dateRange = `${fromFormatted}-${toFormatted}`;
 
-    if (from === to)
-      return showAlert(
-        'error',
-        'The "From" date and "To" date must not be the same',
-        10,
-      );
 
-    const dateRange = `${from}-${to}`;
     buttonSpinner(insertPaymentButton, 'Confirm', 'Inserting payment');
     try {
       const res = await axios({
         method: 'POST',
         url: '/api/v1/payments',
-        data: {
-          email,
-          amount,
-          dateRange,
-        }
+        data: { email, amount, dateRange },
       });
 
-      if(res.data.status === 'success') showAlert('success', 'Payment inserted successfully');
-      payDuesForm.reset();
+      if (res.data.status === 'success') {
+        showAlert('success', 'Payment inserted successfully');
+        payDuesForm.reset();
+      }
     } catch (err) {
-      showAlert('error', err.response.data.message);
+      showAlert('error', err.response?.data?.message || 'An error occurred');
     } finally {
       buttonSpinner(insertPaymentButton, 'Confirm', 'Inserting payment');
+      toggleCustomAmount(false);
     }
+
   })
 
   document.querySelector('#to-date').addEventListener('change', () => {
+    if(customAmount.checked) return;
+
     let from = document.querySelector('#from-date').value;
     from = new Date(from);
     let to = document.querySelector('#to-date').value;
     to = new Date(to);
 
-    if (isNaN(from) || isNaN(to))
-      return showAlert('error', 'Please select a valid date', 10);
+    if (!validateDates(from, to)) return showAlert('error', 'Please select a valid date', 10);
 
     if (to < from)
       return showAlert(
@@ -85,13 +108,13 @@ if(payDuesForm) {
         10,
       );
 
-    const amount =
-      ((to.getFullYear() - from.getFullYear()) * 12 +
-        (to.getMonth() - from.getMonth())) *
-      1000;
-
-    document.querySelector('#amount').value = amount;
+    amountInput.value = calculateAmount(from, to);
   })
+
+  customAmount.addEventListener('change', () => {
+    toggleCustomAmount(customAmount.checked);
+  })
+
 }
 
 if(searchResidentDue) {

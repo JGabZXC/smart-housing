@@ -120,6 +120,13 @@ exports.createPayment = catchAsync(async (req, res, next) => {
 
   if (!email) return next(new AppError('Please provide an email address', 400));
 
+  console.log(amount);
+
+  if (!+amount || +amount === 0)
+    return next(new AppError('Please provide an amount', 400));
+
+
+
   if (!amount || !dateRange)
     return next(new AppError('Please provide an amount and date range', 400));
 
@@ -143,6 +150,8 @@ exports.createPayment = catchAsync(async (req, res, next) => {
     amount,
     dateRange,
   });
+
+  console.log(paymentMod)
 
   res.status(201).json({
     status: 'success',
