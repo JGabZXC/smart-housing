@@ -135,7 +135,54 @@ exports.getAllEvents = catchAsync(async (req, res, next) => {
 });
 exports.getEvent = handler.getOne(Event);
 exports.createEvent = handler.createOne(Event);
-exports.updateEvent = handler.updateOne(Event);
+exports.updateEvent = catchAsync(async (req, res,next) => {
+  const event = await Event.findById(req.params.id);
+
+  console.log(req.body);
+
+  if(req.body.isFeatured === 'false') req.body.isFeatured = false;
+
+  if(!event) return next(new Apperror('No event found with that ID', 404));
+
+  if(req.body.imageCover && event.imageCover) {
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.S3_NAME,
+        Key: project.imageCover
+      }),
+    );
+  }
+
+  if(req.body.images && project.images.length > 0) {
+    await Promise.all(
+      project.images.map(async (image) => {
+        await s3.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.S3_NAME,
+            Key: image
+          }),
+        );
+      }),
+    );
+  }
+
+  const updatedEvent = await Event.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true
+      },
+    );
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      updatedEvent,
+    }
+  })
+
+});
 exports.deleteEvent = catchAsync(async (req, res, next) => {
   const event = await Event.findById(req.params.id);
   if (!event) return next(new AppError('No event found with that ID', 404));

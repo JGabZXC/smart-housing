@@ -66,6 +66,7 @@
     <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-2 row-cols-xxl-2">
         <div class="col" style="padding: 12px;">
             <div style="border-style: solid;border-radius: 19px;padding: 10px;">
+
                 <% if(featuredProject) { %>
                     <h2>Featured Project</h2>
                     <p><%= featuredProject.name %></p>
@@ -84,10 +85,10 @@
                 <%if(featuredEvent) { %>
                     <h2>Featured Event</h2>
                     <p>Title of Event</p>
-                    <img class="fit-cover" style="width: 100%;height: 210px;border-radius: 10px;" />
+                    <img src="<%= featuredEvent.imageCoverUrl %>" class="fit-cover" style="width: 100%;height: 210px;border-radius: 10px;" />
                     <div class="d-flex justify-content-end mt-2 gap-2">
-                        <button class="btn btn-primary" type="button">View</button>
-                        <button class="btn btn-warning" type="button">Edit</button>
+                        <a class="btn btn-primary" type="button" href="event/<%= featuredEvent.slug %>">View</a>
+                        <a class="btn btn-warning" type="button" href="event/<%= featuredEvent.slug %>/edit">Edit</a>
                     </div>
                 <% } else { %>
                     <h2>No Featured Event</h2>

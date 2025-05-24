@@ -128,8 +128,10 @@ exports.getLogin = catchAsync(async (req, res, next) => {
 
 // ADMIN
 exports.getAdminDashboard = catchAsync(async (req, res, next) => {
-  const featuredProject = await Project.findOne({ isFeatured: true });
-  const featuredEvent = await Event.findOne({ isFeatured: true });
+  const [featuredProject, featuredEvent] = await Promise.all([
+    Project.findOne({ isFeatured: true }),
+    Event.findOne({ isFeatured: true }),
+  ]);
 
   if (featuredProject?.imageCover) {
     const getObjectParams = {
@@ -181,5 +183,26 @@ exports.getCreateResident = catchAsync(async (req, res, next) => {
 exports.getUpdateResident = catchAsync(async (req, res, next) => {
   res.status(200).render('update_resident', {
     title: 'Update Resident',
+  });
+});
+
+exports.editProjEvePage = catchAsync(async (req, res, next) => {
+  const { type } = req.query;
+  const project = req.params.slug;
+  let data = '';
+
+  if (type === 'project') data = await Project.findOne({ slug: project });
+  if (type === 'event') data = await Event.findOne({ slug: project });
+
+  if (type !== 'project' && type !== 'event') {
+    return next(new AppError('Invalid type specified', 400));
+  }
+
+  if (!data) return next(new AppError('No data was found', 404));
+
+  res.status(200).render('edit_proj_eve', {
+    title: data.name,
+    data,
+    type,
   });
 });

@@ -18,6 +18,7 @@ import './dashboard';
 import './createResident';
 import './updateResident';
 import './bookEvent';
+import './editProjEve';
 
 const email = document.querySelector('#email');
 const password = document.querySelector('#password');
