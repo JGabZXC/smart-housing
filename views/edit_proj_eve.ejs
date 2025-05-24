@@ -1,7 +1,7 @@
 <% const formattedDate = new Date(data.date).toISOString().split("T")[0];
     const formattedTime = new Date(data.date).toISOString().split("T")[1];
  %>
-<section id="editProjEve" data-id="<%= data._id %>" data-place="<%= data?.place %>" data-time="<%= formattedTime %>" data-type="<%= type %>">
+<section id="editProjEve" data-slug="<%= data.slug %>" data-id="<%= data._id %>" data-place="<%= data?.place %>" data-time="<%= formattedTime %>" data-type="<%= type %>">
     <div class="container">
         <form id="formEditProjEve" class="d-flex flex-column gap-4">
             <input class="form-control" type="text" name="title" value="<%= data.name %>"  required/>
@@ -20,7 +20,7 @@
             </div>
             <div>
                 <label class="form-label">Images</label>
-                <input class="form-control mb-1" type="file" name="images" />
+                <input class="form-control mb-1" type="file" name="images" multiple />
                 <p class="text-warning fs-6 m-0">Images you upload will be replaced!</p>
             </div>
             <div>
@@ -29,7 +29,7 @@
                 Featured
               </label>
             </div>
-            <button class="btn btn-primary" type="submit">Update</button>
+            <button id="editProjEveButton" class="btn btn-primary" type="submit">Update</button>
         </form>
     </div>
 </section>

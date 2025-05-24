@@ -73,7 +73,7 @@
                     <img src="<%= featuredProject.imageCoverUrl %>" class="fit-cover" style="width: 100%;height: 210px;border-radius: 10px;" />
                     <div class="d-flex justify-content-end mt-2 gap-2">
                         <a class="btn btn-primary" type="button" href="project/<%= featuredProject.slug %>">View</a>
-                        <a class="btn btn-warning" type="button" href="project/<%= featuredProject.slug %>/edit">Edit</a>
+                        <a class="btn btn-warning" type="button" href="project/<%= featuredProject.slug %>/edit?type=project">Edit</a>
                     </div>
                 <% } else { %>
                     <h2>No Featured Project</h2>
@@ -88,7 +88,7 @@
                     <img src="<%= featuredEvent.imageCoverUrl %>" class="fit-cover" style="width: 100%;height: 210px;border-radius: 10px;" />
                     <div class="d-flex justify-content-end mt-2 gap-2">
                         <a class="btn btn-primary" type="button" href="event/<%= featuredEvent.slug %>">View</a>
-                        <a class="btn btn-warning" type="button" href="event/<%= featuredEvent.slug %>/edit">Edit</a>
+                        <a class="btn btn-warning" type="button" href="event/<%= featuredEvent.slug %>/edit?type=event">Edit</a>
                     </div>
                 <% } else { %>
                     <h2>No Featured Event</h2>

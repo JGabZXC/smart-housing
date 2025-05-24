@@ -148,14 +148,14 @@ exports.updateEvent = catchAsync(async (req, res,next) => {
     await s3.send(
       new DeleteObjectCommand({
         Bucket: process.env.S3_NAME,
-        Key: project.imageCover
+        Key: event.imageCover
       }),
     );
   }
 
-  if(req.body.images && project.images.length > 0) {
+  if(req.body.images && event.images.length > 0) {
     await Promise.all(
-      project.images.map(async (image) => {
+      event.images.map(async (image) => {
         await s3.send(
           new DeleteObjectCommand({
             Bucket: process.env.S3_NAME,

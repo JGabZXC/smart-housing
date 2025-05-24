@@ -1,8 +1,12 @@
 /* eslint-disable */
 import axios from 'axios';
+import { showAlert } from './alerts';
+import {buttonSpinner} from './_eventAndProjHelper';
+
 const editProjEve = document.querySelector('#editProjEve');
 const formEditProjEve = document.querySelector('#formEditProjEve');
 const featuredCheckbox = document.getElementById('featured');
+const editProjEveButton = document.getElementById('editProjEveButton');
 
 
 if (editProjEve) {
@@ -58,11 +62,11 @@ if (editProjEve) {
     finalFormData.append('description', formData.get('description'));
     finalFormData.append('isFeatured', featuredCheckbox.checked);
     if(type === 'event') {
-      if (imageCover) body.imageCover = imageCover;
-      if (images) body.images = images;
+      const slug = editProjEve.dataset.slug;
       url = `/api/v1/events/${editProjEve.dataset.id}`;
 
       try {
+        buttonSpinner(editProjEveButton, 'Update', 'Updating');
         const response = await axios({
           method: 'PATCH',
           url,
@@ -72,9 +76,14 @@ if (editProjEve) {
           data: finalFormData,
         });
 
-        console.log(response);
+        if(response.data.status === 'success') showAlert(response.data.message, 'Updated successfully.');
+        setTimeout(() => {
+          window.location.href = '/event/' + slug;
+        }, 2000);
       } catch (err) {
         console.error(err);
+      } finally {
+        buttonSpinner(editProjEveButton, 'Update', 'Updating')
       }
     }
   })
