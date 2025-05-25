@@ -6,6 +6,8 @@ const expressLayouts = require('express-ejs-layouts');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
+const path = require('path');
+
 
 mongoose.set('id', false); // Disable id on all virtuals
 
@@ -28,6 +30,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(`${__dirname}/public`));
 app.use(expressLayouts);
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.set('layout', 'base.ejs');
 
