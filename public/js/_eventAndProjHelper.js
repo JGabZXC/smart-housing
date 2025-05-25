@@ -120,6 +120,8 @@ export async function fetchData(
       url: `${url}?&page=${currentPage}&limit=${itemsPerPage}&sort=${sortType}`,
     });
 
+    console.log(url);
+
     if (res.data.results === 0) {
       container.innerHTML = `<p>No items found</p>`;
       if(document.querySelector(paginationSelector)) document.querySelector(paginationSelector).innerHTML = '';

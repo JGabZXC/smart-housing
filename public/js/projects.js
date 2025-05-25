@@ -77,8 +77,6 @@ export const getProjects = async () => {
     currentPage,
     projectsPerPage,
     changeProjectPage,
-    '.pagination',
-    type
   );
 };
 
@@ -165,8 +163,6 @@ if(projectControlSortLimit) {
       );
       return;
     }
-
-
   })
 }
 

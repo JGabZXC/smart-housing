@@ -12762,14 +12762,15 @@ function _fetchData() {
           });
         case 5:
           res = _context.sent;
+          console.log(url);
           if (!(res.data.results === 0)) {
-            _context.next = 10;
+            _context.next = 11;
             break;
           }
           container.innerHTML = "<p>No items found</p>";
           if (document.querySelector(paginationSelector)) document.querySelector(paginationSelector).innerHTML = '';
           return _context.abrupt("return");
-        case 10:
+        case 11:
           items = res.data.data.doc;
           totalPages = res.data.totalPages || 1;
           container.innerHTML = '';
@@ -12784,17 +12785,17 @@ function _fetchData() {
           if (totalPages >= 1) {
             renderPagination(totalPages, currentPage, hasNextPage, changePage, paginationSelector);
           }
-          _context.next = 21;
+          _context.next = 22;
           break;
-        case 18:
-          _context.prev = 18;
+        case 19:
+          _context.prev = 19;
           _context.t0 = _context["catch"](2);
           console.error(_context.t0);
-        case 21:
+        case 22:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[2, 18]]);
+    }, _callee, null, [[2, 19]]);
   }));
   return _fetchData.apply(this, arguments);
 }
@@ -13479,7 +13480,7 @@ var getProjects = exports.getProjects = /*#__PURE__*/function () {
           return _context.abrupt("return", _context.sent);
         case 4:
           _context.next = 6;
-          return (0, _eventAndProjHelper.fetchData)("/api/v1/projects", projectListContainer, renderProject, currentPage, projectsPerPage, changeProjectPage, '.pagination', type);
+          return (0, _eventAndProjHelper.fetchData)("/api/v1/projects", projectListContainer, renderProject, currentPage, projectsPerPage, changeProjectPage);
         case 6:
         case "end":
           return _context.stop();
@@ -13633,8 +13634,10 @@ var eventListContainer = document.querySelector('#event-list-container');
 var adminEventContainer = document.querySelector('#admin-event-container');
 var adminEventTableBodyList = document.querySelector('#admin-event-tablebody-list');
 var searchButtonEventAdmin = document.querySelector('#searchButtonEventAdmin');
+var eventControlSortLimit = document.querySelector('#eventControlSortLimit');
 var currentPage = 1;
 var projectsPerPage = 10;
+var type = '-date';
 function renderEvent(event, container) {
   var markup = "\n      <div class=\"col\">\n        <div class=\"card\">\n          <div class=\"card-body\">\n            <h4 class=\"card-title\">".concat(event.name, "</h4>\n            <p class=\"card-text\">").concat(event.richDescription.slice(0, 100), "...</p>\n            ").concat(event.coverUrl ? "<img class\"object-fit-cover\" src=\"".concat(event.coverUrl, "\" width=\"100%\" height=\"200\" />") : '', "\n            <a class=\"card-link\" href=\"/event/").concat(event.slug, "\">Read More</a>\n          </div>\n        </div>\n      </div>\n      ");
   container.innerHTML += markup;
@@ -13663,7 +13666,7 @@ var getEvents = exports.getEvents = /*#__PURE__*/function () {
             break;
           }
           _context.next = 3;
-          return (0, _eventAndProjHelper.fetchData)("/api/v1/events", adminEventTableBodyList, renderEventAdmin, currentPage, projectsPerPage, changeEventPage, '#pagination-admin-event');
+          return (0, _eventAndProjHelper.fetchData)("/api/v1/events", adminEventTableBodyList, renderEventAdmin, currentPage, projectsPerPage, changeEventPage, '#pagination-admin-event', type);
         case 3:
           return _context.abrupt("return", _context.sent);
         case 4:
@@ -13693,7 +13696,7 @@ if (searchButtonEventAdmin) {
             break;
           }
           _context2.next = 4;
-          return (0, _eventAndProjHelper.fetchData)("/api/v1/events", adminEventTableBodyList, renderEventAdmin, currentPage, projectsPerPage, changeProjectPage);
+          return (0, _eventAndProjHelper.fetchData)("/api/v1/events", adminEventTableBodyList, renderEventAdmin, currentPage, projectsPerPage, changeEventPage);
         case 4:
           return _context2.abrupt("return");
         case 5:
@@ -13722,7 +13725,7 @@ if (searchButtonEventAdmin) {
           return _context2.abrupt("return");
         case 14:
           _context2.next = 16;
-          return (0, _eventAndProjHelper.fetchData)("/api/v1/events/".concat(_id), adminEventTableBodyList, renderEventAdmin, currentPage, projectsPerPage, changeProjectPage);
+          return (0, _eventAndProjHelper.fetchData)("/api/v1/events/".concat(_id), adminEventTableBodyList, renderEventAdmin, currentPage, projectsPerPage, changeEventPage);
         case 16:
           _context2.next = 21;
           break;
@@ -13741,28 +13744,67 @@ if (searchButtonEventAdmin) {
     }, _callee2, null, [[5, 18, 21, 24]]);
   })));
 }
+if (eventControlSortLimit) {
+  eventControlSortLimit.addEventListener('change', /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
+      var parentElementId;
+      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
+          case 0:
+            parentElementId = e.target.closest('select').getAttribute('id');
+            console.log(parentElementId);
+            if (!(parentElementId === 'eventLimitSelectAdmin')) {
+              _context3.next = 7;
+              break;
+            }
+            projectsPerPage = parseInt(e.target.value);
+            _context3.next = 6;
+            return (0, _eventAndProjHelper.fetchData)("/api/v1/events", adminEventTableBodyList, renderEventAdmin, currentPage, projectsPerPage, changeEventPage, '#pagination-admin-event', type);
+          case 6:
+            return _context3.abrupt("return");
+          case 7:
+            if (!(parentElementId === 'eventSortSelectAdmin')) {
+              _context3.next = 12;
+              break;
+            }
+            type = e.target.value;
+            _context3.next = 11;
+            return (0, _eventAndProjHelper.fetchData)("/api/v1/events", adminEventTableBodyList, renderEventAdmin, currentPage, projectsPerPage, changeEventPage, '#pagination-admin-event', type);
+          case 11:
+            return _context3.abrupt("return");
+          case 12:
+          case "end":
+            return _context3.stop();
+        }
+      }, _callee3);
+    }));
+    return function (_x) {
+      return _ref3.apply(this, arguments);
+    };
+  }());
+}
 window.changeEventPage = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(newPage) {
-    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-      while (1) switch (_context3.prev = _context3.next) {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(newPage) {
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
         case 0:
           if (!(newPage < 1)) {
-            _context3.next = 2;
+            _context4.next = 2;
             break;
           }
-          return _context3.abrupt("return");
+          return _context4.abrupt("return");
         case 2:
           currentPage = newPage;
-          _context3.next = 5;
+          _context4.next = 5;
           return getEvents();
         case 5:
         case "end":
-          return _context3.stop();
+          return _context4.stop();
       }
-    }, _callee3);
+    }, _callee4);
   }));
-  return function (_x) {
-    return _ref3.apply(this, arguments);
+  return function (_x2) {
+    return _ref4.apply(this, arguments);
   };
 }();
 },{"./_eventAndProjHelper":"_eventAndProjHelper.js","axios":"../../node_modules/axios/index.js","./alerts":"alerts.js"}],"house.js":[function(require,module,exports) {

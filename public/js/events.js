@@ -8,9 +8,11 @@ const eventListContainer = document.querySelector('#event-list-container');
 const adminEventContainer = document.querySelector('#admin-event-container');
 const adminEventTableBodyList = document.querySelector('#admin-event-tablebody-list');
 const searchButtonEventAdmin = document.querySelector('#searchButtonEventAdmin');
+const eventControlSortLimit = document.querySelector('#eventControlSortLimit');
 
 let currentPage = 1;
-const projectsPerPage = 10;
+let projectsPerPage = 10;
+let type = '-date';
 
 function renderEvent (event, container) {
   const markup =
@@ -64,7 +66,8 @@ export const getEvents = async () => {
     currentPage,
     projectsPerPage,
     changeEventPage,
-    '#pagination-admin-event'
+    '#pagination-admin-event',
+    type
   );
 
   await fetchData(`/api/v1/events`, eventListContainer, renderEvent, currentPage, projectsPerPage, changeEventPage);
@@ -82,7 +85,7 @@ if(searchButtonEventAdmin) {
         renderEventAdmin,
         currentPage,
         projectsPerPage,
-        changeProjectPage,
+        changeEventPage,
       );
       return;
     }
@@ -110,11 +113,51 @@ if(searchButtonEventAdmin) {
         renderEventAdmin,
         currentPage,
         projectsPerPage,
-        changeProjectPage)
+        changeEventPage,
+      )
     } catch (err) {
       showAlert('error', err.response.data.message);
     } finally {
       buttonSpinner(searchButtonEventAdmin, 'Search Event', 'Searching')
+    }
+  })
+}
+
+if(eventControlSortLimit) {
+  eventControlSortLimit.addEventListener('change', async (e) => {
+    const parentElementId = e.target.closest('select').getAttribute('id');
+
+    console.log(parentElementId);
+
+    if(parentElementId === 'eventLimitSelectAdmin') {
+      projectsPerPage = parseInt(e.target.value);
+
+      await fetchData(
+        `/api/v1/events`,
+        adminEventTableBodyList,
+        renderEventAdmin,
+        currentPage,
+        projectsPerPage,
+        changeEventPage,
+        '#pagination-admin-event',
+        type
+      );
+      return;
+    }
+
+    if(parentElementId === 'eventSortSelectAdmin') {
+      type = e.target.value;
+      await fetchData(
+        `/api/v1/events`,
+        adminEventTableBodyList,
+        renderEventAdmin,
+        currentPage,
+        projectsPerPage,
+        changeEventPage,
+        '#pagination-admin-event',
+        type
+      );
+      return;
     }
   })
 }
