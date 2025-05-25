@@ -33,9 +33,7 @@ if (editProjEve) {
   formEditProjEve.addEventListener('submit', async(e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    let body = {};
     let url = '';
-    console.log(formData.get('time'));
 
     const imageCoverFile = formData.get('imageCover');
     const imageCover = imageCoverFile && imageCoverFile.size > 0 ? imageCoverFile : null;
@@ -45,6 +43,12 @@ if (editProjEve) {
     
     const finalFormData = new FormData();
 
+    let finalDate = formData.get('date');
+    finalFormData.append('name', formData.get('title'));
+    finalFormData.append('richDescription', formData.get('summary'));
+    finalFormData.append('description', formData.get('description'));
+    finalFormData.append('isFeatured', featuredCheckbox.checked);
+
     if (imageCover) {
       finalFormData.append('imageCover', imageCover);
     }
@@ -53,17 +57,20 @@ if (editProjEve) {
       images.forEach(file => finalFormData.append('images', file));
     }
 
-    const finalDate = `${formData.get('date')}T${formData.get('time')}`
+    let slug =  editProjEve.dataset.slug;
 
-    finalFormData.append('name', formData.get('title'));
-    finalFormData.append('place', formData.get('place'));
-    finalFormData.append('date', finalDate);
-    finalFormData.append('richDescription', formData.get('summary'));
-    finalFormData.append('description', formData.get('description'));
-    finalFormData.append('isFeatured', featuredCheckbox.checked);
     if(type === 'event') {
-      const slug = editProjEve.dataset.slug;
+      finalDate = `${formData.get('date')}T${formData.get('time')}`
+      finalFormData.append('place', formData.get('place'));
       url = `/api/v1/events/${editProjEve.dataset.id}`;
+    }
+
+    if(type === 'project') {
+      url = `/api/v1/projects/${editProjEve.dataset.id}`;
+    }
+
+    finalFormData.append('date', finalDate);
+
 
       try {
         buttonSpinner(editProjEveButton, 'Update', 'Updating');
@@ -78,13 +85,13 @@ if (editProjEve) {
 
         if(response.data.status === 'success') showAlert(response.data.message, 'Updated successfully.');
         setTimeout(() => {
-          window.location.href = '/event/' + slug;
+          window.location.href = `/${type}/${slug}`;
         }, 2000);
       } catch (err) {
         console.error(err);
       } finally {
         buttonSpinner(editProjEveButton, 'Update', 'Updating')
       }
-    }
+
   })
 }

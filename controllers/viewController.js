@@ -198,6 +198,8 @@ exports.editProjEvePage = catchAsync(async (req, res, next) => {
     return next(new AppError('Invalid type specified', 400));
   }
 
+  console.log(data);
+
   if (!data) return next(new AppError('No data was found', 404));
 
   res.status(200).render('edit_proj_eve', {

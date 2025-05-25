@@ -1,5 +1,10 @@
-<% const formattedDate = new Date(data.date).toISOString().split("T")[0];
-    const formattedTime = new Date(data.date).toISOString().split("T")[1];
+<%
+let formattedDate = null;
+let formattedTime = null;
+    if(data?.date) {
+         formattedDate = new Date(data.date).toISOString().split("T")[0];
+         formattedTime = new Date(data.date).toISOString().split("T")[1];
+    }
  %>
 <section id="editProjEve" data-slug="<%= data.slug %>" data-id="<%= data._id %>" data-place="<%= data?.place %>" data-time="<%= formattedTime %>" data-type="<%= type %>">
     <div class="container">

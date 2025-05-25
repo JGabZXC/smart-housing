@@ -15039,20 +15039,23 @@ if (editProjEve) {
   }
   formEditProjEve.addEventListener('submit', /*#__PURE__*/function () {
     var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
-      var formData, body, url, imageCoverFile, imageCover, imagesFiles, images, finalFormData, finalDate, slug, response;
+      var formData, url, imageCoverFile, imageCover, imagesFiles, images, finalFormData, finalDate, slug, response;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
             e.preventDefault();
             formData = new FormData(e.target);
-            body = {};
             url = '';
-            console.log(formData.get('time'));
             imageCoverFile = formData.get('imageCover');
             imageCover = imageCoverFile && imageCoverFile.size > 0 ? imageCoverFile : null;
             imagesFiles = formData.getAll('images');
             images = imagesFiles.length && imagesFiles[0].size > 0 ? imagesFiles : null;
             finalFormData = new FormData();
+            finalDate = formData.get('date');
+            finalFormData.append('name', formData.get('title'));
+            finalFormData.append('richDescription', formData.get('summary'));
+            finalFormData.append('description', formData.get('description'));
+            finalFormData.append('isFeatured', featuredCheckbox.checked);
             if (imageCover) {
               finalFormData.append('imageCover', imageCover);
             }
@@ -15061,22 +15064,19 @@ if (editProjEve) {
                 return finalFormData.append('images', file);
               });
             }
-            finalDate = "".concat(formData.get('date'), "T").concat(formData.get('time'));
-            finalFormData.append('name', formData.get('title'));
-            finalFormData.append('place', formData.get('place'));
-            finalFormData.append('date', finalDate);
-            finalFormData.append('richDescription', formData.get('summary'));
-            finalFormData.append('description', formData.get('description'));
-            finalFormData.append('isFeatured', featuredCheckbox.checked);
-            if (!(type === 'event')) {
-              _context.next = 37;
-              break;
-            }
             slug = editProjEve.dataset.slug;
-            url = "/api/v1/events/".concat(editProjEve.dataset.id);
-            _context.prev = 22;
+            if (type === 'event') {
+              finalDate = "".concat(formData.get('date'), "T").concat(formData.get('time'));
+              finalFormData.append('place', formData.get('place'));
+              url = "/api/v1/events/".concat(editProjEve.dataset.id);
+            }
+            if (type === 'project') {
+              url = "/api/v1/projects/".concat(editProjEve.dataset.id);
+            }
+            finalFormData.append('date', finalDate);
+            _context.prev = 19;
             (0, _eventAndProjHelper.buttonSpinner)(editProjEveButton, 'Update', 'Updating');
-            _context.next = 26;
+            _context.next = 23;
             return (0, _axios.default)({
               method: 'PATCH',
               url: url,
@@ -15085,27 +15085,27 @@ if (editProjEve) {
               },
               data: finalFormData
             });
-          case 26:
+          case 23:
             response = _context.sent;
             if (response.data.status === 'success') (0, _alerts.showAlert)(response.data.message, 'Updated successfully.');
             setTimeout(function () {
-              window.location.href = '/event/' + slug;
+              window.location.href = "/".concat(type, "/").concat(slug);
             }, 2000);
-            _context.next = 34;
+            _context.next = 31;
             break;
+          case 28:
+            _context.prev = 28;
+            _context.t0 = _context["catch"](19);
+            console.error(_context.t0);
           case 31:
             _context.prev = 31;
-            _context.t0 = _context["catch"](22);
-            console.error(_context.t0);
-          case 34:
-            _context.prev = 34;
             (0, _eventAndProjHelper.buttonSpinner)(editProjEveButton, 'Update', 'Updating');
-            return _context.finish(34);
-          case 37:
+            return _context.finish(31);
+          case 34:
           case "end":
             return _context.stop();
         }
-      }, _callee, null, [[22, 31, 34, 37]]);
+      }, _callee, null, [[19, 28, 31, 34]]);
     }));
     return function (_x) {
       return _ref.apply(this, arguments);
@@ -15381,7 +15381,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50020" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50187" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
