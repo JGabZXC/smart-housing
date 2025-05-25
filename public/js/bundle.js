@@ -12762,15 +12762,14 @@ function _fetchData() {
           });
         case 5:
           res = _context.sent;
-          console.log(url);
           if (!(res.data.results === 0)) {
-            _context.next = 11;
+            _context.next = 10;
             break;
           }
           container.innerHTML = "<p>No items found</p>";
           if (document.querySelector(paginationSelector)) document.querySelector(paginationSelector).innerHTML = '';
           return _context.abrupt("return");
-        case 11:
+        case 10:
           items = res.data.data.doc;
           totalPages = res.data.totalPages || 1;
           container.innerHTML = '';
@@ -12785,17 +12784,17 @@ function _fetchData() {
           if (totalPages >= 1) {
             renderPagination(totalPages, currentPage, hasNextPage, changePage, paginationSelector);
           }
-          _context.next = 22;
+          _context.next = 21;
           break;
-        case 19:
-          _context.prev = 19;
+        case 18:
+          _context.prev = 18;
           _context.t0 = _context["catch"](2);
           console.error(_context.t0);
-        case 22:
+        case 21:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[2, 19]]);
+    }, _callee, null, [[2, 18]]);
   }));
   return _fetchData.apply(this, arguments);
 }
