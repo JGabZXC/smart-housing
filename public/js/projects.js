@@ -9,9 +9,11 @@ const projectListContainer = document.querySelector('#project-list-container');
 const adminProjectContainer = document.querySelector('#admin-project-container');
 const adminProjectTableBodyList = document.querySelector('#admin-project-tablebody-list');
 const searchButtonProjectAdmin = document.querySelector('#searchButtonProjectAdmin');
+const projectControlSortLimit = document.querySelector('#projectControlSortLimit');
 
 let currentPage = 1;
-const projectsPerPage = 10;
+let projectsPerPage = 10;
+let type = '-date';
 
 function renderProject(project, container) {
   const markup = `
@@ -64,7 +66,8 @@ export const getProjects = async () => {
     currentPage,
     projectsPerPage,
     changeProjectPage,
-    '#pagination-admin-project'
+    '#pagination-admin-project',
+    type
   );
 
   await fetchData(
@@ -74,6 +77,8 @@ export const getProjects = async () => {
     currentPage,
     projectsPerPage,
     changeProjectPage,
+    '.pagination',
+    type
   );
 };
 
@@ -124,6 +129,44 @@ if(searchButtonProjectAdmin) {
     } finally {
       buttonSpinner(searchButtonProjectAdmin, 'Search Project', 'Searching')
     }
+  })
+}
+
+if(projectControlSortLimit) {
+  projectControlSortLimit.addEventListener('change', async (e) => {
+    const parentElementId = e.target.closest('select').getAttribute('id');
+
+    if(parentElementId === 'projectLimitSelectAdmin') {
+      projectsPerPage = parseInt(e.target.value);
+
+      await fetchData(
+        `/api/v1/projects`,
+        adminProjectTableBodyList,
+        renderProjectAdmin,
+        currentPage,
+        projectsPerPage,
+        changeProjectPage,
+        '#pagination-admin-project'
+      );
+      return;
+    }
+
+    if(parentElementId === 'projectSortSelectAdmin') {
+      type = e.target.value;
+      await fetchData(
+        `/api/v1/projects`,
+        adminProjectTableBodyList,
+        renderProjectAdmin,
+        currentPage,
+        projectsPerPage,
+        changeProjectPage,
+        '#pagination-admin-project',
+        type
+      );
+      return;
+    }
+
+
   })
 }
 

@@ -111,12 +111,13 @@ export async function fetchData(
   currentPage,
   itemsPerPage,
   changePage,
-  paginationSelector = '.pagination'
+  paginationSelector = '.pagination',
+  sortType = '-date'
 ) {
   try {
     const res = await axios({
       method: 'GET',
-      url: `${url}?&page=${currentPage}&limit=${itemsPerPage}&sort=-date`,
+      url: `${url}?&page=${currentPage}&limit=${itemsPerPage}&sort=${sortType}`,
     });
 
     if (res.data.results === 0) {

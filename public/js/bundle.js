@@ -12743,6 +12743,7 @@ function fetchData(_x, _x2, _x3, _x4, _x5, _x6) {
 function _fetchData() {
   _fetchData = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(url, container, renderFunction, currentPage, itemsPerPage, changePage) {
     var paginationSelector,
+      sortType,
       res,
       items,
       totalPages,
@@ -12752,22 +12753,23 @@ function _fetchData() {
       while (1) switch (_context.prev = _context.next) {
         case 0:
           paginationSelector = _args.length > 6 && _args[6] !== undefined ? _args[6] : '.pagination';
-          _context.prev = 1;
-          _context.next = 4;
+          sortType = _args.length > 7 && _args[7] !== undefined ? _args[7] : '-date';
+          _context.prev = 2;
+          _context.next = 5;
           return (0, _axios.default)({
             method: 'GET',
-            url: "".concat(url, "?&page=").concat(currentPage, "&limit=").concat(itemsPerPage, "&sort=-date")
+            url: "".concat(url, "?&page=").concat(currentPage, "&limit=").concat(itemsPerPage, "&sort=").concat(sortType)
           });
-        case 4:
+        case 5:
           res = _context.sent;
           if (!(res.data.results === 0)) {
-            _context.next = 9;
+            _context.next = 10;
             break;
           }
           container.innerHTML = "<p>No items found</p>";
           if (document.querySelector(paginationSelector)) document.querySelector(paginationSelector).innerHTML = '';
           return _context.abrupt("return");
-        case 9:
+        case 10:
           items = res.data.data.doc;
           totalPages = res.data.totalPages || 1;
           container.innerHTML = '';
@@ -12782,17 +12784,17 @@ function _fetchData() {
           if (totalPages >= 1) {
             renderPagination(totalPages, currentPage, hasNextPage, changePage, paginationSelector);
           }
-          _context.next = 20;
+          _context.next = 21;
           break;
-        case 17:
-          _context.prev = 17;
-          _context.t0 = _context["catch"](1);
+        case 18:
+          _context.prev = 18;
+          _context.t0 = _context["catch"](2);
           console.error(_context.t0);
-        case 20:
+        case 21:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[1, 17]]);
+    }, _callee, null, [[2, 18]]);
   }));
   return _fetchData.apply(this, arguments);
 }
@@ -13440,8 +13442,10 @@ var projectListContainer = document.querySelector('#project-list-container');
 var adminProjectContainer = document.querySelector('#admin-project-container');
 var adminProjectTableBodyList = document.querySelector('#admin-project-tablebody-list');
 var searchButtonProjectAdmin = document.querySelector('#searchButtonProjectAdmin');
+var projectControlSortLimit = document.querySelector('#projectControlSortLimit');
 var currentPage = 1;
 var projectsPerPage = 10;
+var type = '-date';
 function renderProject(project, container) {
   var markup = "\n    <div class=\"col\">\n      <div class=\"card\">\n        <div class=\"card-body\">\n          <h4 class=\"card-title\">".concat(project.name, "</h4>\n          <p class=\"card-text\">").concat(project.richDescription.slice(0, 100), "...</p>\n          ").concat(project.coverUrl ? "<img class=\"object-fit-cover\" src=\"".concat(project.coverUrl, "\" width=\"100%\" height=\"200\" />") : '', "\n          <a class=\"card-link\" href=\"/project/").concat(project.slug, "\">Read More</a>\n        </div>\n      </div>\n    </div>\n  ");
   container.innerHTML += markup;
@@ -13470,12 +13474,12 @@ var getProjects = exports.getProjects = /*#__PURE__*/function () {
             break;
           }
           _context.next = 3;
-          return (0, _eventAndProjHelper.fetchData)("/api/v1/projects", adminProjectTableBodyList, renderProjectAdmin, currentPage, projectsPerPage, changeProjectPage, '#pagination-admin-project');
+          return (0, _eventAndProjHelper.fetchData)("/api/v1/projects", adminProjectTableBodyList, renderProjectAdmin, currentPage, projectsPerPage, changeProjectPage, '#pagination-admin-project', type);
         case 3:
           return _context.abrupt("return", _context.sent);
         case 4:
           _context.next = 6;
-          return (0, _eventAndProjHelper.fetchData)("/api/v1/projects", projectListContainer, renderProject, currentPage, projectsPerPage, changeProjectPage);
+          return (0, _eventAndProjHelper.fetchData)("/api/v1/projects", projectListContainer, renderProject, currentPage, projectsPerPage, changeProjectPage, '.pagination', type);
         case 6:
         case "end":
           return _context.stop();
@@ -13548,28 +13552,66 @@ if (searchButtonProjectAdmin) {
     }, _callee2, null, [[5, 18, 21, 24]]);
   })));
 }
+if (projectControlSortLimit) {
+  projectControlSortLimit.addEventListener('change', /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
+      var parentElementId;
+      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
+          case 0:
+            parentElementId = e.target.closest('select').getAttribute('id');
+            if (!(parentElementId === 'projectLimitSelectAdmin')) {
+              _context3.next = 6;
+              break;
+            }
+            projectsPerPage = parseInt(e.target.value);
+            _context3.next = 5;
+            return (0, _eventAndProjHelper.fetchData)("/api/v1/projects", adminProjectTableBodyList, renderProjectAdmin, currentPage, projectsPerPage, changeProjectPage, '#pagination-admin-project');
+          case 5:
+            return _context3.abrupt("return");
+          case 6:
+            if (!(parentElementId === 'projectSortSelectAdmin')) {
+              _context3.next = 11;
+              break;
+            }
+            type = e.target.value;
+            _context3.next = 10;
+            return (0, _eventAndProjHelper.fetchData)("/api/v1/projects", adminProjectTableBodyList, renderProjectAdmin, currentPage, projectsPerPage, changeProjectPage, '#pagination-admin-project', type);
+          case 10:
+            return _context3.abrupt("return");
+          case 11:
+          case "end":
+            return _context3.stop();
+        }
+      }, _callee3);
+    }));
+    return function (_x) {
+      return _ref3.apply(this, arguments);
+    };
+  }());
+}
 window.changeProjectPage = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(newPage) {
-    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-      while (1) switch (_context3.prev = _context3.next) {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(newPage) {
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
         case 0:
           if (!(newPage < 1)) {
-            _context3.next = 2;
+            _context4.next = 2;
             break;
           }
-          return _context3.abrupt("return");
+          return _context4.abrupt("return");
         case 2:
           currentPage = newPage;
-          _context3.next = 5;
+          _context4.next = 5;
           return getProjects();
         case 5:
         case "end":
-          return _context3.stop();
+          return _context4.stop();
       }
-    }, _callee3);
+    }, _callee4);
   }));
-  return function (_x) {
-    return _ref3.apply(this, arguments);
+  return function (_x2) {
+    return _ref4.apply(this, arguments);
   };
 }();
 },{"./_eventAndProjHelper":"_eventAndProjHelper.js","axios":"../../node_modules/axios/index.js","./alerts":"alerts.js"}],"events.js":[function(require,module,exports) {
