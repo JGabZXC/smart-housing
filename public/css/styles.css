@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 /*.alert {*/
 /*    position: fixed;*/
 /*    top: 0;*/
@@ -101,6 +102,10 @@
     --color-yellow-800: oklch(47.6% .114 61.907);
     --color-yellow-900: oklch(42.1% .095 57.708);
     --color-yellow-950: oklch(28.6% .066 53.813);
+}
+
+* {
+    font-family: "Montserrat", sans-serif;
 }
 
 /* Slate */

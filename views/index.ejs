@@ -30,7 +30,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 order-first order-md-last">
-                    <img class="featured-project-cover-photo w-100 h-100 fit-cover" alt="<% featuredProject.title %>" />
+                    <img class="featured-project-cover-photo w-100 h-100 object-fit-cover" alt="<% featuredProject.title %>" />
                 </div>
             </div>
         </div>
@@ -53,12 +53,12 @@
                         </p>
                         <div class="my-3">
                             <a class="btn me-2 bg-yellow-300 text-slate-600 fw-semibold" role="button" href="#">Attend</a>
-                            <a class="btn me-2 border border-yellow-300 text-yellow-300 text-button fw-semibold transition" role="button" href="/projects/<%= featuredEvent.slug %>">Read More</a>
+                            <a class="btn me-2 border border-yellow-300 text-yellow-300 text-button fw-semibold transition" role="button" href="/events/<%= featuredEvent.slug %>">Read More</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 order-first order-md-last">
-                    <img class="featured-event-cover-photo w-100 h-100 fit-cover" alt="<%= featuredEvent.slug %>" />
+                    <img class="featured-event-cover-photo w-100 h-100 object-fit-cover" alt="<%= featuredEvent.slug %>" />
                 </div>
             </div>
         </div>

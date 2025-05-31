@@ -21,8 +21,17 @@
                         <li class="nav-item">
                             <a class="nav-link fw-semibold text-slate-600 link transition <%= title === 'Events' ? 'active' : '' %>" href="/events">Events</a>
                         </li>
+                        <% if(locals.user) { %>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-slate-600 link transition <%= title === user.name ? 'active' : '' %>" href="/me">Me</a>
+                        </li>
+                        <%} %>
                     </ul>
-                    <button class="btn bg-green-600 text-slate-50" type="button">Log in</button>
+                <% if(locals.user) { %>
+                    <a class="btn bg-green-600 text-slate-50" id="logout">Log out</a>
+                <% } else { %>
+                    <a class="btn bg-green-600 text-slate-50" href="/login">Log in</a>
+                <% } %>
                 </div>
             </div>
         </nav>
