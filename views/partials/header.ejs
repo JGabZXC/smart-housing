@@ -13,24 +13,24 @@
                 <div id="navcol-3" class="collapse navbar-collapse">
                     <ul class="navbar-nav mx-auto shadow-md-up bg-white-md rounded-3 py-md-2 px-md-3">
                         <li class="nav-item">
-                            <a class="nav-link fw-semibold text-slate-600 link transition <%= title === 'Holiday Homes' ? 'active' : '' %>" href="/">Home</a>
+                            <a class="nav-link fw-semibold text-slate-900 link transition <%= title === 'Holiday Homes' ? 'active' : '' %>" href="/">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fw-semibold text-slate-600 link transition <%= title === 'Projects' ? 'active' : '' %>" href="/projects">Projects</a>
+                            <a class="nav-link fw-semibold text-slate-900 link transition <%= title === 'Projects' ? 'active' : '' %>" href="/projects">Projects</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fw-semibold text-slate-600 link transition <%= title === 'Events' ? 'active' : '' %>" href="/events">Events</a>
+                            <a class="nav-link fw-semibold text-slate-900 link transition <%= title === 'Events' ? 'active' : '' %>" href="/events">Events</a>
                         </li>
                         <% if(locals.user) { %>
                         <li class="nav-item">
-                            <a class="nav-link fw-semibold text-slate-600 link transition <%= title === user.name ? 'active' : '' %>" href="/me">Me</a>
+                            <a class="nav-link fw-semibold text-slate-900 link transition <%= title === user.name ? 'active' : '' %>" href="/me">Me</a>
                         </li>
                         <%} %>
                     </ul>
                 <% if(locals.user) { %>
                     <a class="btn bg-green-600 text-slate-50" id="logout">Log out</a>
                 <% } else { %>
-                    <a class="btn bg-green-600 text-slate-50" href="/login">Log in</a>
+                    <a class="btn border text-button-green border-green-600 text-green-600" href="/login">Log in</a>
                 <% } %>
                 </div>
             </div>

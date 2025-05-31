@@ -68,8 +68,9 @@ const messageOptions = {
   message: 'Too many requests, please try again in an hour',
 };
 
+
 const limiter = rateLimit({
-  max: 100,
+  max: process.env.NODE_ENV === 'development' ? 1000 : 100, // Limit each IP to 100 requests per hour
   windowMs: 60 * 60 * 1000, // 1 hour,
   message: messageOptions,
 });

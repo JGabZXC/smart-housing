@@ -524,9 +524,13 @@
     background-color: var(--color-yellow-300);
     color: var(--color-slate-600) !important;
 }
+.text-button-green:hover {
+    background-color: var(--color-green-600);
+    color: var(--color-green-50) !important;
+}
 
 .transition {
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 @media (min-width: 768px) {

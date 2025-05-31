@@ -70,7 +70,7 @@
 <% if(locals.garbages) { %>
 <section>
     <div class="container py-4 py-xl-5">
-        <h1 class="text-center fw-bold mb-3">GARBAGE COLLECTION</h1>
+        <h1 class="text-center fw-bold mb-3 text-slate-900">GARBAGE COLLECTION</h1>
             <div>
               <div class="table-responsive">
                 <table class="table">
@@ -78,7 +78,7 @@
                     <% const phase3 = garbages.filter(garbage => garbage.phase === 3); %>
                     <tr>
                       <% phase3.forEach(gb => { %>
-                      <th><%= gb.day %></th>
+                      <th class="text-slate-900 fw-semibold"><%= gb.day %></th>
                       <% }); %>
                     </tr>
                   </thead>
@@ -90,7 +90,7 @@
                     <% for (let i = 0; i < maxTimeLocations; i++) { %>
                     <tr>
                       <% phase3.forEach(day => { %>
-                      <td>
+                      <td class="text-slate-600">
                         <% if (day.timeLocation[i]) { %>
                         <%= day.timeLocation[i].time %> (<%= day.timeLocation[i].street %>)
                         <% } else { %>
