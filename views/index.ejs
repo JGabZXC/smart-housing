@@ -13,7 +13,7 @@
 
 <!--    FEATURED PROJECT    -->
 <% if(locals.featuredProject) { %>
-<section class="featured-project py-4 py-xl-5">
+<section class="py-4 py-xl-5">
     <div class="container">
         <div class="border rounded border-0 overflow-hidden bg-green-600">
             <div class="row g-0">
@@ -30,7 +30,8 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6 order-first order-md-last">
-                    <img class="featured-project-cover-photo w-100 h-100 object-fit-cover" alt="<% featuredProject.title %>" />
+                    <%console.log(featuredProject.imageCoverSigned)%>
+                    <img class="w-100 h-100 object-fit-cover" src="<%= featuredProject.imageCoverSigned %>" alt="<%= featuredProject.name %>" />
                 </div>
             </div>
         </div>

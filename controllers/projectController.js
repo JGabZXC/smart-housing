@@ -12,6 +12,7 @@ const Message = require('../models/messageModel');
 const catchAsync = require('../utils/catchAsync');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
+const cloudFrontUtil = require('../utils/cloudFront');
 
 const multerStorage = multer.memoryStorage();
 
@@ -104,40 +105,59 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
   doc = await Promise.all(
     doc.map(async (item) => {
       const modifiedItem = { ...item.toObject() };
+      const now = new Date();
 
-      // Generate signed URL for imageCover (if it exists)
+      // === IMAGE COVER ===
       if (item.imageCover) {
-        const getObjectsParams = {
-          Bucket: process.env.S3_NAME,
-          Key: item.imageCover,
-        };
-        const command = new GetObjectCommand(getObjectsParams);
-        modifiedItem.coverUrl = await getSignedUrl(s3, command, {
-          expiresIn: 3600,
-        });
+        const isCoverExpired =
+          !item.imageCoverSignedExpiration || item.imageCoverSignedExpiration < now;
+
+        if (!isCoverExpired && item.imageCoverSigned) {
+          modifiedItem.coverUrl = item.imageCoverSigned;
+        } else {
+          const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+          const signedUrl = cloudFrontUtil.generateSignedUrl(item.imageCover, 7 * 24 * 60 * 60); // in seconds
+
+          modifiedItem.coverUrl = signedUrl;
+
+          await Project.findByIdAndUpdate(item._id, {
+            imageCoverSigned: signedUrl,
+            imageCoverSignedExpiration: expiresAt,
+          });
+        }
       } else {
         modifiedItem.coverUrl = undefined;
       }
 
-      // Generate signed URLs for images (if they exist)
-      if (item.images.length > 0) {
-        modifiedItem.imagesUrl = await Promise.all(
-          item.images.map(async (image) => {
-            const getObjectsParams = {
-              Bucket: process.env.S3_NAME,
-              Key: image,
-            };
-            const command = new GetObjectCommand(getObjectsParams);
-            return await getSignedUrl(s3, command, { expiresIn: 3600 });
-          }),
-        );
+      // === MULTIPLE IMAGES ===
+      if (item.images?.length > 0) {
+        const isImagesExpired =
+          !item.imagesSignedExpiration || item.imagesSignedExpiration < now;
+        const hasSameCount = item.imagesSigned?.length === item.images.length;
+
+        if (!isImagesExpired && hasSameCount) {
+          modifiedItem.imagesUrl = item.imagesSigned;
+        } else {
+          const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+          const signedUrls = item.images.map((imgKey) =>
+            cloudFrontUtil.generateSignedUrl(imgKey, 7 * 24 * 60 * 60)
+          );
+
+          modifiedItem.imagesUrl = signedUrls;
+
+          await Project.findByIdAndUpdate(item._id, {
+            imagesSigned: signedUrls,
+            imagesSignedExpiration: expiresAt,
+          });
+        }
       } else {
         modifiedItem.imagesUrl = undefined;
       }
 
       return modifiedItem;
-    }),
+    })
   );
+
 
   res.status(200).json({
     status: 'success',

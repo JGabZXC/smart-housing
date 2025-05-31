@@ -26,7 +26,11 @@ const projectSchema = new mongoose.Schema({
     minLength: 10,
   },
   imageCover: String,
+  imageCoverSigned: String,
+  imageCoverSignedExpiration: Date,
   images: [String],
+  imagesSigned: [String],
+  imagesSignedExpiration: Date,
   isFeatured: {
     type: Boolean,
     default: false,
