@@ -1,10 +1,4 @@
 const { getSignedUrl } = require('@aws-sdk/cloudfront-signer');
-const fs = require('fs');
-const path = require('path');
-
-// Load the private key
-const privateKeyPath = path.join(__dirname, '..', 'certs', 'private_key.pem');
-const privateKey = fs.readFileSync(privateKeyPath, 'utf8');
 
 // Your CloudFront distribution details
 const cloudFrontUrl = 'https://d165ov7fy3rrtp.cloudfront.net';
