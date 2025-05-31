@@ -15,7 +15,7 @@ exports.generateSignedUrl = (key) => {
   const signedUrl = getSignedUrl({
     url: `${cloudFrontUrl}/${key}`, // Full resource path
     dateLessThan: new Date(Date.now() + 1000 * 60 * 60 *24),
-    privateKey,
+    privateKey: process.env.CLOUDFRONT_PRIVATE_KEY,
     keyPairId,
   });
 
