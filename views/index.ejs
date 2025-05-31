@@ -1,34 +1,39 @@
-<section class="text-white py-4 py-xl-5">
-    <div class="container">
-        <div class="border rounded border-0 d-flex flex-column justify-content-center align-items-center p-4 py-5" style="background: linear-gradient(rgba(0,123,255,0.2), rgba(0,123,255,0.2)), url('/img/test-background.jpg') center / cover;height: 500px;">
-            <div class="text-center">
-                <h1 class="text-uppercase fw-bold mb-3">Welcome to<br />Holiday homes</h1>
+<section>
+    <div class="position-relative" style="height: 600px;background-image: url('/img/holiday-homes-banner.jpg');background-position: center;background-size: cover; background-attachment: fixed;">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background-color: rgba(3, 100, 63, 0.5);z-index: 1;"></div>
+        <div class="container h-100 position-relative" style="z-index: 2;">
+            <div class="text-center text-md-start d-flex flex-column justify-content-center h-100" style="max-width: 500px;">
+                <h1 class="text-uppercase fw-bold text-slate-50">Welcome to Holiday Homes</h1>
+                <p class="fw-semibold my-3 text-slate-50">Simplify community living with powerful tools for homeowners and associations.</p>
+                <p class="my-3 text-slate-200">Manage dues, reserve amenities, discuss projects, and stay updated — all in one seamless platform.</p>
             </div>
         </div>
     </div>
 </section>
+
 <!--    FEATURED PROJECT    -->
 <% if(locals.featuredProject) { %>
 <section class="featured-project py-4 py-xl-5">
     <div class="container">
-        <div class="bg-dark border-0 border-dark overflow-hidden" style="border-radius: 24px;">
+        <div class="border rounded border-0 overflow-hidden bg-green-600">
             <div class="row g-0">
-                <div class="col-lg-6">
-                    <div class="text-white p-4 p-md-5">
-                        <h2 class="fw-bold text-white mb-3"><%= featuredProject.name %></h2>
-                        <p class="mb-4"><%= featuredProject.richDescription %></p>
-                        <div class="my-3"><a class="btn btn-light btn-lg" role="button" href="/project/<%= featuredProject.slug %>">Read More</a></div>
+                <div class="col-md-6">
+                    <div class="text-white p-3 p-md-5">
+                        <h2 class="fw-bold mb-3 text-slate-50"><%= featuredProject.name %></h2>
+                        <p class="mb-4 text-slate-200">
+                            <%= featuredProject.richDescription.slice(0, 200) %>
+                            <%= featuredProject.richDescription.length > 200 ? '...' : '' %>
+                        </p>
+                        <div class="my-3">
+                            <a class="btn me-2 bg-yellow-300 text-slate-600 fw-semibold" role="button" href="/projects/<%= featuredProject.slug %>">Read More</a>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-6 order-first order-md-last" style="min-height: 250px;"><img class="featured-project-cover-photo w-100 h-100 fit-cover" loading="lazy"></div>
+                <div class="col-md-6 col-lg-6 order-first order-md-last">
+                    <img class="featured-project-cover-photo w-100 h-100 fit-cover" alt="<% featuredProject.title %>" />
+                </div>
             </div>
         </div>
-    </div>
-</section>
-<% } else { %>
-<section>
-    <div class="container">
-        <p class="text-muted">There's no featured project😟</p>
     </div>
 </section>
 <% } %>
@@ -37,26 +42,29 @@
 <% if(locals.featuredEvent) { %>
 <section class="featured-event py-4 py-xl-5">
     <div class="container">
-        <div class="bg-dark border-0 border-dark overflow-hidden" style="border-radius: 24px;">
-            <div class="row g-0">
+        <div class="border rounded border-0 overflow-hidden bg-green-600">
+            <div class="row g-0 flex-row-reverse">
                 <div class="col-md-6">
                     <div class="text-white p-4 p-md-5">
-                        <h2 class="fw-bold text-white mb-3 text-uppercase"><%= featuredEvent.name %> <br/> <%=featuredEvent.time %> <br/> <%=featuredEvent.place %></h2>
-                        <p class="mb-4"><%= featuredEvent.richDescription %></p>
+                        <h2 class="fw-bold mb-3 text-slate-50"><%= featuredEvent.name %></h2>
+                        <p class="mb-4 text-slate-200">
+                            <%= featuredEvent.richDescription.slice(0, 200) %>
+                            <%= featuredEvent.richDescription.length > 200 ? '...' : '' %>
+                        </p>
                         <div class="my-3">
-                            <% if(locals.user) { %>
-                                <a class="btn btn-primary btn-lg me-2" role="button" href="#">Attend</a>
-                            <% } %>
-                            <a class="btn btn-light btn-lg" role="button" href="/event/<%= featuredEvent.slug %>">Read More</a>
-                            </div>
+                            <a class="btn me-2 bg-yellow-300 text-slate-600 fw-semibold" role="button" href="#">Attend</a>
+                            <a class="btn me-2 border border-yellow-300 text-yellow-300 text-button fw-semibold transition" role="button" href="/projects/<%= featuredEvent.slug %>">Read More</a>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6 order-first order-md-last" style="min-height: 250px;"><img class="featured-event-cover-photo w-100 h-100 fit-cover" /></div>
+                <div class="col-md-6 col-lg-6 order-first order-md-last">
+                    <img class="featured-event-cover-photo w-100 h-100 fit-cover" alt="<%= featuredEvent.slug %>" />
+                </div>
             </div>
         </div>
     </div>
 </section>
-<% } %>>
+<% } %>
 
 <!--    GARBAGE COLLECTION  -->
 <% if(locals.garbages) { %>

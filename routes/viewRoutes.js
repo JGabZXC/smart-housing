@@ -18,13 +18,13 @@ router
     viewController.getMe,
   );
 
-router.route('/project').get(viewController.getAllProject);
-router.route('/project/:slug').get(viewController.getProject);
-router.route('/project/:slug/edit').get(viewController.editProjEvePage);
+router.route('/projects').get(viewController.getAllProject);
+router.route('/projects/:slug').get(viewController.getProject);
+router.route('/projects/:slug/edit').get(viewController.editProjEvePage);
 
-router.route('/event').get(viewController.getAllEvent);
-router.route('/event/:slug').get(viewController.getEvent);
-router.route('/event/:slug/edit').get(viewController.editProjEvePage);
+router.route('/events').get(viewController.getAllEvent);
+router.route('/events/:slug').get(viewController.getEvent);
+router.route('/events/:slug/edit').get(viewController.editProjEvePage);
 
 // To get the Ids
 router
