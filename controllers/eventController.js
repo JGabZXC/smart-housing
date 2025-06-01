@@ -12,6 +12,7 @@ const catchAsync = require('../utils/catchAsync');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const Message = require('../models/messageModel');
+const signedImages = require('../utils/signedImages')
 
 const multerStorage = multer.memoryStorage();
 
@@ -80,49 +81,14 @@ exports.getAllEvents = catchAsync(async (req, res, next) => {
   // eslint-disable-next-line prefer-destructuring
   const query = features.query;
 
-  const totalEvent = await Event.countDocuments();
-  const totalPages = Math.ceil(totalEvent / (req.query.limit || 10));
+  const [doc, totalEvents] = await Promise.all([query, await Event.countDocuments()])
+  const totalPages = Math.ceil(totalEvents / (req.query.limit || 10));
 
-  let doc = await query;
+  const updatedDoc = doc.length > 0 && await signedImages.checkSignedExpiration(doc, Event);
 
-  doc = await Promise.all(
-    doc.map(async (item) => {
-      const modifiedItem = { ...item.toObject() };
+  let finalDoc = doc;
 
-      // Generate signed URL for imageCover (if it exists)
-      if (item.imageCover) {
-        const getObjectsParams = {
-          Bucket: process.env.S3_NAME,
-          Key: item.imageCover,
-        };
-        const command = new GetObjectCommand(getObjectsParams);
-        modifiedItem.coverUrl = await getSignedUrl(s3, command, {
-          expiresIn: 3600,
-        });
-      } else {
-        modifiedItem.coverUrl = undefined;
-      }
-
-      // Generate signed URLs for images (if they exist)
-      if (item.images.length > 0) {
-        modifiedItem.imagesUrl = await Promise.all(
-          item.images.map(async (image) => {
-            const getObjectsParams = {
-              Bucket: process.env.S3_NAME,
-              Key: image,
-            };
-            const command = new GetObjectCommand(getObjectsParams);
-            return await getSignedUrl(s3, command, { expiresIn: 3600 });
-          }),
-        );
-      } else {
-        modifiedItem.imagesUrl = undefined;
-      }
-
-      // Return the object
-      return modifiedItem;
-    }),
-  );
+  if(updatedDoc) finalDoc = updatedDoc;
 
   res.status(200).json({
     status: 'success',
@@ -134,14 +100,51 @@ exports.getAllEvents = catchAsync(async (req, res, next) => {
   });
 });
 exports.getEvent = handler.getOne(Event);
-exports.createEvent = handler.createOne(Event);
+exports.createEvent = catchAsync(async(req,res,next) => {
+  const {name, date, richDescription, description, place, imageCover, images, isFeatured} = req.body;
+  const expiresAt = signedImages.getExpiresAt();
+
+  const payload = {};
+
+  if(imageCover) {
+    const signedCoverUrl = await signedImages.signUrl(imageCover);
+    payload.imageCover = {
+      key: imageCover,
+      signedUrl: signedCoverUrl,
+      signedUrlExpires: expiresAt,
+    }
+  }
+
+  if(images && images.length > 0) {
+    const signedUrls = await Promise.all(images.map((img) => signedImages.signUrl(img)));
+    payload.images = images.map((img, index) => ({
+      key: img,
+      signedUrl: signedUrls[index],
+      signedUrlExpires: expiresAt,
+    }))
+  }
+
+  const newEvent = await Event.create({
+    name,
+    date,
+    richDescription,
+    description,
+    place,
+    imageCover: payload?.imageCover,
+    images: payload?.images,
+    isFeatured,
+  })
+
+  return res.status(201).json({
+    status: 'success',
+    data: newEvent,
+  })
+
+});
 exports.updateEvent = catchAsync(async (req, res,next) => {
+  const {name, date, richDescription, description, place, imageCover, images, isFeatured} = req.body;
   const event = await Event.findById(req.params.id);
-
-  console.log(req.body);
-
   if(req.body.isFeatured === 'false') req.body.isFeatured = false;
-
   if(!event) return next(new Apperror('No event found with that ID', 404));
 
   if(req.body.imageCover && event.imageCover) {
@@ -166,9 +169,40 @@ exports.updateEvent = catchAsync(async (req, res,next) => {
     );
   }
 
+  const expiresAt = signedImages.getExpiresAt();
+
+  const payload = {};
+
+  if(imageCover) {
+    const signedCoverUrl = await signedImages.signUrl(imageCover);
+    payload.imageCover = {
+      key: imageCover,
+      signedUrl: signedCoverUrl,
+      signedUrlExpires: expiresAt,
+    }
+  }
+
+  if(images && images.length > 0) {
+    const signedUrls = await Promise.all(images.map((img) => signedImages.signUrl(img)));
+    payload.images = images.map((img, index) => ({
+      key: img,
+      signedUrl: signedUrls[index],
+      signedUrlExpires: expiresAt,
+    }))
+  }
+
   const updatedEvent = await Event.findByIdAndUpdate(
       req.params.id,
-      req.body,
+    {
+      name,
+      date,
+      richDescription,
+      description,
+      place,
+      imageCover: payload?.imageCover,
+      images: payload?.images,
+      isFeatured,
+    },
       {
         new: true,
         runValidators: true

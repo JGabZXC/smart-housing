@@ -116,9 +116,8 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
 });
 exports.getProject = handler.getOne(Project);
 exports.createProject = catchAsync(async(req,res,next) => {
-  const {name, richDescription, description, isFeatured, imageCover, images,date} = req.body;
+  const {name, richDescription, description, isFeatured, imageCover, images, date} = req.body;
   const expiresAt = signedImages.getExpiresAt();
-  console.log(expiresAt)
 
   const payload = {}
 
@@ -146,44 +145,75 @@ exports.createProject = catchAsync(async(req,res,next) => {
     description,
     isFeatured,
     date,
-    imageCover: payload?.imageCover || undefined,
-    images: payload?.images || undefined
+    imageCover: payload?.imageCover,
+    images: payload?.images
   })
 
-  return res.status(200).json({
+  return res.status(201).json({
     status: 'success',
     data: newProject,
   })
 });
 exports.updateProject = catchAsync(async (req, res, next) => {
+  const {name, richDescription, description, isFeatured, imageCover, images, date} = req.body;
   const project = await Project.findById(req.params.id);
   if (!project) return next(new AppError('No project found with that ID', 404));
 
-  if (req.body.imageCover && project.imageCover) {
+  if (imageCover && project.imageCover) {
     await s3.send(
       new DeleteObjectCommand({
         Bucket: process.env.S3_NAME,
-        Key: project.imageCover,
+        Key: project.imageCover.key,
       }),
     );
   }
 
-  if (req.body.images && project.images.length > 0) {
+  if (images && project.images.length > 0) {
     await Promise.all(
       project.images.map(async (image) => {
         await s3.send(
           new DeleteObjectCommand({
             Bucket: process.env.S3_NAME,
-            Key: image,
+            Key: image.key,
           }),
         );
       }),
     );
   }
 
+  const expiresAt = signedImages.getExpiresAt();
+
+  const payload = {}
+
+  if(imageCover) {
+    const signedCoverUrl = await signedImages.signUrl(imageCover);
+    payload.imageCover = {
+      key: imageCover,
+      signedUrl: signedCoverUrl,
+      signedUrlExpires: expiresAt
+    }
+  }
+
+  if(images && images.length > 0) {
+    const signedUrls = await Promise.all(images.map((img) => signedImages.signUrl(img)));
+    payload.images = images.map((img, index) => ({
+      key: img,
+      signedUrl: signedUrls[index],
+      signedUrlExpires: expiresAt,
+    }))
+  }
+
   const updatedProject = await Project.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    {
+      name,
+      richDescription,
+      description,
+      isFeatured,
+      date,
+      imageCover: payload?.imageCover,
+      images: payload?.images
+    },
     {
       new: true,
       runValidators: true,
