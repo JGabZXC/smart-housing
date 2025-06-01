@@ -18,12 +18,12 @@ let type = '-date';
 function renderProject(project, container) {
   const markup = `
     <div class="col">
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title">${project.name}</h4>
-          <p class="card-text">${project.richDescription.slice(0, 100)}...</p>
-          ${project.coverUrl ? `<img class="object-fit-cover" src="${project.coverUrl}" width="100%" height="200" />` : ''}
-          <a class="card-link" href="/project/${project.slug}">Read More</a>
+      <div class="card shadow">
+        <div class="card-body rounded">
+          <h4 class="card-title text-slate-900 fw-semibold">${project.name}</h4>
+          <p class="card-text text-slate-600">${project.richDescription.slice(0, 100)}...</p>
+          ${project.imageCover?.signedUrl ? `<img class="object-fit-cover border rounded-3" src="${project.imageCover.signedUrl}" width="100%" height="200" />` : ''}
+          <a class="btn bg-green-500 text-slate-50 mt-3" href="/project/${project.slug}">Read More ⟶</a>
         </div>
       </div>
     </div>

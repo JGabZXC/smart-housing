@@ -13447,7 +13447,8 @@ var currentPage = 1;
 var projectsPerPage = 10;
 var type = '-date';
 function renderProject(project, container) {
-  var markup = "\n    <div class=\"col\">\n      <div class=\"card\">\n        <div class=\"card-body\">\n          <h4 class=\"card-title\">".concat(project.name, "</h4>\n          <p class=\"card-text\">").concat(project.richDescription.slice(0, 100), "...</p>\n          ").concat(project.coverUrl ? "<img class=\"object-fit-cover\" src=\"".concat(project.coverUrl, "\" width=\"100%\" height=\"200\" />") : '', "\n          <a class=\"card-link\" href=\"/project/").concat(project.slug, "\">Read More</a>\n        </div>\n      </div>\n    </div>\n  ");
+  var _project$imageCover;
+  var markup = "\n    <div class=\"col\">\n      <div class=\"card shadow\">\n        <div class=\"card-body rounded\">\n          <h4 class=\"card-title text-slate-900 fw-semibold\">".concat(project.name, "</h4>\n          <p class=\"card-text text-slate-600\">").concat(project.richDescription.slice(0, 100), "...</p>\n          ").concat((_project$imageCover = project.imageCover) !== null && _project$imageCover !== void 0 && _project$imageCover.signedUrl ? "<img class=\"object-fit-cover border rounded-3\" src=\"".concat(project.imageCover.signedUrl, "\" width=\"100%\" height=\"200\" />") : '', "\n          <a class=\"btn bg-green-500 text-slate-50 mt-3\" href=\"/project/").concat(project.slug, "\">Read More \u27F6</a>\n        </div>\n      </div>\n    </div>\n  ");
   container.innerHTML += markup;
 }
 function renderProjectAdmin(project, container) {
@@ -15464,7 +15465,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50176" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53101" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

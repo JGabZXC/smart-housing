@@ -17,12 +17,13 @@ exports.getIndex = catchAsync(async (req, res, next) => {
     Event.findOne({ isFeatured: true }),
   ]);
 
-  featuredEvent.time = featuredEvent.date.toLocaleString('en-PH', {
-    timeZone: 'Asia/Manila',
-    hour12: true,
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  if (featuredEvent)
+    featuredEvent.time = featuredEvent.date.toLocaleString('en-PH', {
+      timeZone: 'Asia/Manila',
+      hour12: true,
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
   res.status(200).render('index', {
     title: 'Holiday Homes',
@@ -35,18 +36,7 @@ exports.getIndex = catchAsync(async (req, res, next) => {
 exports.getAllProject = catchAsync(async (req, res, next) => {
   const featuredProject = await Project.findOne({ isFeatured: true });
 
-  if (featuredProject?.imageCover) {
-    const getObjectParams = {
-      Bucket: process.env.S3_NAME,
-      Key: featuredProject.imageCover,
-    };
-    const command = new GetObjectCommand(getObjectParams);
-    featuredProject.imageCoverUrl = await getSignedUrl(s3, command, {
-      expiresIn: 3600,
-    });
-  }
-
-  res.status(200).render('projects', {
+  res.status(200).render('Project/projects', {
     title: 'Projects',
     featuredProject,
   });
@@ -56,7 +46,7 @@ exports.getProject = catchAsync(async (req, res, next) => {
   const project = await Project.findOne({ slug: req.params.slug });
   if (!project) return next(new AppError('No project was found', 404));
 
-  res.status(200).render('project-single', {
+  res.status(200).render('Project/project-single', {
     title: project.name,
     project,
   });
