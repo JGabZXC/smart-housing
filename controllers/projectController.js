@@ -1,9 +1,4 @@
-const {
-  PutObjectCommand,
-  GetObjectCommand,
-  DeleteObjectCommand,
-} = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const multer = require('multer');
 const s3 = require('../utils/s3Bucket');
 const handler = require('./handlerController');
@@ -12,7 +7,7 @@ const Message = require('../models/messageModel');
 const catchAsync = require('../utils/catchAsync');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
-const cloudFrontUtil = require('../utils/cloudFront');
+const signedImages = require('../utils/signedImages');
 
 const multerStorage = multer.memoryStorage();
 
@@ -97,67 +92,18 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
   // eslint-disable-next-line prefer-destructuring
   const query = features.query;
 
-  const totalProjects = await Project.countDocuments();
+  const [doc, totalProjects] = await Promise.all([
+    query,
+    Project.countDocuments(),
+  ]);
+
   const totalPages = Math.ceil(totalProjects / (req.query.limit || 10));
 
-  let doc = await query;
+  const updatedDoc = doc.length > 0 && await signedImages.checkSignedExpiration(doc, Project);
 
-  doc = await Promise.all(
-    doc.map(async (item) => {
-      const modifiedItem = { ...item.toObject() };
-      const now = new Date();
+  let finalDoc = doc;
 
-      // === IMAGE COVER ===
-      if (item.imageCover) {
-        const isCoverExpired =
-          !item.imageCoverSignedExpiration || item.imageCoverSignedExpiration < now;
-
-        if (!isCoverExpired && item.imageCoverSigned) {
-          modifiedItem.coverUrl = item.imageCoverSigned;
-        } else {
-          const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-          const signedUrl = cloudFrontUtil.generateSignedUrl(item.imageCover, 7 * 24 * 60 * 60); // in seconds
-
-          modifiedItem.coverUrl = signedUrl;
-
-          await Project.findByIdAndUpdate(item._id, {
-            imageCoverSigned: signedUrl,
-            imageCoverSignedExpiration: expiresAt,
-          });
-        }
-      } else {
-        modifiedItem.coverUrl = undefined;
-      }
-
-      // === MULTIPLE IMAGES ===
-      if (item.images?.length > 0) {
-        const isImagesExpired =
-          !item.imagesSignedExpiration || item.imagesSignedExpiration < now;
-        const hasSameCount = item.imagesSigned?.length === item.images.length;
-
-        if (!isImagesExpired && hasSameCount) {
-          modifiedItem.imagesUrl = item.imagesSigned;
-        } else {
-          const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-          const signedUrls = item.images.map((imgKey) =>
-            cloudFrontUtil.generateSignedUrl(imgKey, 7 * 24 * 60 * 60)
-          );
-
-          modifiedItem.imagesUrl = signedUrls;
-
-          await Project.findByIdAndUpdate(item._id, {
-            imagesSigned: signedUrls,
-            imagesSignedExpiration: expiresAt,
-          });
-        }
-      } else {
-        modifiedItem.imagesUrl = undefined;
-      }
-
-      return modifiedItem;
-    })
-  );
-
+  if (updatedDoc) finalDoc = updatedDoc;
 
   res.status(200).json({
     status: 'success',
@@ -169,7 +115,46 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
   });
 });
 exports.getProject = handler.getOne(Project);
-exports.createProject = handler.createOne(Project);
+exports.createProject = catchAsync(async(req,res,next) => {
+  const {name, richDescription, description, isFeatured, imageCover, images,date} = req.body;
+  const expiresAt = signedImages.getExpiresAt();
+  console.log(expiresAt)
+
+  const payload = {}
+
+  if(imageCover) {
+    const signedCoverUrl = await signedImages.signUrl(imageCover);
+    payload.imageCover = {
+      key: imageCover,
+      signedUrl: signedCoverUrl,
+      signedUrlExpires: expiresAt
+    }
+  }
+
+  if(images && images.length > 0) {
+    const signedUrls = await Promise.all(images.map((img) => signedImages.signUrl(img)));
+    payload.images = images.map((img, index) => ({
+      key: img,
+      signedUrl: signedUrls[index],
+      signedUrlExpires: expiresAt,
+    }))
+  }
+
+  const newProject = await Project.create({
+    name,
+    richDescription,
+    description,
+    isFeatured,
+    date,
+    imageCover: payload?.imageCover || undefined,
+    images: payload?.images || undefined
+  })
+
+  return res.status(200).json({
+    status: 'success',
+    data: newProject,
+  })
+});
 exports.updateProject = catchAsync(async (req, res, next) => {
   const project = await Project.findById(req.params.id);
   if (!project) return next(new AppError('No project found with that ID', 404));

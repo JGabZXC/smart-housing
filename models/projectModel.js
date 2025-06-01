@@ -25,12 +25,16 @@ const projectSchema = new mongoose.Schema({
     required: [true, 'A project must have a description'],
     minLength: 10,
   },
-  imageCover: String,
-  imageCoverSigned: String,
-  imageCoverSignedExpiration: Date,
-  images: [String],
-  imagesSigned: [String],
-  imagesSignedExpiration: Date,
+  imageCover: {
+    key: String,
+    signedUrl: String,
+    signedUrlExpires: Date
+  },
+  images: [{
+    key: String,
+    signedUrl: String,
+    signedUrlExpires: Date
+  }],
   isFeatured: {
     type: Boolean,
     default: false,
