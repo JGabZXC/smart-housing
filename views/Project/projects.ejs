@@ -28,18 +28,20 @@
 <div class="project-list">
   <div class="container">
     <h1 class="fs-4 text-slate-900"><%= featuredProject ? 'Other Projects' : 'Projects' %></h1>
-    <div class="row gx-4 gy-4 row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-3" id="project-list-container">
+    <div id="project-list-container" class="row gx-4 gy-4 row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-3">
       <h2 class="fs-6">Projects...</h2>
     </div>
     <nav style="margin-top: 12px;">
-      <ul class="pagination">
-        <li class="page-item"><a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item"><a class="page-link" href="#">4</a></li>
-        <li class="page-item"><a class="page-link" href="#">5</a></li>
-        <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
+      <ul id="project-list-pagination" class="pagination">
+        <li class="page-item">
+            <a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="#">1</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span></a>
+        </li>
       </ul>
     </nav>
   </div>

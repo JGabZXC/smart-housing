@@ -99,44 +99,55 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
 
   const totalPages = Math.ceil(totalProjects / (req.query.limit || 10));
 
-  const updatedDoc = doc.length > 0 && await signedImages.checkSignedExpiration(doc, Project);
+  const updatedDoc =
+    doc.length > 0 && (await signedImages.checkSignedExpiration(doc, Project));
 
-  let finalDoc = doc;
+  let data = doc;
 
-  if (updatedDoc) finalDoc = updatedDoc;
+  if (updatedDoc) data = updatedDoc;
 
   res.status(200).json({
     status: 'success',
     results: doc.length,
     totalPages,
     data: {
-      doc,
+      doc: data,
     },
   });
 });
 exports.getProject = handler.getOne(Project);
-exports.createProject = catchAsync(async(req,res,next) => {
-  const {name, richDescription, description, isFeatured, imageCover, images, date} = req.body;
+exports.createProject = catchAsync(async (req, res, next) => {
+  const {
+    name,
+    richDescription,
+    description,
+    isFeatured,
+    imageCover,
+    images,
+    date,
+  } = req.body;
   const expiresAt = signedImages.getExpiresAt();
 
-  const payload = {}
+  const payload = {};
 
-  if(imageCover) {
+  if (imageCover) {
     const signedCoverUrl = await signedImages.signUrl(imageCover);
     payload.imageCover = {
       key: imageCover,
       signedUrl: signedCoverUrl,
-      signedUrlExpires: expiresAt
-    }
+      signedUrlExpires: expiresAt,
+    };
   }
 
-  if(images && images.length > 0) {
-    const signedUrls = await Promise.all(images.map((img) => signedImages.signUrl(img)));
+  if (images && images.length > 0) {
+    const signedUrls = await Promise.all(
+      images.map((img) => signedImages.signUrl(img)),
+    );
     payload.images = images.map((img, index) => ({
       key: img,
       signedUrl: signedUrls[index],
       signedUrlExpires: expiresAt,
-    }))
+    }));
   }
 
   const newProject = await Project.create({
@@ -146,16 +157,24 @@ exports.createProject = catchAsync(async(req,res,next) => {
     isFeatured,
     date,
     imageCover: payload?.imageCover,
-    images: payload?.images
-  })
+    images: payload?.images,
+  });
 
   return res.status(201).json({
     status: 'success',
     data: newProject,
-  })
+  });
 });
 exports.updateProject = catchAsync(async (req, res, next) => {
-  const {name, richDescription, description, isFeatured, imageCover, images, date} = req.body;
+  const {
+    name,
+    richDescription,
+    description,
+    isFeatured,
+    imageCover,
+    images,
+    date,
+  } = req.body;
   const project = await Project.findById(req.params.id);
   if (!project) return next(new AppError('No project found with that ID', 404));
 
@@ -183,24 +202,26 @@ exports.updateProject = catchAsync(async (req, res, next) => {
 
   const expiresAt = signedImages.getExpiresAt();
 
-  const payload = {}
+  const payload = {};
 
-  if(imageCover) {
+  if (imageCover) {
     const signedCoverUrl = await signedImages.signUrl(imageCover);
     payload.imageCover = {
       key: imageCover,
       signedUrl: signedCoverUrl,
-      signedUrlExpires: expiresAt
-    }
+      signedUrlExpires: expiresAt,
+    };
   }
 
-  if(images && images.length > 0) {
-    const signedUrls = await Promise.all(images.map((img) => signedImages.signUrl(img)));
+  if (images && images.length > 0) {
+    const signedUrls = await Promise.all(
+      images.map((img) => signedImages.signUrl(img)),
+    );
     payload.images = images.map((img, index) => ({
       key: img,
       signedUrl: signedUrls[index],
       signedUrlExpires: expiresAt,
-    }))
+    }));
   }
 
   const updatedProject = await Project.findByIdAndUpdate(
@@ -212,7 +233,7 @@ exports.updateProject = catchAsync(async (req, res, next) => {
       isFeatured,
       date,
       imageCover: payload?.imageCover,
-      images: payload?.images
+      images: payload?.images,
     },
     {
       new: true,
@@ -227,7 +248,6 @@ exports.updateProject = catchAsync(async (req, res, next) => {
     },
   });
 });
-
 exports.deleteProject = catchAsync(async (req, res, next) => {
   const project = await Project.findById(req.params.id);
   if (!project) return next(new AppError('No project found with that ID', 404));

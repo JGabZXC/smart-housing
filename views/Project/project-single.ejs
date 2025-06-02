@@ -29,24 +29,22 @@
       <div id="forum-messages">
         <div>
           <div class="d-flex flex-column justify-content-between flex-sm-column flex-md-row flex-lg-row flex-xl-row flex-xxl-row">
-            <p class="text-break" style="width: 80%;">User 1: Nice project! zxczxcxzcxzcxzcxzczxczxczxczxcxzcxzczxcxzczxcxzczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxczxc</p>
+            <p class="text-break" style="width: 80%;">User 1: Some comment!</p>
             <p>Date</p>
           </div>
         </div>
       </div>
           <% if(locals.user) { %>
             <div class="d-flex justify-content-between" style="padding: 0px;padding-top: 10px;padding-bottom: 10px;">
-              <form id="form-message" class="d-flex justify-content-between" style="width: 100%;"><input id="message" class="form-control" type="text" placeholder="Leave a comment" style="width: 80%;" /><button id="submit-message-btn" class="btn btn-primary" type="submit">Submit</button></form>
+              <form id="form-message" class="d-flex justify-content-between" style="width: 100%;"><input id="message" class="form-control" type="text" placeholder="Leave a comment" style="width: 80%;" />
+                <button id="submit-message-btn" class="btn btn-primary" type="submit">Submit</button>
+              </form>
             </div>
           <% } %>
       <nav>
         <ul class="pagination">
           <li class="page-item"><a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
           <li class="page-item"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">3</a></li>
-          <li class="page-item"><a class="page-link" href="#">4</a></li>
-          <li class="page-item"><a class="page-link" href="#">5</a></li>
           <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
         </ul>
       </nav>
