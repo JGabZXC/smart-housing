@@ -28,7 +28,9 @@
                         <%} %>
                     </ul>
                 <% if(locals.user) { %>
-                    <a class="btn bg-green-600 text-slate-50" id="logout">Log out</a>
+                    <form id="logout-form">
+                        <button class="btn bg-green-600 text-slate-50" id="logout-button">Log out</button>
+                    </form>
                 <% } else { %>
                     <a class="btn border text-button-green border-green-600 text-green-600" href="/login">Log in</a>
                 <% } %>

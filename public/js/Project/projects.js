@@ -1,12 +1,12 @@
 /* eslint-disable */
-import { fetchData } from '../utils/http';
+import { fetchData } from '../utils/http.js';
 
 const projectListContainer = document.querySelector('#project-list-container');
 const projectListPagination = document.querySelector('#project-list-pagination');
 
 let currentPage = 1;
 let projectsPerPage = 1;
-let type = '-date,-name';
+let type = '_id';
 
 async function fetchProjects() {
   return await fetchData(`/api/v1/projects?page=${currentPage}&limit=${projectsPerPage}&sort=${type}`);
@@ -20,7 +20,7 @@ function cardProject(project, container) {
           <h4 class="card-title text-slate-900 fw-semibold">${project.name}</h4>
           <p class="card-text text-slate-600">${project.richDescription.slice(0, 100)}...</p>
           ${project.imageCover?.signedUrl ? `<img class="object-fit-cover border rounded-3" src="${project.imageCover.signedUrl}" width="100%" height="200" />` : ''}
-          <a class="btn bg-green-500 text-slate-50 mt-3" href="/project/${project.slug}">Read More ⟶</a>
+          <a class="btn bg-green-500 text-slate-50 mt-3" href="/projects/${project.slug}">Read More ⟶</a>
         </div>
       </div>
     </div>

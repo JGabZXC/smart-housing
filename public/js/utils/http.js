@@ -1,5 +1,5 @@
 /* eslint-disable */
-import axios from 'axios';
+// import axios from 'axios'; // Enable this line if bundling with parcel!
 
 export const fetchData = async (url, params = {}) => {
   try {

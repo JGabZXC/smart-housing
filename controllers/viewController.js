@@ -108,7 +108,7 @@ exports.getMe = catchAsync(async (req, res, next) => {
 });
 
 exports.getLogin = catchAsync(async (req, res, next) => {
-  res.status(200).render('login', {
+  res.status(200).render('Login/login', {
     title: 'Login',
   });
 });

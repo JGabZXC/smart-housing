@@ -1,25 +1,6 @@
 /* eslint-disable */
 
-// import axios from 'axios';
-
-export function buttonSpinner(target, defaultText, loadingText, keepDisabled = false) {
-  const button = target;
-
-  if(keepDisabled) {
-    button.disabled = true;
-    button.innerHTML = defaultText;
-    return;
-  }
-
-  if(button.disabled) {
-    button.disabled = false;
-    button.innerHTML = defaultText;
-    return;
-  }
-
-  button.disabled = true;
-  button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${loadingText}...`;
-}
+// import axios from 'axios'; // Enable this line if bundling with parcel!
 
 export function renderPagination(
   totalPages,
@@ -102,46 +83,4 @@ export function renderPagination(
     );
   }
   pagination.appendChild(nextButton);
-}
-
-export async function fetchData(
-  url,
-  container,
-  renderFunction,
-  currentPage,
-  itemsPerPage,
-  changePage,
-  paginationSelector = '.pagination',
-  sortType = '-date'
-) {
-  try {
-    const res = await axios({
-      method: 'GET',
-      url: `${url}?&page=${currentPage}&limit=${itemsPerPage}&sort=${sortType}`,
-    });
-
-    if (res.data.results === 0) {
-      container.innerHTML = `<p>No items found</p>`;
-      if(document.querySelector(paginationSelector)) document.querySelector(paginationSelector).innerHTML = '';
-      return;
-    }
-
-    const items = res.data.data.doc;
-    const totalPages = res.data.totalPages || 1;
-    container.innerHTML = '';
-
-    const hasNextPage = items.length === itemsPerPage;
-
-    if(items.length > 0) {
-      items.forEach((item) => renderFunction(item, container));
-    } else if (typeof items === 'object') {
-      renderFunction(items, container);
-    }
-
-    if(totalPages >= 1) {
-      renderPagination(totalPages, currentPage, hasNextPage, changePage, paginationSelector);
-    }
-  } catch (err) {
-    console.error(err);
-  }
 }
