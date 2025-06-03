@@ -1,7 +1,4 @@
 /* eslint-disable */
-
-// import axios from 'axios'; // Enable this line if bundling with parcel!
-
 export function renderPagination(
   totalPages,
   currentPage,
