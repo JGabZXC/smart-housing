@@ -25,9 +25,11 @@
 <!--   <script src="/js/bundle.js"></script> -->
   <% if (process.env.NODE_ENV === 'production') { %>
     <script src="/js/bundle.js"></script>
+    <script>console.log("You are in production mode");</script>
   <% } else { %>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/js/index.js" type="module"></script>
+    <script>console.log("You are in development mode");</script>
   <% } %>
 
 </body>
