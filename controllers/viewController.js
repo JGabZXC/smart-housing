@@ -66,7 +66,7 @@ exports.getAllEvent = catchAsync(async (req, res, next) => {
     });
   }
 
-  res.status(200).render('events', {
+  res.status(200).render('Event/events', {
     title: 'Events',
     featuredEvent,
   });
@@ -76,7 +76,7 @@ exports.getEvent = catchAsync(async (req, res, next) => {
   const event = await Event.findOne({ slug: req.params.slug });
   if (!event) return next(new AppError('No event found was found', 404));
 
-  res.status(200).render('event-single', {
+  res.status(200).render('Event/event-single', {
     title: event.name,
     event,
   });
