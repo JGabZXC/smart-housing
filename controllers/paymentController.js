@@ -185,8 +185,10 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
   const months = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
 
   if (months <= 0) return next(new AppError('Invalid date range', 400));
+  //  012020-012020 will still proceed, so it needs to be 012020-022020 to be accepted
+  if(months <= 1) return next(new AppError('Date range must cover at least 2 months', 400));
 
-  const amount = months;
+  const amount = months * 100; // Assuming 100 PHP per month
 
   const { overlaps } = await isDateRangeAlreadyPaid(
     req.user._id,
@@ -199,7 +201,7 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
-    client_reference_id: req.user._id,
+    client_reference_id: String(req.user._id),
     customer_email: req.user.email,
     success_url: `${req.protocol}://${req.get('host')}/me`,
     cancel_url: `${req.protocol}://${req.get('host')}/me`,
