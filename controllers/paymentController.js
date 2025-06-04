@@ -238,7 +238,8 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
       process.env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
-    return next(new AppError(`Webhook Error: ${err.message}`, 400));
+    // Stripe will be the one who will get this error, not the our server.
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (event.type === 'checkout.session.completed') {
