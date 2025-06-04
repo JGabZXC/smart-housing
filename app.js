@@ -27,6 +27,12 @@ const paymentController = require('./controllers/paymentController');
 
 const app = express();
 
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  paymentController.webhookCheckout,
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(`${__dirname}/public`));
@@ -77,12 +83,6 @@ const limiter = rateLimit({
 });
 
 app.use('/api', limiter);
-
-app.post(
-  '/webhook-checkout',
-  express.raw({ type: 'application/json' }),
-  paymentController.webhookCheckout,
-);
 
 app.use('/', viewRoute);
 app.use('/api/v1/events', eventRoute);
