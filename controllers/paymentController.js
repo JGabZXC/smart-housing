@@ -158,10 +158,9 @@ exports.updatePayment = handler.updateOne(Payment);
 exports.deletePayment = handler.deleteOne(Payment);
 
 const insertPayment = async function (session) {
-  const user = await User.findOne({ _id: session.client_reference_id });
   await Payment.create({
-    user: user._id,
-    address: user.address,
+    user: session.client_reference_id,
+    address: session.metadata.address,
     amount: session.amount_total / 100, // Convert from cents to PHP
     dateRange: session.metadata.dateRange,
     stripeSessionId: session.id,
@@ -219,6 +218,10 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
         quantity: 1,
       },
     ],
+    metadata: {
+      dateRange,
+      address: req.user.address,
+    }
   });
 
   res.status(200).json({
