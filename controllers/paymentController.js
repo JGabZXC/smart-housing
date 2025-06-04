@@ -30,55 +30,16 @@ const isDateRangeAlreadyPaid = async function (userId, addressId, dateRange) {
     : { overlaps: false };
 };
 
-exports.getCheckoutSession = catchAsync(async (req, res, next) => {
-  const { amount, dateRange } = req.query;
-
-  const { overlaps } = await isDateRangeAlreadyPaid(
-    req.user._id,
-    req.user.address,
-    dateRange,
-  );
-
-  if (overlaps)
-    return next(new AppError(`Payment for ${dateRange} already exists`, 400));
-
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    customer_email: req.user.email,
-    success_url: `${req.protocol}://${req.get('host')}/me?user=${req.user._id}&address=${req.user.address}&price=${amount}&dateRange=${dateRange}`,
-    cancel_url: `${req.protocol}://${req.get('host')}/me`,
-    mode: 'payment',
-    line_items: [
-      {
-        price_data: {
-          currency: 'php',
-          product_data: {
-            name: 'Payment for dues',
-            description: `Payment for ${dateRange}. Do not forget to screenshot the payment confirmation.`,
-          },
-          unit_amount: amount * 100,
-        },
-        quantity: 1,
-      },
-    ],
-  });
-
-  res.status(200).json({ status: 'success', session });
-});
-
-exports.createBookingCheckout = catchAsync(async (req, res, next) => {
-  const { user, address, price, dateRange } = req.query;
-
-  if (!user && !address && !price && !dateRange) return next();
+const insertPayment = async function (session) {
   await Payment.create({
-    user: req.user._id,
-    address: req.user.address,
-    amount: price,
-    dateRange,
+    user: session.client_reference_id,
+    address: session.metadata.address,
+    amount: session.amount_total / 100, // Convert from cents to PHP
+    dateRange: session.metadata.dateRange,
+    stripeSessionId: session.id,
+    paid: true,
   });
-
-  res.redirect(req.originalUrl.split('?')[0]);
-});
+};
 
 exports.getAllPayments = catchAsync(async (req, res, next) => {
   let filter = {};
@@ -157,17 +118,6 @@ exports.createPayment = catchAsync(async (req, res, next) => {
 exports.updatePayment = handler.updateOne(Payment);
 exports.deletePayment = handler.deleteOne(Payment);
 
-const insertPayment = async function (session) {
-  await Payment.create({
-    user: session.client_reference_id,
-    address: session.metadata.address,
-    amount: session.amount_total / 100, // Convert from cents to PHP
-    dateRange: session.metadata.dateRange,
-    stripeSessionId: session.id,
-    paid: true,
-  });
-};
-
 exports.createCheckoutSession = catchAsync(async (req, res, next) => {
   const { dateRange } = req.body;
 
@@ -185,7 +135,8 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
 
   if (months <= 0) return next(new AppError('Invalid date range', 400));
   //  012020-012020 will still proceed, so it needs to be 012020-022020 to be accepted
-  if(months <= 1) return next(new AppError('Date range must cover at least 2 months', 400));
+  if (months <= 1)
+    return next(new AppError('Date range must cover at least 2 months', 400));
 
   const amount = months * 100; // Assuming 100 PHP per month
 
@@ -221,7 +172,7 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
     metadata: {
       dateRange,
       address: String(req.user.address),
-    }
+    },
   });
 
   res.status(200).json({
@@ -252,5 +203,4 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
   }
 
   res.status(200).json({ received: true });
-  next();
 });
