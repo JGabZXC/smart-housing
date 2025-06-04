@@ -14,7 +14,6 @@ router
   .route('/me')
   .get(
     authController.protect,
-    paymentController.createCheckoutSession,
     viewController.getMe,
   );
 
