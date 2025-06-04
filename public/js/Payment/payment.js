@@ -1,6 +1,5 @@
 /* eslint-disable */
 
-import axios from 'axios';
 import { showAlert } from '../utils/alerts.js';
 import { buttonSpinner } from '../utils/spinner.js';
 
