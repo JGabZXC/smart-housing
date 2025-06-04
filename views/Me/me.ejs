@@ -23,9 +23,11 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Month Range</th>
+                                    <th class="month-range-width">Month Range</th>
                                     <th>Amount</th>
-                                    <th>Date Paid</th>
+                                    <th class="date-paid-width">Date Paid</th>
+                                    <th>Reference</th>
+                                    <th>Method</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -40,6 +42,8 @@
                                             day: "2-digit",
                                             timeZone: 'Asia/Manila'
                                         }).format(due.paymentDate) %></td>
+                                    <td><%= due.stripeSessionId %></td>
+                                    <td><%= due.paymentMethod %></td>
                                 </tr>
                                 <% }); %>
                             </tbody>
@@ -53,6 +57,9 @@
                     </table>
                 </div>
             </div>
+            <%if(payment.length > 0) {%>
+                <p class="text-slate-400 fs-6 m-0 mt-2">You can only see 50 of your transactions.</p>
+            <% } %>
         </div>
     </div>
 </section>
