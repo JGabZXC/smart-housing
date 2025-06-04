@@ -110,7 +110,7 @@ async function renderProjects() {
     projectListPagination.innerHTML = '';
     const hasNextPage = currentPage < data.totalPages;
     data.data.doc.forEach((project) => cardProject(project, projectListContainer));
-    if(data.totalPages >= 1) renderPagination(data.totalPages, hasNextPage);
+    if(data.totalPages > 1) renderPagination(data.totalPages, hasNextPage);
   } catch (error) {
     projectListContainer.innerHTML = '<p class="text-danger">Failed to load projects. Please try again later.</p>';
   }

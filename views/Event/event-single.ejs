@@ -26,7 +26,7 @@
           <% if (event?.images && event.images.length > 0) { %>
             <% event.images.forEach((image, index) => { %>
               <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-                <img class="object-fit-cover w-100 d-block" src="<%= image.signedUrl %>" alt="Slide Image" width="100%" height="600" />
+                <img class="object-fit-cover w-100 d-block landscape-image" src="<%= image.signedUrl %>" alt="Slide Image" />
               </div>
             <% }) %>
           <% } %>

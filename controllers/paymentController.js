@@ -120,12 +120,8 @@ exports.createPayment = catchAsync(async (req, res, next) => {
 
   if (!email) return next(new AppError('Please provide an email address', 400));
 
-  console.log(amount);
-
   if (!+amount || +amount === 0)
     return next(new AppError('Please provide an amount', 400));
-
-
 
   if (!amount || !dateRange)
     return next(new AppError('Please provide an amount and date range', 400));
@@ -151,8 +147,6 @@ exports.createPayment = catchAsync(async (req, res, next) => {
     dateRange,
   });
 
-  console.log(paymentMod)
-
   res.status(201).json({
     status: 'success',
     data: {
@@ -162,3 +156,95 @@ exports.createPayment = catchAsync(async (req, res, next) => {
 });
 exports.updatePayment = handler.updateOne(Payment);
 exports.deletePayment = handler.deleteOne(Payment);
+
+const insertPayment = async function (session) {
+  await Payment.create({
+    user: session.client_reference_id,
+    address: session.client_address,
+    amount: session.amount_total / 100, // Convert from cents to PHP
+    dateRange: session.metadata.dateRange,
+    stripeSessionId: session.id,
+    paid: true,
+  });
+};
+
+exports.createCheckoutSession = catchAsync(async (req, res, next) => {
+  const {  dateRange } = req.body;
+
+  if (!dateRange)
+    return next(new AppError('Please provide amount and date range', 400));
+
+  // format(MMYYYY-MMYYYY)
+  const [start, end] = dateRange.split('-');
+  const startMonth = parseInt(start.substring(0, 2), 10);
+  const startYear = parseInt(start.substring(2), 10);
+  const endMonth = parseInt(end.substring(0, 2), 10);
+  const endYear = parseInt(end.substring(2), 10);
+
+  const months = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+
+  if(months <= 0) return next(new AppError('Invalid date range', 400));
+
+  const amount = months;
+
+  const { overlaps } = await isDateRangeAlreadyPaid(
+    req.user._id,
+    req.user.address,
+    dateRange,
+  );
+
+  if (overlaps)
+    return next(new AppError(`Payment for ${dateRange} already exists`, 400));
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    client_reference_id: req.user._id,
+    customer_email: req.user.email,
+    client_address: req.user.address,
+    success_url: `${req.protocol}://${req.get('host')}/me`,
+    cancel_url: `${req.protocol}://${req.get('host')}/me`,
+    mode: 'payment',
+    line_items: [
+      {
+        price_data: {
+          currency: 'php',
+          product_data: {
+            name: 'Payment for dues',
+            description: `Payment for ${dateRange}. Do not forget to screenshot the payment confirmation.`,
+          },
+          unit_amount: amount * 100, // Convert to pesos (PHP)
+        },
+        quantity: 1,
+      },
+    ],
+  });
+
+  res.status(200).json({
+    status: 'success',
+    session_id: session.id,
+    session,
+  });
+});
+exports.webhookCheckout = catchAsync(async (req, res, next) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (err) {
+    return next(new AppError(`Webhook Error: ${err.message}`, 400));
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    // Insert the payment into the database
+    insertPayment(session);
+  }
+
+  res.status(200).json({ received: true });
+  next();
+});
