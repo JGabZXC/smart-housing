@@ -38,7 +38,6 @@ const insertPayment = async function (session) {
     dateRange: session.metadata.dateRange,
     stripeSessionId: session.id,
     paymentIntentId: session.payment_intent,
-    paymentMethodStripe: session.payment_method,
     paid: true,
   });
 };
@@ -173,7 +172,7 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
     ],
     metadata: {
       dateRange,
-      address: String(req.user.address),
+      address: String(req.user.address._id),
     },
   });
 

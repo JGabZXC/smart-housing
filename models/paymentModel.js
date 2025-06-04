@@ -26,7 +26,6 @@ const paymentSchema = new mongoose.Schema(
     },
     stripeSessionId: String,
     paymentIntentId: String,
-    paymentMethodStripe: String,
     paymentMethod: {
       type: String,
       enum: ['stripe', 'manual'],
