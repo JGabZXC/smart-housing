@@ -220,7 +220,7 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
     ],
     metadata: {
       dateRange,
-      address: req.user.address,
+      address: String(req.user.address),
     }
   });
 
