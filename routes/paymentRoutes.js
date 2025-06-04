@@ -7,6 +7,11 @@ const router = express.Router();
 router.use(authController.protect);
 
 router.get('/checkout-session', paymentController.getCheckoutSession);
+router.post(
+  '/payment-session',
+  authController.protect,
+  paymentController.createPayment,
+);
 
 router.use(authController.protectTo('admin'));
 router

@@ -107,10 +107,10 @@ async function renderEvents() {
     eventListContainer.innerHTML = '';
     eventListPagination.innerHTML = '';
     const hasNextPage = currentPage < data.totalPages;
-    data.data.doc.forEach((project) => cardEvent(project, eventListContainer));
-    if(data.totalPages >= 1) renderPagination(data.totalPages, hasNextPage);
+    data.data.doc.forEach((event) => cardEvent(event, eventListContainer));
+    if(data.totalPages > 1) renderPagination(data.totalPages, hasNextPage);
   } catch (error) {
-    eventListContainer.innerHTML = '<p class="text-danger">Failed to load projects. Please try again later.</p>';
+    eventListContainer.innerHTML = '<p class="text-danger">Failed to load events. Please try again later.</p>';
   }
 }
 

@@ -24,9 +24,15 @@ const paymentSchema = new mongoose.Schema(
       type: Date,
       default: () => Date.now(),
     },
+    stripeSessionId: String,
+    paymentMethod: {
+      type: String,
+      enum: ['stripe', 'manual'],
+      default: 'stripe',
+    },
     paid: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   {
