@@ -58,6 +58,7 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre(/^find/, function (next) {
   this.select('-__v');
+  this.populate('address');
   next();
 });
 

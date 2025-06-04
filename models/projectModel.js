@@ -28,13 +28,15 @@ const projectSchema = new mongoose.Schema({
   imageCover: {
     key: String,
     signedUrl: String,
-    signedUrlExpires: Date
+    signedUrlExpires: Date,
   },
-  images: [{
-    key: String,
-    signedUrl: String,
-    signedUrlExpires: Date
-  }],
+  images: [
+    {
+      key: String,
+      signedUrl: String,
+      signedUrlExpires: Date,
+    },
+  ],
   isFeatured: {
     type: Boolean,
     default: false,
