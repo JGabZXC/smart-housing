@@ -8,7 +8,6 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const path = require('path');
 
-
 mongoose.set('id', false); // Disable id on all virtuals
 
 const AppError = require('./utils/appError');
@@ -23,6 +22,8 @@ const paymentRoute = require('./routes/paymentRoutes');
 const s3ImageRoute = require('./routes/s3ImageRoutes');
 const viewRoute = require('./routes/viewRoutes');
 const eventResidentRoute = require('./routes/eventResidentRoutes');
+
+const paymentController = require('./controllers/paymentController');
 
 const app = express();
 
@@ -69,7 +70,6 @@ const messageOptions = {
   message: 'Too many requests, please try again in an hour',
 };
 
-
 const limiter = rateLimit({
   max: process.env.NODE_ENV === 'development' ? 1000 : 100, // Limit each IP to 100 requests per hour
   windowMs: 60 * 60 * 1000, // 1 hour,
@@ -77,6 +77,12 @@ const limiter = rateLimit({
 });
 
 app.use('/api', limiter);
+
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  paymentController.webhookCheckout,
+);
 
 app.use('/', viewRoute);
 app.use('/api/v1/events', eventRoute);
