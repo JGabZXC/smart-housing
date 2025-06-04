@@ -10,7 +10,7 @@ router.get('/checkout-session', paymentController.getCheckoutSession);
 router.post(
   '/payment-session',
   authController.protect,
-  paymentController.createPayment,
+  paymentController.createCheckoutSession,
 );
 
 router.use(authController.protectTo('admin'));

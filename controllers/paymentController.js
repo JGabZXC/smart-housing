@@ -158,9 +158,10 @@ exports.updatePayment = handler.updateOne(Payment);
 exports.deletePayment = handler.deleteOne(Payment);
 
 const insertPayment = async function (session) {
+  const user = await User.findOne({ _id: session.client_reference_id });
   await Payment.create({
-    user: session.client_reference_id,
-    address: session.client_address,
+    user: user._id,
+    address: user.address,
     amount: session.amount_total / 100, // Convert from cents to PHP
     dateRange: session.metadata.dateRange,
     stripeSessionId: session.id,
@@ -169,7 +170,7 @@ const insertPayment = async function (session) {
 };
 
 exports.createCheckoutSession = catchAsync(async (req, res, next) => {
-  const {  dateRange } = req.body;
+  const { dateRange } = req.body;
 
   if (!dateRange)
     return next(new AppError('Please provide amount and date range', 400));
@@ -183,7 +184,7 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
 
   const months = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
 
-  if(months <= 0) return next(new AppError('Invalid date range', 400));
+  if (months <= 0) return next(new AppError('Invalid date range', 400));
 
   const amount = months;
 
@@ -200,7 +201,6 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
     payment_method_types: ['card'],
     client_reference_id: req.user._id,
     customer_email: req.user.email,
-    client_address: req.user.address,
     success_url: `${req.protocol}://${req.get('host')}/me`,
     cancel_url: `${req.protocol}://${req.get('host')}/me`,
     mode: 'payment',
