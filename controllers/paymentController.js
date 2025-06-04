@@ -37,6 +37,8 @@ const insertPayment = async function (session) {
     amount: session.amount_total / 100, // Convert from cents to PHP
     dateRange: session.metadata.dateRange,
     stripeSessionId: session.id,
+    paymentIntentId: session.payment_intent,
+    paymentMethodStripe: session.payment_method,
     paid: true,
   });
 };

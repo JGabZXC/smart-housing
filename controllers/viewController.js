@@ -83,10 +83,6 @@ exports.getEvent = catchAsync(async (req, res, next) => {
 });
 
 exports.getMe = catchAsync(async (req, res, next) => {
-  // const payment = await Payment.find({ user: req.user._id }).sort(
-  //   '-paymentDate',
-  // );
-
   req.query.limit = 50; // Only 50 payments will be shown to the client
   req.query.sort = '-paymentDate'; // Sort payment to latest to oldest
 
@@ -101,7 +97,7 @@ exports.getMe = catchAsync(async (req, res, next) => {
 
   const payment = await query;
 
-  res.status(200).render('me', {
+  res.status(200).render('Me/me', {
     title: req.user.name,
     payment,
   });

@@ -1,7 +1,6 @@
 const express = require('express');
 const viewController = require('../controllers/viewController');
 const authController = require('../controllers/authController');
-const paymentController = require('../controllers/paymentController');
 
 const router = express.Router();
 
@@ -10,12 +9,7 @@ router.route('/').get(viewController.getIndex);
 
 router.route('/login').get(authController.reRoute, viewController.getLogin);
 
-router
-  .route('/me')
-  .get(
-    authController.protect,
-    viewController.getMe,
-  );
+router.route('/me').get(authController.protect, viewController.getMe);
 
 router.route('/projects').get(viewController.getAllProject);
 router.route('/projects/:slug').get(viewController.getProject);

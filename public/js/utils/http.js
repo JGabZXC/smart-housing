@@ -1,5 +1,4 @@
 /* eslint-disable */
-import axios from 'axios';
 
 export const fetchData = async (url, params = {}) => {
   try {
