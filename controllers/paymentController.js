@@ -200,6 +200,7 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
+    console.log('Payment succeeded:', session);
     // Insert the payment into the database
     insertPayment(session);
   }
