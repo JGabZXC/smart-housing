@@ -1,4 +1,4 @@
-const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const multer = require('multer');
 const s3 = require('../utils/s3Bucket');
 const handler = require('./handlerController');
@@ -8,6 +8,7 @@ const catchAsync = require('../utils/catchAsync');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const signedImages = require('../utils/signedImages');
+const { uploadToS3 } = require('../utils/uploadToS3');
 
 const multerStorage = multer.memoryStorage();
 
@@ -39,38 +40,38 @@ exports.uploadS3 = catchAsync(async (req, res, next) => {
   //   })
   //   .toBuffer();
 
-  if (req.files.imageCover) {
-    const filename = `project-${req.files.imageCover[0].originalname.split('.')[0]}-${Date.now()}-cover.jpeg`;
-    const params = {
-      Bucket: process.env.S3_NAME,
-      Key: filename,
-      Body: req.files.imageCover[0].buffer,
-      ContentType: req.files.imageCover[0].mimetype,
-    };
-    const command = new PutObjectCommand(params);
-
-    await s3.send(command);
-    req.body.imageCover = filename;
-  }
-
-  if (req.files.images) {
-    req.body.images = [];
-    await Promise.all(
-      req.files.images.map(async (file, i) => {
-        const filename = `project-${file.originalname.split('.')[0]}-${Date.now()}-${i + 1}.jpeg`;
-        const params = {
-          Bucket: process.env.S3_NAME,
-          Key: filename,
-          Body: file.buffer,
-          ContentType: file.mimetype,
-        };
-        const command = new PutObjectCommand(params);
-
-        await s3.send(command);
-        req.body.images.push(filename);
-      }),
-    );
-  }
+  // if (req.files.imageCover) {
+  //   const filename = `project-${req.files.imageCover[0].originalname.split('.')[0]}-${Date.now()}-cover.jpeg`;
+  //   const params = {
+  //     Bucket: process.env.S3_NAME,
+  //     Key: filename,
+  //     Body: req.files.imageCover[0].buffer,
+  //     ContentType: req.files.imageCover[0].mimetype,
+  //   };
+  //   const command = new PutObjectCommand(params);
+  //
+  //   await s3.send(command);
+  //   req.body.imageCover = filename;
+  // }
+  //
+  // if (req.files.images) {
+  //   req.body.images = [];
+  //   await Promise.all(
+  //     req.files.images.map(async (file, i) => {
+  //       const filename = `project-${file.originalname.split('.')[0]}-${Date.now()}-${i + 1}.jpeg`;
+  //       const params = {
+  //         Bucket: process.env.S3_NAME,
+  //         Key: filename,
+  //         Body: file.buffer,
+  //         ContentType: file.mimetype,
+  //       };
+  //       const command = new PutObjectCommand(params);
+  //
+  //       await s3.send(command);
+  //       req.body.images.push(filename);
+  //     }),
+  //   );
+  // }
 
   next();
 });
@@ -127,38 +128,47 @@ exports.createProject = catchAsync(async (req, res, next) => {
     date,
   } = req.body;
   const expiresAt = signedImages.getExpiresAt();
-
   const payload = {};
 
-  if (imageCover) {
-    const signedCoverUrl = await signedImages.signUrl(imageCover);
-    payload.imageCover = {
-      key: imageCover,
-      signedUrl: signedCoverUrl,
-      signedUrlExpires: expiresAt,
-    };
-  }
+  let newProject;
 
-  if (images && images.length > 0) {
-    const signedUrls = await Promise.all(
-      images.map((img) => signedImages.signUrl(img)),
-    );
-    payload.images = images.map((img, index) => ({
-      key: img,
-      signedUrl: signedUrls[index],
-      signedUrlExpires: expiresAt,
-    }));
-  }
-
-  const newProject = await Project.create({
+  newProject = await Project.create({
     name,
     richDescription,
     description,
     isFeatured,
     date,
-    imageCover: payload?.imageCover,
-    images: payload?.images,
+    imageCover,
+    images,
   });
+
+  const { imgCover, imgsArray } = await uploadToS3(req);
+
+  if (imgCover || imgsArray.length > 0) {
+    if (imgCover) {
+      const signedCoverUrl = await signedImages.signUrl(imgCover);
+      payload.imageCover = {
+        key: imgCover,
+        signedUrl: signedCoverUrl,
+        signedUrlExpires: expiresAt,
+      };
+    }
+
+    if (imgsArray && imgsArray.length > 0) {
+      const signedUrls = await Promise.all(
+        imgsArray.map((img) => signedImages.signUrl(img)),
+      );
+      payload.images = imgsArray.map((img, index) => ({
+        key: img,
+        signedUrl: signedUrls[index],
+        signedUrlExpires: expiresAt,
+      }));
+    }
+
+    newProject = await Project.findByIdAndUpdate(newProject._id, payload, {
+      new: true,
+    });
+  }
 
   return res.status(201).json({
     status: 'success',
@@ -178,7 +188,10 @@ exports.updateProject = catchAsync(async (req, res, next) => {
   const project = await Project.findById(req.params.id);
   if (!project) return next(new AppError('No project found with that ID', 404));
 
-  if (imageCover && project.imageCover) {
+
+
+  if (req.files.imageCover && project.imageCover) {
+    console.log("delete")
     await s3.send(
       new DeleteObjectCommand({
         Bucket: process.env.S3_NAME,
@@ -187,7 +200,7 @@ exports.updateProject = catchAsync(async (req, res, next) => {
     );
   }
 
-  if (images && project.images.length > 0) {
+  if (req.files.images && project.images.length > 0) {
     await Promise.all(
       project.images.map(async (image) => {
         await s3.send(
@@ -200,31 +213,11 @@ exports.updateProject = catchAsync(async (req, res, next) => {
     );
   }
 
+  let updatedProject;
   const expiresAt = signedImages.getExpiresAt();
-
   const payload = {};
 
-  if (imageCover) {
-    const signedCoverUrl = await signedImages.signUrl(imageCover);
-    payload.imageCover = {
-      key: imageCover,
-      signedUrl: signedCoverUrl,
-      signedUrlExpires: expiresAt,
-    };
-  }
-
-  if (images && images.length > 0) {
-    const signedUrls = await Promise.all(
-      images.map((img) => signedImages.signUrl(img)),
-    );
-    payload.images = images.map((img, index) => ({
-      key: img,
-      signedUrl: signedUrls[index],
-      signedUrlExpires: expiresAt,
-    }));
-  }
-
-  const updatedProject = await Project.findByIdAndUpdate(
+  updatedProject = await Project.findByIdAndUpdate(
     req.params.id,
     {
       name,
@@ -241,6 +234,39 @@ exports.updateProject = catchAsync(async (req, res, next) => {
     },
   );
 
+  const { imgCover, imgsArray } = await uploadToS3(req);
+  // const imgCover = {};
+  // const imgsArray = [];
+  if (imgCover || imgsArray.length > 0) {
+    if (imgCover) {
+      const signedCoverUrl = await signedImages.signUrl(imgCover);
+      payload.imageCover = {
+        key: imgCover,
+        signedUrl: signedCoverUrl,
+        signedUrlExpires: expiresAt,
+      };
+    }
+
+    if (imgsArray && imgsArray.length > 0) {
+      const signedUrls = await Promise.all(
+        imgsArray.map((img) => signedImages.signUrl(img)),
+      );
+      payload.images = imgsArray.map((img, index) => ({
+        key: img,
+        signedUrl: signedUrls[index],
+        signedUrlExpires: expiresAt,
+      }));
+    }
+
+    updatedProject = await Project.findByIdAndUpdate(
+      updatedProject._id,
+      payload,
+      {
+        new: true,
+      },
+    );
+  }
+
   res.status(200).json({
     status: 'success',
     data: {
@@ -256,7 +282,7 @@ exports.deleteProject = catchAsync(async (req, res, next) => {
     await s3.send(
       new DeleteObjectCommand({
         Bucket: process.env.S3_NAME,
-        Key: project.imageCover,
+        Key: project.imageCover.key,
       }),
     );
   }
@@ -267,7 +293,7 @@ exports.deleteProject = catchAsync(async (req, res, next) => {
         await s3.send(
           new DeleteObjectCommand({
             Bucket: process.env.S3_NAME,
-            Key: image,
+            Key: image.key,
           }),
         );
       }),
