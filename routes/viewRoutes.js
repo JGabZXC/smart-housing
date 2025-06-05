@@ -29,7 +29,7 @@ router
   );
 
 router
-  .route('/admin')
+  .route('/admin/dashboard')
   .get(
     authController.protect,
     authController.protectTo('admin'),

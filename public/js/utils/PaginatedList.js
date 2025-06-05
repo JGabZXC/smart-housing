@@ -14,7 +14,6 @@ class PaginatedList {
   }
 
   createCard(item) {
-    console.log(item.imageCover)
     const markup = `
       <div class="col">
         <div class="card shadow">
@@ -32,7 +31,7 @@ class PaginatedList {
   }
 
   renderPagination(totalPages, hasNextPage) {
-    const createPageButton = (label, page, isActive = false, disabled = false) => {
+    const createPageButton = (label, page, isActive = false, isDisabled = false) => {
       const li = document.createElement('li');
       li.className = `page-item ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`;
       li.innerHTML = `<a class="page-link">${label}</a>`;
@@ -85,7 +84,7 @@ class PaginatedList {
       const hasNextPage = this.currentPage < totalPages;
 
       if (!items.length) {
-        this.container.innerHTML = `<p class="fs-6 text-slate-400">No ${this.type}s available.</p>`;
+        this.container.innerHTML = `<p class="fs-6 text-slate-400">No ${this.type} available.</p>`;
         return;
       }
 

@@ -1,7 +1,5 @@
 /* eslint-disable */
-
-import { fetchData } from '../utils/http.js';
-import { spinner } from '../utils/spinner.js';
+import PaginatedList from '../utils/PaginatedList.js';
 
 const eventListContainer = document.querySelector('#event-list-container');
 const eventListPagination = document.querySelector('#event-list-pagination');
@@ -123,12 +121,16 @@ async function fetchEvents() {
   return await fetchData(`/api/v1/events?page=${currentPage}&limit=${projectsPerPage}&sort=${type}`);
 }
 
-if(eventListContainer) {
-  renderEvents();
-}
+let eventList = null;
 
-window.changeEventPage = async function (newPage) {
-  if (newPage < 1) return;
-  currentPage = newPage;
-  await renderEvents();
-};
+if(eventListContainer) {
+  if(!eventList) eventList = new PaginatedList({
+    container: eventListContainer,
+    paginationContainer: eventListPagination,
+    endpoint: '/api/v1/events',
+    type: 'events',
+    itemsPerPage: 1
+  })
+
+  eventList.render();
+}

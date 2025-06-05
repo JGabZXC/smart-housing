@@ -652,6 +652,10 @@
     width: 100% !important;
 }
 
+.custom-dashboard-table-height {
+    height: 20rem !important;
+}
+
 @media (min-width: 768px) {
     .pay-dues-container {
         width: 30% !important;

@@ -111,37 +111,8 @@ exports.getLogin = catchAsync(async (req, res, next) => {
 
 // ADMIN
 exports.getAdminDashboard = catchAsync(async (req, res, next) => {
-  const [featuredProject, featuredEvent] = await Promise.all([
-    Project.findOne({ isFeatured: true }),
-    Event.findOne({ isFeatured: true }),
-  ]);
-
-  if (featuredProject?.imageCover) {
-    const getObjectParams = {
-      Bucket: process.env.S3_NAME,
-      Key: featuredProject.imageCover,
-    };
-    const command = new GetObjectCommand(getObjectParams);
-    featuredProject.imageCoverUrl = await getSignedUrl(s3, command, {
-      expiresIn: 3600,
-    });
-  }
-
-  if (featuredEvent?.imageCover) {
-    const getObjectParams = {
-      Bucket: process.env.S3_NAME,
-      Key: featuredEvent.imageCover,
-    };
-    const command = new GetObjectCommand(getObjectParams);
-    featuredEvent.imageCoverUrl = await getSignedUrl(s3, command, {
-      expiresIn: 3600,
-    });
-  }
-
-  res.status(200).render('dashboard', {
+  res.status(200).render('Admin/dashboard', {
     title: 'Dashboard',
-    featuredProject,
-    featuredEvent,
   });
 });
 
@@ -180,8 +151,6 @@ exports.editProjEvePage = catchAsync(async (req, res, next) => {
   if (type !== 'project' && type !== 'event') {
     return next(new AppError('Invalid type specified', 400));
   }
-
-  console.log(data);
 
   if (!data) return next(new AppError('No data was found', 404));
 
