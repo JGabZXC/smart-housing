@@ -14,7 +14,6 @@ router
     authController.protect,
     authController.protectTo('admin'),
     projectController.uploadProjectImages,
-    projectController.uploadS3,
     projectController.createProject,
   );
 
@@ -25,7 +24,6 @@ router
     authController.protect,
     authController.protectTo('admin'),
     projectController.uploadProjectImages,
-    projectController.uploadS3,
     projectController.updateProject,
   )
   .delete(
