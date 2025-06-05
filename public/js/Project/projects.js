@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { fetchData } from '../utils/http.js';
+import { spinner } from '../utils/spinner.js';
 
 const projectListContainer = document.querySelector('#project-list-container');
 const projectListPagination = document.querySelector('#project-list-pagination');
@@ -102,13 +103,18 @@ function renderPagination(totalPages, hasNextPage) {
 }
 
 async function renderProjects() {
-  projectListContainer.innerHTML = '<p class="">Loading images</p>';
+  // projectListContainer.innerHTML = '<p class="">Loading images</p>';
+  spinner(projectListContainer, 'Loading projects')
 
   try {
     const data = await fetchProjects();
     projectListContainer.innerHTML = '';
     projectListPagination.innerHTML = '';
     const hasNextPage = currentPage < data.totalPages;
+    if(data.data.doc.length === 0) {
+      projectListContainer.innerHTML = '<p class="fs-6 text-slate-400">No projects available.</p>';
+      return;
+    }
     data.data.doc.forEach((project) => cardProject(project, projectListContainer));
     if(data.totalPages > 1) renderPagination(data.totalPages, hasNextPage);
   } catch (error) {

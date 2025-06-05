@@ -1,7 +1,6 @@
 <header>
     <div class="container">
         <nav class="navbar navbar-expand-md bg-body py-3">
-            <div class="container">
                 <div class="d-flex align-items-center">
                     <img src="/img/logo_holiday.png" width="60" height="60" />
                 </div>
@@ -11,7 +10,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div id="navcol-3" class="collapse navbar-collapse">
-                    <ul class="navbar-nav mx-auto shadow-md-up bg-white-md rounded-4 py-md-3 px-md-4 d-flex gap-0 gap-md-3">
+                    <ul class="navbar-nav mx-auto shadow-md-up bg-white-md rounded-4 py-md-3 px-md-4 d-flex gap-0 gap-md-3 align-items-center">
                         <li class="nav-item">
                             <a class="nav-link fw-semibold text-slate-900 link transition <%= title === 'Holiday Homes' ? 'active' : '' %>" href="/">Home</a>
                         </li>
@@ -22,20 +21,51 @@
                             <a class="nav-link fw-semibold text-slate-900 link transition <%= title === 'Events' ? 'active' : '' %>" href="/events">Events</a>
                         </li>
                         <% if(locals.user) { %>
-                        <li class="nav-item">
-                            <a class="nav-link fw-semibold text-slate-900 link transition <%= title === user.name ? 'active' : '' %>" href="/me">Me</a>
-                        </li>
-                        <%} %>
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold text-slate-900 link transition <%= title === user.name ? 'active' : '' %>" href="/me">Me</a>
+                            </li>
+                            <% if(locals.user?.role !== 'user') { %>
+                            <li class="nav-item d-flex align-items-center">
+                                 <div class="dropdown mb-2 mb-md-0">
+                                   <button class="btn bg-green-600 text-slate-100 fw-semibold dropdown-toggle px-2 px-lg-4 py-1 py-lg-2" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                       Admin Action
+                                     </button>
+                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li>
+                                           <h6 class="dropdown-header fw-semibold text-slate-400">User Action</h6>
+                                         </li>
+                                         <li>
+                                           <a class="dropdown-item text-slate-600" href="#">Create User</a>
+                                         </li>
+                                         <li>
+                                           <a class="dropdown-item text-slate-600" href="#">Update User</a>
+                                         </li>
+                                         <li>
+                                           <hr class="dropdown-divider text-slate-600">
+                                         </li>
+                                         <li>
+                                             <a class="dropdown-item text-slate-600" href="#">Dashboard</a>
+                                         </li>
+                                         <li>
+                                           <a class="dropdown-item text-slate-600" href="#">House</a>
+                                         </li>
+                                         <li>
+                                           <a class="dropdown-item text-slate-600" href="#">Manual Payment</a>
+                                         </li>
+                                     </ul>
+                                 </div>
+                            </li>
+                            <% } %>
+                        <% } %>
                     </ul>
                 <% if(locals.user) { %>
                     <form id="logout-form">
-                        <button class="btn bg-green-600 text-slate-50 px-4 py-2" id="logout-button">Log out</button>
+                        <button class="btn bg-green-600 text-slate-50 px-2 px-lg-4 py-1 py-lg-2" id="logout-button">Log out</button>
                     </form>
                 <% } else { %>
-                    <a class="btn border text-button-green border-green-600 text-green-600 px-4 py-2" href="/login">Log in</a>
+                    <a class="btn border text-button-green border-green-600 text-green-600 px-2 px-lg-4 py-1 py-lg-2" href="/login">Log in</a>
                 <% } %>
                 </div>
-            </div>
         </nav>
     </div>
 </header>

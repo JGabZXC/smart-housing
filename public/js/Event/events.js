@@ -1,6 +1,7 @@
 /* eslint-disable */
 
 import { fetchData } from '../utils/http.js';
+import { spinner } from '../utils/spinner.js';
 
 const eventListContainer = document.querySelector('#event-list-container');
 const eventListPagination = document.querySelector('#event-list-pagination');
@@ -100,7 +101,7 @@ function renderPagination(totalPages, hasNextPage) {
 }
 
 async function renderEvents() {
-  eventListContainer.innerHTML = '<p class="">Loading images</p>';
+  spinner(eventListContainer, 'Loading events')
 
   try {
     const data = await fetchEvents();
@@ -108,6 +109,10 @@ async function renderEvents() {
     eventListPagination.innerHTML = '';
     const hasNextPage = currentPage < data.totalPages;
     data.data.doc.forEach((event) => cardEvent(event, eventListContainer));
+    if(data.data.doc.length === 0) {
+      eventListContainer.innerHTML = '<p class="fs-6 text-slate-400">No events available.</p>';
+      return;
+    }
     if(data.totalPages > 1) renderPagination(data.totalPages, hasNextPage);
   } catch (error) {
     eventListContainer.innerHTML = '<p class="text-danger">Failed to load events. Please try again later.</p>';
