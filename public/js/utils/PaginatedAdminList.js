@@ -13,13 +13,18 @@ class PaginatedAdminlist extends PaginatedList{
   createCard(item) {
     const markup = `
     <tr class="${item.isFeatured ? 'table-success' : ''}">
-      <td>${item.name}</td>
-      <td>${new Date(item.date).toLocaleString('en-PH', {
+      <td class="text-slate-800" style="vertical-align: middle">${item.name}</td>
+      <td class="text-slate-800" style="vertical-align: middle;">${new Date(item.date).toLocaleString('en-PH', {
         month: 'long',
         day: 'numeric',
         year: 'numeric',
-      })}</td>
-      <td>View, Edit, Delete</td>
+      })}
+      </td>
+      <td>
+        <a class="btn text-slate-800" href="/${this.type}/${item.slug}"><i class="bi bi-eye"></i></a>
+        <a class="btn border-0 text-slate-800" href="/${this.type}/${item.slug}/edit?type=${this.type}"><i class="bi bi-pencil-square"></i></a>
+        <button type="button" data-id="${item._id}" data-title="${item.name}" data-bs-toggle="modal" data-bs-target="#modalDeleteDashboard" class="btn border-0 text-slate-800"><i class="bi bi-trash"></i></button>
+      </td>
     </tr>
     `;
     this.container.innerHTML += markup;

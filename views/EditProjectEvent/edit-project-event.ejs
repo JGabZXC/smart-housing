@@ -1,0 +1,38 @@
+<%
+    let formattedDate = null;
+    let formattedTime = null;
+    if(data?.date) {
+         formattedDate = new Date(data.date).toISOString().split("T")[0];
+         formattedTime = new Date(data.date).toISOString().split("T")[1];
+    }
+%>
+<section id="editProjEve" data-slug="<%= data.slug %>" data-id="<%= data._id %>" data-place="<%= data?.place %>" data-time="<%= formattedTime %>" data-type="<%= type %>" class="container mt-4 mt-xl-5">
+    <form id="formEditProjEve" class="d-flex flex-column gap-4">
+        <input class="form-control" type="text" name="title" value="<%= data.name %>"  required/>
+        <input class="form-control" type="date" name="date" value="<%= formattedDate %>"  required/>
+        <div>
+            <label class="form-label">Summary</label>
+            <textarea class="form-control resize-none" name="summary" rows="2" required><%= data.richDescription %></textarea>
+        </div>
+        <div>
+            <label class="form-label">Description</label>
+            <textarea class="form-control resize-none" name="description" rows="10" required><%= data.description %></textarea>
+        </div>
+        <div>
+            <label class="form-label">Image Cover</label>
+            <input class="form-control" type="file" name="imageCover" />
+        </div>
+        <div>
+            <label class="form-label">Images</label>
+            <input class="form-control mb-1" type="file" name="images" multiple />
+            <p class="text-yellow-600 fs-6 m-0">Images you upload will be replaced!</p>
+        </div>
+        <div>
+          <input class="form-check-input" type="checkbox" value="" id="featured" name="featured">
+          <label class="form-check-label" for="featured">
+            Featured
+          </label>
+        </div>
+        <button id="editProjEveButton" class="btn btn-primary" type="submit">Update</button>
+    </form>
+</section>

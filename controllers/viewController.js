@@ -145,16 +145,16 @@ exports.editProjEvePage = catchAsync(async (req, res, next) => {
   const project = req.params.slug;
   let data = '';
 
-  if (type === 'project') data = await Project.findOne({ slug: project });
-  if (type === 'event') data = await Event.findOne({ slug: project });
+  if (type === 'projects') data = await Project.findOne({ slug: project });
+  if (type === 'events') data = await Event.findOne({ slug: project });
 
-  if (type !== 'project' && type !== 'event') {
+  if (type !== 'projects' && type !== 'events') {
     return next(new AppError('Invalid type specified', 400));
   }
 
   if (!data) return next(new AppError('No data was found', 404));
 
-  res.status(200).render('edit_proj_eve', {
+  res.status(200).render('EditProjectEvent/edit-project-event', {
     title: data.name,
     data,
     type,
