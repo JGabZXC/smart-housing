@@ -8,7 +8,9 @@
   <% const year = project.date && new Date(project.date).getFullYear(); %>
   <% const finalDate = `${month} ${year}` %>
   <h1><%= project.name %><%= year ? ` [${finalDate}]` : null %></h1>
+    <% if(project.imageCover?.signedUrl) {%>
     <img class="object-fit-cover landscape-image" src="<%= project.imageCover.signedUrl %>" alt="<%= project.name %>" />
+    <% } %>
 </section>
 <section class="py-2">
   <p><span class="text-break" style="color: rgb(0, 0, 0);"><%= project.richDescription %></span></p>

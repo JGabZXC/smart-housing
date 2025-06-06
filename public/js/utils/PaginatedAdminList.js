@@ -41,6 +41,12 @@ class PaginatedAdminlist extends PaginatedList{
       const totalPages = data.totalPages;
       const hasNextPage = this.currentPage < totalPages;
 
+      // For single data
+      if(items._id) {
+        this.createCard(items);
+        return;
+      }
+
       if (!items.length) {
         this.container.innerHTML = `<p class="fs-6 text-slate-400">No ${this.type} available.</p>`;
         return;
