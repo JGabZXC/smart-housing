@@ -128,8 +128,9 @@ exports.createProject = catchAsync(async (req, res, next) => {
   });
 });
 exports.updateProject = catchAsync(async (req, res, next) => {
-  const { name, richDescription, description, isFeatured, date } = req.body;
+  const { name, richDescription, description, date } = req.body;
   const project = await Project.findById(req.params.id);
+  if(req.body.isFeatured === 'false') req.body.isFeatured = undefined;
   if (!project) return next(new AppError('No project found with that ID', 404));
 
   if (
@@ -149,7 +150,7 @@ exports.updateProject = catchAsync(async (req, res, next) => {
       name,
       richDescription,
       description,
-      isFeatured,
+      isFeatured: req.body.isFeatured,
       date,
       imageCover: payload?.imageCover,
       images: payload?.images,

@@ -55,17 +55,6 @@ exports.getProject = catchAsync(async (req, res, next) => {
 exports.getAllEvent = catchAsync(async (req, res, next) => {
   const featuredEvent = await Event.findOne({ isFeatured: true });
 
-  if (featuredEvent?.imageCover) {
-    const objectParams = {
-      Bucket: process.env.S3_NAME,
-      Key: featuredEvent.imageCover,
-    };
-    const command = new GetObjectCommand(objectParams);
-    featuredEvent.imageCoverUrl = await getSignedUrl(s3, command, {
-      expiresIn: 3600,
-    });
-  }
-
   res.status(200).render('Event/events', {
     title: 'Events',
     featuredEvent,
