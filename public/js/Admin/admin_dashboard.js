@@ -2,16 +2,24 @@
 import PaginatedAdminList  from "../utils/PaginatedAdminList.js"
 import { showAlert } from '../utils/alerts.js';
 import { buttonSpinner } from '../utils/spinner.js';
+import { postData } from '../utils/http.js';
+import { searchSlug } from '../utils/modalHandlers.js';
 
-const adminProjectCreateButton = document.querySelector('#admin-project-create-button');
+const adminProjectSection = document.querySelector('#admin-project-section');
 const adminProjectTableBody = document.querySelector('#admin-project-table-body');
 const adminProjectPagination = document.querySelector('#admin-project-pagination');
-const adminProjectSearchButton = document.querySelector('#admin-project-search-button')
 const sortProject = document.querySelector('#sort-project');
 const showProject = document.querySelector('#show-project');
 
-const searchProjectForm = document.querySelector('#search-project-form');
-const projectSearchInput = document.querySelector('#search-project-input');
+const adminProjectSearchForm = document.querySelector('#admin-project-search-form');
+const adminProjectSearchButton = document.querySelector('#admin-project-search-button');
+
+const adminEventSection = document.querySelector('#admin-event-section');
+const adminEventTableBody = document.querySelector('#admin-event-table-body');
+const adminEventPagination = document.querySelector('#admin-event-pagination');
+const sortEvent = document.querySelector('#sort-event');
+const showEvent = document.querySelector('#show-event');
+
 const createDashboardForm = document.querySelector('#createDashboardForm');
 const modalDashboard = document.querySelector('#modalDashboard');
 const saveBtnDashboard = document.querySelector('#saveBtnDashboard');
@@ -20,13 +28,34 @@ const modalDeleteDashboard = document.querySelector('#modalDeleteDashboard');
 const deleteBtnDashboard = document.querySelector('#deleteBtnDashboard');
 const titleEl = document.querySelector('#title');
 
-let adminProjectList = null;
+let adminProjectList, adminEventList = null;
 let existingModal, existingModalDelete;
 if(modalDashboard) existingModal = new bootstrap.Modal(modalDashboard);
 if(modalDeleteDashboard) existingModalDelete = new bootstrap.Modal(modalDeleteDashboard);
 
+function handleProjectSearch(event) {
+  searchSlug(
+    adminProjectList,
+    adminProjectSearchButton,
+    'admin-search-project',
+    'projects',
+    'project',
+    event
+  )
+}
 
-if(adminProjectTableBody) {
+function handleEventSearch(event) {
+  searchSlug(
+    adminEventtList,
+    adminEventSearchButton,
+    'admin-event-project',
+    'events',
+    'event',
+    event
+  )
+}
+
+if(adminProjectSection) {
   let id = '';
   if (!adminProjectList) {
     adminProjectList = new PaginatedAdminList({
@@ -79,130 +108,73 @@ if(adminProjectTableBody) {
       adminProjectList.currentPage = 1; // Reset to first page on items per page change
       adminProjectList.render();
     });
+
+    createDashboardForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const { imageCover, images } = Object.fromEntries(formData.entries());
+      if (imageCover && imageCover.length > 0) {
+        formData.append(`imageCover`, imageCover[0]);
+      }
+      if (images && images.length > 0) {
+        for (let i = 0; i < images.length; i++) {
+          formData.append(`images`, images[i]);
+        }
+      }
+
+      try {
+        buttonSpinner(saveBtnDashboard, 'Create', 'Creating...');
+        const response = await postData(`/api/v1/projects`, formData);
+
+        if(response.status === 'success') {
+          showAlert('success', 'Project created successfully!');
+          existingModal.hide();
+          buttonSpinner(saveBtnDashboard, 'Create', 'Creating...');
+          await adminProjectList.render();
+        }
+      } catch(err) {
+        showAlert('error', err.response.data?.message || 'An error occurred while creating the project.');
+      } finally {
+        buttonSpinner(saveBtnDashboard, 'Create', 'Creating...')
+      }
+    });
+
+    adminProjectSearchForm.addEventListener('submit', handleProjectSearch);
   }
 
   adminProjectList.render();
 }
 
-async function submitProjectForm(e) {
-  e.preventDefault();
-
-  const name = document.querySelector('#name').value;
-  const date = document.querySelector('#date').value;
-  const summary = document.querySelector('#richDescription').value;
-  const description = document.querySelector('#description').value;
-  const imageCover = document.querySelector('#imageCover').files;
-  const images = document.querySelector('#images').files;
-
-  const formData = new FormData();
-  formData.append('name', name);
-  formData.append('date', date);
-  formData.append('richDescription', summary);
-  formData.append('description', description);
-  if (imageCover && imageCover.length > 0) {
-    formData.append(`imageCover`, imageCover[0]);
-  }
-  if (images && images.length > 0) {
-    for (let i = 0; i < images.length; i++) {
-      formData.append(`images`, images[i]);
-    }
-  }
-
-  try {
-    saveBtnDashboard.disabled = true;
-    saveBtnDashboard.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
-    const res = await axios({
-      method: 'POST',
-      url: '/api/v1/projects',
-      data: formData,
+if(adminEventSection) {
+  if (!adminEventList) {
+    adminEventList = new PaginatedAdminList({
+      container: adminEventTableBody,
+      paginationContainer: adminEventPagination,
+      endpoint: '/api/v1/events',
+      type: 'events',
+      itemsPerPage: 5,
     });
-    const data = res.data;
 
-    if (data.status === 'success') showAlert('success', 'Project created successfully!');
+    sortEvent.addEventListener('change', (e) => {
+      adminEventList.sort = e.target.value;
+      adminEventList.currentPage = 1; // Reset to first page on sort change
+      adminEventList.render();
+    });
 
-    existingModal.hide();
-    saveBtnDashboard.disabled = false;
-    saveBtnDashboard.innerHTML = 'Create';
-    await adminProjectList.render();
-  } catch (err) {
-    showAlert('error', err.response.data.message);
-    saveBtnDashboard.disabled = false;
-    saveBtnDashboard.innerHTML = 'Create';
-    console.log(err);
+    showEvent.addEventListener('change', (e) => {
+      adminEventList.itemsPerPage = parseInt(e.target.value, 10);
+      adminEventList.currentPage = 1; // Reset to first page on items per page change
+      adminEventList.render();
+    });
   }
+
+  adminEventList.render();
 }
 
-if(searchProjectForm) {
-  searchProjectForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    if(!projectSearchInput.value) {
-      await adminProjectList.render();
-      return;
-    }
-
-    try {
-      buttonSpinner(adminProjectSearchButton, 'Search Project', 'Searching')
-      const res = await axios({
-        method: 'POST',
-        url: `/api/v1/getIds`,
-        data: {
-          type: 'project',
-          object: {
-            slug: projectSearchInput.value
-          },
-          message: 'No project found with that slug'
-        }
-      })
-      const { _id } = res.data.data.doc[0];
-      if (!_id) {
-        showAlert('error', 'No project found with that slug');
-        return;
-      }
-
-      const newProjectList = new PaginatedAdminList({
-        container: adminProjectTableBody,
-        paginationContainer: adminProjectPagination,
-        endpoint: `/api/v1/projects/${_id}`,
-        type: 'projects',
-        itemsPerPage: 5,
-      })
-
-      newProjectList.render();
-    } catch (err) {
-      showAlert('error', err.response.data.message);
-    } finally {
-      buttonSpinner(adminProjectSearchButton, 'Search Project', 'Searching')
-    }
-  })
-}
-
-if(adminProjectCreateButton) {
-  adminProjectCreateButton.addEventListener('click', () => {
-    console.log("clicked");
-    modalDashboard.classList.add('add-project-modal');
-
-    modalDashboard.addEventListener('submit', submitProjectForm);
-  });
-}
-
-if(modalDashboard) {
+if (modalDashboard) {
   modalDashboard.addEventListener('hidden.bs.modal', () => {
-    // remove existing event listener on form
-    modalDashboard.removeEventListener('submit', submitProjectForm);
-
-    const place = document.querySelector('#place');
-    const time = document.querySelector('#time');
-
-    if(place) {
-      place.parentElement.remove();
-      time.parentElement.remove();
-    }
-
-    if (modalDashboard.classList.contains('add-project-modal') || modalDashboard.classList.contains('add-event-modal')) {
-      modalDashboard.classList.remove('add-project-modal');
-      modalDashboard.classList.remove('add-event-modal');
-    }
-    createDashboardForm.reset();
+    modalDashboard.removeEventListener('submit', handleProjectSearch);
+    modalDashboard.removeEventListener('submit', handleEventSearch);
   });
 }

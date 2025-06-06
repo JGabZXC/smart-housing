@@ -14,7 +14,6 @@ router
     authController.protect,
     authController.protectTo('admin'),
     eventController.uploadEventImages,
-    eventController.uploadS3,
     eventController.createEvent,
   );
 
@@ -25,7 +24,6 @@ router
     authController.protect,
     authController.protectTo('admin'),
     eventController.uploadEventImages,
-    eventController.uploadS3,
     eventController.updateEvent,
   )
   .delete(

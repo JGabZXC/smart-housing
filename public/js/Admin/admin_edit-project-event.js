@@ -11,7 +11,7 @@ const editProjEveButton = document.getElementById('editProjEveButton');
 if (editProjEve) {
   const { type } = editProjEve.dataset;
 
-  if(type === "event") {
+  if(type === "events") {
     const place = editProjEve.dataset.place;
     const time = editProjEve.dataset.time;
     const date = new Date(`1970-01-01T${time}`);
@@ -58,7 +58,7 @@ if (editProjEve) {
 
     let slug =  editProjEve.dataset.slug;
 
-    if(type === 'event') {
+    if(type === 'events') {
       finalDate = `${formData.get('date')}T${formData.get('time')}`
       finalFormData.append('place', formData.get('place'));
       url = `/api/v1/events/${editProjEve.dataset.id}`;

@@ -62,11 +62,11 @@
     </div>
 </div>
 
-<section class="container mt-4 mt-xl-5">
-    <h2 class="fs-6">All Projects</h2>
+<section id="admin-project-section" class="container mt-4 mt-xl-5">
+    <h2 class="fs-6 fw-semibold">All Projects</h2>
     <div class="d-flex flex-column justify-content-between align-items-center flex-lg-row w-100 gap-2 gap-md-4">
-        <form id="search-project-form" class="d-flex align-items-center w-100 gap-4">
-            <input id="search-project-input" class="form-control text-slate-600 rounded-3 border-slate-400 py-1 px-2 w-50" type="search" placeholder="project-slug" />
+        <form id="admin-project-search-form" class="d-flex align-items-center w-100 gap-4">
+            <input class="form-control text-slate-600 rounded-3 border-slate-400 py-1 px-2 w-50" type="search" name="admin-search-project" placeholder="project-slug" />
             <button id="admin-project-search-button" class="btn bg-green-800 text-slate-100 rounded-3" type="submit">Search Project</button>
         </form>
         <div class="d-flex flex-column justify-content-lg-end flex-md-row gap-2 w-100 gap-md-4">
@@ -106,6 +106,65 @@
         </div>
         <nav>
             <ul id="admin-project-pagination" class="pagination">
+                <li class="page-item">
+                    <a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">1</a></li>
+                <li class="page-item">
+                    <a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</section>
+
+<section id="admin-event-section" class="container mt-4 mt-xl-5">
+    <h2 class="fs-6 fw-semibold">All Events</h2>
+    <div class="d-flex flex-column justify-content-between align-items-center flex-lg-row w-100 gap-2 gap-md-4">
+        <form id="admin-event-search-form" class="d-flex align-items-center w-100 gap-4">
+            <input class="form-control text-slate-600 rounded-3 border-slate-400 py-1 px-2 w-50" type="search" name="admin-search-event" placeholder="event-slug" />
+            <button id="admin-event-search-button" class="btn bg-green-800 text-slate-100 rounded-3" type="submit">Search Event</button>
+        </form>
+        <div class="d-flex flex-column justify-content-lg-end flex-md-row gap-2 w-100 gap-md-4">
+            <label class="form-label d-flex gap-2 m-0" for="sort-event">Sort by:
+                <select id="sort-event" class="rounded-2 border-slate-400">
+                    <option value="_id">Id</option>
+                    <option value="name">Name</option>
+                </select>
+            </label>
+            <label class="form-label d-flex gap-2 m-0" for="show-event">Show Item:<select id="show-event" class="rounded-2 border-slate-400">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </label>
+        </div>
+    </div>
+    <div class="border-1 border-slate-700 rounded-3 mt-3 border p-2">
+        <button id="admin-event-create-button" class="btn bg-green-800 text-slate-100 rounded-3" type="button" data-bs-target="#modalDashboard" data-bs-toggle="modal" >Create Event</button>
+        <div class="table-responsive custom-dashboard-table-height mt-1">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="month-range-width">Title</th>
+                        <th class="month-range-width">Date</th>
+                        <th class="month-range-width">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-event-table-body">
+                    <tr>
+                        <td class="bg-succcess">Vaccine Village</td>
+                        <td>January 25, 2025</td>
+                        <td>View, Edit, Delete</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav>
+            <ul id="admin-event-pagination" class="pagination">
                 <li class="page-item">
                     <a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span>
                     </a>
