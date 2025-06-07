@@ -22,8 +22,6 @@ export const searchSlug = async (paginatedAdminList, searchBtn, inputName, resou
       message: `No ${resourceLabel} found with that slug`,
     });
 
-    console.log(checkSlug)
-
     const { _id } = checkSlug.data?.doc[0];
     if (!_id) {
       showAlert('error', `No ${resourceLabel} found with that slug`);

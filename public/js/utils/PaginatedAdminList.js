@@ -31,7 +31,7 @@ class PaginatedAdminlist extends PaginatedList{
   }
 
   async render() {
-    spinner(this.container, `Loading ${this.type}...`);
+    spinner(this.container);
     try {
       const data = await fetchData(`${this.endpoint}?page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}`);
       this.container.innerHTML = '';
