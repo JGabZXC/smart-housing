@@ -6664,9 +6664,9 @@ function buttonSpinner(target, defaultText, loadingText) {
   button.disabled = true;
   button.innerHTML = "<span class=\"spinner-border spinner-border-sm\" role=\"status\" aria-hidden=\"true\"></span> ".concat(loadingText, "...");
 }
-function spinner(target, loadingText) {
+function spinner(target) {
   var element = target;
-  element.innerHTML = "<p class=\"text-slate-600\"><span class=\"spinner-border spinner-border-sm text-slate-900\" role=\"status\" aria-hidden=\"true\"></span> ".concat(loadingText, "...</p>");
+  element.innerHTML = "<span class=\"spinner-border spinner-border-sm\" role=\"status\" aria-hidden=\"true\"></span>";
 }
 },{}],"../../node_modules/axios/lib/helpers/bind.js":[function(require,module,exports) {
 'use strict';
@@ -12604,7 +12604,7 @@ exports.Axios = Axios;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.fetchData = void 0;
+exports.postData = exports.fetchData = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -12641,6 +12641,35 @@ var fetchData = exports.fetchData = /*#__PURE__*/function () {
   }));
   return function fetchData(_x) {
     return _ref.apply(this, arguments);
+  };
+}();
+var postData = exports.postData = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(url) {
+    var params,
+      response,
+      _args2 = arguments;
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) switch (_context2.prev = _context2.next) {
+        case 0:
+          params = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
+          _context2.prev = 1;
+          _context2.next = 4;
+          return _axios.default.post(url, params);
+        case 4:
+          response = _context2.sent;
+          return _context2.abrupt("return", response.data);
+        case 8:
+          _context2.prev = 8;
+          _context2.t0 = _context2["catch"](1);
+          throw _context2.t0;
+        case 11:
+        case "end":
+          return _context2.stop();
+      }
+    }, _callee2, null, [[1, 8]]);
+  }));
+  return function postData(_x2) {
+    return _ref2.apply(this, arguments);
   };
 }();
 },{"axios":"../../node_modules/axios/index.js"}],"utils/PaginatedList.js":[function(require,module,exports) {
@@ -12736,7 +12765,7 @@ var PaginatedList = /*#__PURE__*/function () {
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              (0, _spinner.spinner)(this.container, "Loading ".concat(this.type, "..."));
+              (0, _spinner.spinner)(this.container);
               _context.prev = 1;
               _context.next = 4;
               return (0, _http.fetchData)("".concat(this.endpoint, "?page=").concat(this.currentPage, "&limit=").concat(this.itemsPerPage));
@@ -12883,7 +12912,7 @@ var PaginatedAdminlist = /*#__PURE__*/function (_PaginatedList) {
         month: 'long',
         day: 'numeric',
         year: 'numeric'
-      }), "\n      </td>\n      <td>\n        <a class=\"btn text-slate-800\" href=\"/").concat(this.type, "/").concat(item.slug, "\"><i class=\"bi bi-eye\"></i></a>\n        <a class=\"btn border-0 text-slate-800\" href=\"/").concat(this.type, "/").concat(item.slug, "/edit?type=").concat(this.type, "\"><i class=\"bi bi-pencil-square\"></i></a>\n        <button type=\"button\" data-id=\"").concat(item._id, "\" data-title=\"").concat(item.name, "\" data-bs-toggle=\"modal\" data-bs-target=\"#modalDeleteDashboard\" class=\"btn border-0 text-slate-800\"><i class=\"bi bi-trash\"></i></button>\n      </td>\n    </tr>\n    ");
+      }), "\n      </td>\n      <td>\n        <a class=\"btn text-slate-800\" href=\"/").concat(this.type, "/").concat(item.slug, "\"><i class=\"bi bi-eye\"></i></a>\n        <a class=\"btn border-0 text-slate-800\" href=\"/").concat(this.type, "/").concat(item.slug, "/edit?type=").concat(this.type, "\"><i class=\"bi bi-pencil-square\"></i></a>\n        <button type=\"button\" data-id=\"").concat(item._id, "\" data-type=\"").concat(this.type, "\" data-title=\"").concat(item.name, "\" data-bs-toggle=\"modal\" data-bs-target=\"#modalDeleteDashboard\" class=\"btn border-0 text-slate-800\"><i class=\"bi bi-trash\"></i></button>\n      </td>\n    </tr>\n    ");
       this.container.innerHTML += markup;
     }
   }, {
@@ -12895,7 +12924,7 @@ var PaginatedAdminlist = /*#__PURE__*/function (_PaginatedList) {
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              (0, _spinner.spinner)(this.container, "Loading ".concat(this.type, "..."));
+              (0, _spinner.spinner)(this.container);
               _context.prev = 1;
               _context.next = 4;
               return (0, _http.fetchData)("".concat(this.endpoint, "?page=").concat(this.currentPage, "&limit=").concat(this.itemsPerPage, "&sort=").concat(this.sort));
@@ -12972,272 +13001,370 @@ var showAlert = exports.showAlert = function showAlert(type, msg) {
   document.querySelector('body').insertAdjacentHTML('afterbegin', markup);
   window.setTimeout(hideAlert, time * 1000);
 };
-},{}],"Admin/admin_dashboard.js":[function(require,module,exports) {
+},{}],"utils/modalHandlers.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.searchSlug = void 0;
+var _spinner = require("./spinner.js");
+var _http = require("./http.js");
+var _alerts = require("./alerts.js");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } /* eslint-disable */
+var searchSlug = exports.searchSlug = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(paginatedAdminList, searchBtn, inputName, resourceType, resourceLabel, e) {
+    var formData, searchInput, _checkSlug$data, checkSlug, _checkSlug$data$doc$, _id, _err$response;
+    return _regeneratorRuntime().wrap(function _callee$(_context) {
+      while (1) switch (_context.prev = _context.next) {
+        case 0:
+          e.preventDefault();
+          formData = new FormData(e.target);
+          if (formData.get(inputName)) {
+            _context.next = 6;
+            break;
+          }
+          _context.next = 5;
+          return paginatedAdminList.render();
+        case 5:
+          return _context.abrupt("return");
+        case 6:
+          searchInput = formData.get(inputName).toLowerCase().trim();
+          _context.prev = 7;
+          (0, _spinner.buttonSpinner)(searchBtn, "Search ".concat(resourceLabel), 'Searching...');
+          _context.next = 11;
+          return (0, _http.postData)("/api/v1/getIds", {
+            type: resourceType,
+            object: {
+              slug: searchInput
+            },
+            message: "No ".concat(resourceLabel, " found with that slug")
+          });
+        case 11:
+          checkSlug = _context.sent;
+          _checkSlug$data$doc$ = (_checkSlug$data = checkSlug.data) === null || _checkSlug$data === void 0 ? void 0 : _checkSlug$data.doc[0], _id = _checkSlug$data$doc$._id;
+          if (_id) {
+            _context.next = 16;
+            break;
+          }
+          (0, _alerts.showAlert)('error', "No ".concat(resourceLabel, " found with that slug"));
+          return _context.abrupt("return");
+        case 16:
+          paginatedAdminList.currentPage = 1;
+          paginatedAdminList.endpoint = "/api/v1/".concat(resourceType, "/").concat(_id);
+          _context.next = 20;
+          return paginatedAdminList.render();
+        case 20:
+          paginatedAdminList.endpoint = "/api/v1/".concat(resourceType); // Reset endpoint after search
+          _context.next = 27;
+          break;
+        case 23:
+          _context.prev = 23;
+          _context.t0 = _context["catch"](7);
+          console.log(_context.t0);
+          (0, _alerts.showAlert)('error', ((_err$response = _context.t0.response) === null || _err$response === void 0 ? void 0 : _err$response.data.message) || "An error occurred while searching for the ".concat(resourceLabel, "."));
+        case 27:
+          _context.prev = 27;
+          (0, _spinner.buttonSpinner)(searchBtn, "Search ".concat(resourceLabel), 'Searching...');
+          return _context.finish(27);
+        case 30:
+        case "end":
+          return _context.stop();
+      }
+    }, _callee, null, [[7, 23, 27, 30]]);
+  }));
+  return function searchSlug(_x, _x2, _x3, _x4, _x5, _x6) {
+    return _ref.apply(this, arguments);
+  };
+}();
+},{"./spinner.js":"utils/spinner.js","./http.js":"utils/http.js","./alerts.js":"utils/alerts.js"}],"Admin/admin_dashboard.js":[function(require,module,exports) {
 "use strict";
 
 var _axios = _interopRequireDefault(require("axios"));
 var _PaginatedAdminList = _interopRequireDefault(require("../utils/PaginatedAdminList.js"));
 var _alerts = require("../utils/alerts.js");
 var _spinner = require("../utils/spinner.js");
+var _http = require("../utils/http.js");
+var _modalHandlers = require("../utils/modalHandlers.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } /* eslint-disable */
-var adminProjectCreateButton = document.querySelector('#admin-project-create-button');
-var adminProjectTableBody = document.querySelector('#admin-project-table-body');
-var adminProjectPagination = document.querySelector('#admin-project-pagination');
-var adminProjectSearchButton = document.querySelector('#admin-project-search-button');
-var sortProject = document.querySelector('#sort-project');
-var showProject = document.querySelector('#show-project');
-var searchProjectForm = document.querySelector('#search-project-form');
-var projectSearchInput = document.querySelector('#search-project-input');
-var createDashboardForm = document.querySelector('#createDashboardForm');
-var modalDashboard = document.querySelector('#modalDashboard');
-var saveBtnDashboard = document.querySelector('#saveBtnDashboard');
-var modalDeleteDashboard = document.querySelector('#modalDeleteDashboard');
-var deleteBtnDashboard = document.querySelector('#deleteBtnDashboard');
-var titleEl = document.querySelector('#title');
-var adminProjectList = null;
-var existingModal, existingModalDelete;
-if (modalDashboard) existingModal = new bootstrap.Modal(modalDashboard);
-if (modalDeleteDashboard) existingModalDelete = new bootstrap.Modal(modalDeleteDashboard);
-if (adminProjectTableBody) {
-  var id = '';
-  if (!adminProjectList) {
-    adminProjectList = new _PaginatedAdminList.default({
-      container: adminProjectTableBody,
-      paginationContainer: adminProjectPagination,
-      endpoint: '/api/v1/projects',
-      type: 'projects',
+var selectors = {
+  adminSection: '#admin-dashboard-section',
+  project: {
+    section: '#admin-project-section',
+    createButton: '#admin-project-create-button',
+    tableBody: '#admin-project-table-body',
+    pagination: '#admin-project-pagination',
+    sort: '#sort-project',
+    show: '#show-project',
+    searchForm: '#admin-project-search-form',
+    searchButton: '#admin-project-search-button',
+    endpoint: '/api/v1/projects',
+    type: 'projects'
+  },
+  event: {
+    section: '#admin-event-section',
+    createButton: '#admin-event-create-button',
+    tableBody: '#admin-event-table-body',
+    pagination: '#admin-event-pagination',
+    sort: '#sort-event',
+    show: '#show-event',
+    searchForm: '#admin-event-search-form',
+    searchButton: '#admin-event-search-button',
+    endpoint: '/api/v1/events',
+    type: 'events'
+  },
+  modal: {
+    createModal: '#modalDashboard',
+    createBtn: '#saveBtnDashboard',
+    createForm: '#createDashboardForm',
+    deleteModal: '#modalDeleteDashboard',
+    deleteBtn: '#deleteBtnDashboard',
+    deleteForm: '#deleteDashboardForm',
+    title: '#title'
+  }
+};
+var projectList, eventList;
+var existingModalDelete, existingModalCreate;
+if (document.querySelector(selectors.modal.deleteModal)) existingModalDelete = new bootstrap.Modal(document.querySelector(selectors.modal.deleteModal));
+if (document.querySelector(selectors.modal.createModal)) existingModalCreate = new bootstrap.Modal(document.querySelector(selectors.modal.createModal));
+function addEventFields() {
+  if (!createDashboardForm.querySelector('#place')) {
+    var placeDiv = document.createElement('div');
+    placeDiv.className = 'mb-3';
+    placeDiv.id = 'place-field';
+    placeDiv.innerHTML = "\n      <label for=\"place\" class=\"form-label\">Place</label>\n      <input type=\"text\" class=\"form-control\" id=\"place\" name=\"place\" required />\n    ";
+    createDashboardForm.querySelector('.modal-body').insertBefore(placeDiv, createDashboardForm.querySelector('.modal-body').children[2] // Insert after Date
+    );
+  }
+  if (!createDashboardForm.querySelector('#time')) {
+    var timeDiv = document.createElement('div');
+    timeDiv.className = 'mb-3';
+    timeDiv.id = 'time-field';
+    timeDiv.innerHTML = "\n      <label for=\"time\" class=\"form-label\">Time</label>\n      <input type=\"time\" class=\"form-control\" id=\"time\" name=\"time\" required />\n    ";
+    createDashboardForm.querySelector('.modal-body').insertBefore(timeDiv, createDashboardForm.querySelector('.modal-body').children[3] // After Place
+    );
+  }
+}
+function removeEventFields() {
+  var placeDiv = createDashboardForm.querySelector('#place-field');
+  var timeDiv = createDashboardForm.querySelector('#time-field');
+  if (placeDiv) placeDiv.remove();
+  if (timeDiv) timeDiv.remove();
+}
+function setupSortHandler(sortElement, listInstance) {
+  sortElement.addEventListener('change', function (e) {
+    listInstance.sort = e.target.value;
+    listInstance.currentPage = 1; // Reset to first page on sort change
+    listInstance.render();
+  });
+}
+function setupShowHandler(showElement, listInstance) {
+  showElement.addEventListener('change', function (e) {
+    listInstance.itemsPerPage = e.target.value;
+    listInstance.currentPage = 1;
+    listInstance.render();
+  });
+}
+function setupDeleteListener(tableBodySelector) {
+  document.querySelector(tableBodySelector).addEventListener('click', function (e) {
+    var button = e.target.closest('button');
+    if (!button) return;
+
+    // Destructure data attributes
+    var _button$dataset = button.dataset,
+      id = _button$dataset.id,
+      title = _button$dataset.title,
+      type = _button$dataset.type;
+
+    // Store values in form dataset
+    document.querySelector(selectors.modal.deleteForm).dataset.id = id;
+    document.querySelector(selectors.modal.deleteForm).dataset.type = type;
+
+    // Display title in modal
+    document.querySelector(selectors.modal.title).textContent = title;
+  });
+}
+function setupCreateButtonListener(createButtonSelector) {
+  document.querySelector(createButtonSelector).addEventListener('click', function () {
+    var type = document.querySelector(createButtonSelector).dataset.type;
+    document.querySelector(selectors.modal.createForm).dataset.type = type;
+    if (type === 'events') {
+      addEventFields();
+    } else {
+      removeEventFields();
+    }
+  });
+}
+if (document.querySelector(selectors.project.section) || document.querySelector(selectors.event.section)) {
+  if (!projectList || !eventList) {
+    projectList = new _PaginatedAdminList.default({
+      container: document.querySelector(selectors.project.tableBody),
+      paginationContainer: document.querySelector(selectors.project.pagination),
+      endpoint: selectors.project.endpoint,
+      type: selectors.project.type,
       itemsPerPage: 5
     });
-    adminProjectTableBody.addEventListener('click', function (e) {
-      var button = e.target.closest('button');
-      if (!button) return;
-      var _button$dataset = button.dataset,
-        data_id = _button$dataset.id,
-        data_title = _button$dataset.title;
-      id = data_id;
-      titleEl.innerText = data_title;
+    eventList = new _PaginatedAdminList.default({
+      container: document.querySelector(selectors.event.tableBody),
+      paginationContainer: document.querySelector(selectors.event.pagination),
+      endpoint: selectors.event.endpoint,
+      type: selectors.event.type,
+      itemsPerPage: 5
     });
-    modalDeleteDashboard.addEventListener('submit', /*#__PURE__*/function () {
+    setupDeleteListener(selectors.project.tableBody);
+    setupDeleteListener(selectors.event.tableBody);
+    document.querySelector(selectors.modal.deleteForm).addEventListener('submit', /*#__PURE__*/function () {
       var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
-        var res;
+        var _document$querySelect, id, type, res, _err$response;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               e.preventDefault();
-              _context.prev = 1;
-              (0, _spinner.buttonSpinner)(deleteBtnDashboard, 'Confirm', 'Deleting...');
-              _context.next = 5;
-              return (0, _axios.default)({
-                method: 'DELETE',
-                url: "/api/v1/projects/".concat(id)
-              });
-            case 5:
+              _document$querySelect = document.querySelector(selectors.modal.deleteForm).dataset, id = _document$querySelect.id, type = _document$querySelect.type;
+              console.log(id, type);
+              _context.prev = 3;
+              (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting...');
+              _context.next = 7;
+              return _axios.default.delete("/api/v1/".concat(type, "/").concat(id));
+            case 7:
               res = _context.sent;
               if (!(res.status === 204)) {
-                _context.next = 10;
+                _context.next = 18;
                 break;
               }
-              (0, _alerts.showAlert)('success', 'Project deleted successfully!');
-              _context.next = 10;
-              return adminProjectList.render();
-            case 10:
-              existingModalDelete.hide();
-              (0, _spinner.buttonSpinner)(deleteBtnDashboard, 'Confirm', 'Deleting...');
-              _context.next = 19;
+              (0, _alerts.showAlert)('success', "".concat(type.charAt(0).toUpperCase() + type.slice(1), " deleted successfully!"));
+
+              // Render appropriate list
+              if (!(type === 'projects')) {
+                _context.next = 15;
+                break;
+              }
+              _context.next = 13;
+              return projectList.render();
+            case 13:
+              _context.next = 18;
               break;
-            case 14:
-              _context.prev = 14;
-              _context.t0 = _context["catch"](1);
-              console.log(_context.t0);
-              (0, _alerts.showAlert)('error', _context.t0.response.data.message);
-              (0, _spinner.buttonSpinner)(deleteBtnDashboard, 'Confirm', 'Deleting...');
-            case 19:
+            case 15:
+              if (!(type === 'events')) {
+                _context.next = 18;
+                break;
+              }
+              _context.next = 18;
+              return eventList.render();
+            case 18:
+              existingModalDelete.hide();
+              _context.next = 25;
+              break;
+            case 21:
+              _context.prev = 21;
+              _context.t0 = _context["catch"](3);
+              console.error(_context.t0);
+              (0, _alerts.showAlert)('error', ((_err$response = _context.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || 'Deletion failed.');
+            case 25:
+              _context.prev = 25;
+              (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting...');
+              return _context.finish(25);
+            case 28:
             case "end":
               return _context.stop();
           }
-        }, _callee, null, [[1, 14]]);
+        }, _callee, null, [[3, 21, 25, 28]]);
       }));
       return function (_x) {
         return _ref.apply(this, arguments);
       };
     }());
-    sortProject.addEventListener('change', function (e) {
-      adminProjectList.sort = e.target.value;
-      adminProjectList.currentPage = 1; // Reset to first page on sort change
-      adminProjectList.render();
+    setupSortHandler(document.querySelector(selectors.event.sort), eventList);
+    setupSortHandler(document.querySelector(selectors.project.sort), projectList);
+    setupShowHandler(document.querySelector(selectors.project.show), projectList);
+    setupShowHandler(document.querySelector(selectors.event.show), eventList);
+    document.querySelector(selectors.project.searchForm).addEventListener('submit', function (e) {
+      return (0, _modalHandlers.searchSlug)(projectList, document.querySelector(selectors.project.searchButton), 'admin-search-project', selectors.project.type, 'Project', e);
     });
-    showProject.addEventListener('change', function (e) {
-      adminProjectList.itemsPerPage = parseInt(e.target.value, 10);
-      adminProjectList.currentPage = 1; // Reset to first page on items per page change
-      adminProjectList.render();
+    document.querySelector(selectors.event.searchForm).addEventListener('submit', function (e) {
+      return (0, _modalHandlers.searchSlug)(eventList, document.querySelector(selectors.event.searchButton), 'admin-search-event', selectors.event.type, 'Event', e);
     });
+    setupCreateButtonListener(selectors.project.createButton);
+    setupCreateButtonListener(selectors.event.createButton);
   }
-  adminProjectList.render();
-}
-function submitProjectForm(_x2) {
-  return _submitProjectForm.apply(this, arguments);
-}
-function _submitProjectForm() {
-  _submitProjectForm = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
-    var name, date, summary, description, imageCover, images, formData, i, res, data;
-    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-      while (1) switch (_context3.prev = _context3.next) {
-        case 0:
-          e.preventDefault();
-          name = document.querySelector('#name').value;
-          date = document.querySelector('#date').value;
-          summary = document.querySelector('#richDescription').value;
-          description = document.querySelector('#description').value;
-          imageCover = document.querySelector('#imageCover').files;
-          images = document.querySelector('#images').files;
-          formData = new FormData();
-          formData.append('name', name);
-          formData.append('date', date);
-          formData.append('richDescription', summary);
-          formData.append('description', description);
-          if (imageCover && imageCover.length > 0) {
-            formData.append("imageCover", imageCover[0]);
-          }
-          if (images && images.length > 0) {
-            for (i = 0; i < images.length; i++) {
-              formData.append("images", images[i]);
-            }
-          }
-          _context3.prev = 14;
-          saveBtnDashboard.disabled = true;
-          saveBtnDashboard.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
-          _context3.next = 19;
-          return (0, _axios.default)({
-            method: 'POST',
-            url: '/api/v1/projects',
-            data: formData
-          });
-        case 19:
-          res = _context3.sent;
-          data = res.data;
-          if (data.status === 'success') (0, _alerts.showAlert)('success', 'Project created successfully!');
-          existingModal.hide();
-          saveBtnDashboard.disabled = false;
-          saveBtnDashboard.innerHTML = 'Create';
-          _context3.next = 27;
-          return adminProjectList.render();
-        case 27:
-          _context3.next = 35;
-          break;
-        case 29:
-          _context3.prev = 29;
-          _context3.t0 = _context3["catch"](14);
-          (0, _alerts.showAlert)('error', _context3.t0.response.data.message);
-          saveBtnDashboard.disabled = false;
-          saveBtnDashboard.innerHTML = 'Create';
-          console.log(_context3.t0);
-        case 35:
-        case "end":
-          return _context3.stop();
-      }
-    }, _callee3, null, [[14, 29]]);
-  }));
-  return _submitProjectForm.apply(this, arguments);
-}
-if (searchProjectForm) {
-  searchProjectForm.addEventListener('submit', /*#__PURE__*/function () {
+  document.querySelector(selectors.modal.createForm).addEventListener('submit', /*#__PURE__*/function () {
     var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
-      var res, _id, newProjectList;
+      var type, formData, url, response, _err$response2;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
             e.preventDefault();
-            if (projectSearchInput.value) {
-              _context2.next = 5;
+            type = document.querySelector(selectors.modal.createForm).dataset.type;
+            formData = new FormData(e.target);
+            url = type === 'projects' ? '/api/v1/projects' : '/api/v1/events';
+            _context2.prev = 4;
+            (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating...');
+            _context2.next = 8;
+            return (0, _http.postData)(url, formData);
+          case 8:
+            response = _context2.sent;
+            console.log(response);
+            if (!(response.status === 'success')) {
+              _context2.next = 21;
               break;
             }
-            _context2.next = 4;
-            return adminProjectList.render();
-          case 4:
-            return _context2.abrupt("return");
-          case 5:
-            _context2.prev = 5;
-            (0, _spinner.buttonSpinner)(adminProjectSearchButton, 'Search Project', 'Searching');
-            _context2.next = 9;
-            return (0, _axios.default)({
-              method: 'POST',
-              url: "/api/v1/getIds",
-              data: {
-                type: 'project',
-                object: {
-                  slug: projectSearchInput.value
-                },
-                message: 'No project found with that slug'
-              }
-            });
-          case 9:
-            res = _context2.sent;
-            _id = res.data.data.doc[0]._id;
-            if (_id) {
-              _context2.next = 14;
+            (0, _alerts.showAlert)('success', "".concat(type.charAt(0).toUpperCase() + type.slice(1), " created successfully!"));
+            existingModalCreate.hide();
+
+            // Render appropriate list
+            if (!(type === 'projects')) {
+              _context2.next = 18;
               break;
             }
-            (0, _alerts.showAlert)('error', 'No project found with that slug');
-            return _context2.abrupt("return");
-          case 14:
-            newProjectList = new _PaginatedAdminList.default({
-              container: adminProjectTableBody,
-              paginationContainer: adminProjectPagination,
-              endpoint: "/api/v1/projects/".concat(_id),
-              type: 'projects',
-              itemsPerPage: 5
-            });
-            newProjectList.render();
+            _context2.next = 16;
+            return projectList.render();
+          case 16:
             _context2.next = 21;
             break;
           case 18:
-            _context2.prev = 18;
-            _context2.t0 = _context2["catch"](5);
-            (0, _alerts.showAlert)('error', _context2.t0.response.data.message);
+            if (!(type === 'events')) {
+              _context2.next = 21;
+              break;
+            }
+            _context2.next = 21;
+            return eventList.render();
           case 21:
-            _context2.prev = 21;
-            (0, _spinner.buttonSpinner)(adminProjectSearchButton, 'Search Project', 'Searching');
-            return _context2.finish(21);
-          case 24:
+            _context2.next = 27;
+            break;
+          case 23:
+            _context2.prev = 23;
+            _context2.t0 = _context2["catch"](4);
+            console.error(_context2.t0);
+            (0, _alerts.showAlert)('error', ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || 'Creation failed.');
+          case 27:
+            _context2.prev = 27;
+            (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating...');
+            return _context2.finish(27);
+          case 30:
           case "end":
             return _context2.stop();
         }
-      }, _callee2, null, [[5, 18, 21, 24]]);
+      }, _callee2, null, [[4, 23, 27, 30]]);
     }));
-    return function (_x3) {
+    return function (_x2) {
       return _ref2.apply(this, arguments);
     };
   }());
-}
-if (adminProjectCreateButton) {
-  adminProjectCreateButton.addEventListener('click', function () {
-    console.log("clicked");
-    modalDashboard.classList.add('add-project-modal');
-    modalDashboard.addEventListener('submit', submitProjectForm);
+  document.querySelector(selectors.modal.createModal).addEventListener('hidden.bs.modal', function () {
+    document.querySelector(selectors.modal.createForm).reset();
+    delete document.querySelector(selectors.modal.createForm).dataset.type;
   });
+  projectList.render();
+  eventList.render();
 }
-if (modalDashboard) {
-  modalDashboard.addEventListener('hidden.bs.modal', function () {
-    // remove existing event listener on form
-    modalDashboard.removeEventListener('submit', submitProjectForm);
-    var place = document.querySelector('#place');
-    var time = document.querySelector('#time');
-    if (place) {
-      place.parentElement.remove();
-      time.parentElement.remove();
-    }
-    if (modalDashboard.classList.contains('add-project-modal') || modalDashboard.classList.contains('add-event-modal')) {
-      modalDashboard.classList.remove('add-project-modal');
-      modalDashboard.classList.remove('add-event-modal');
-    }
-    createDashboardForm.reset();
-  });
-}
-},{"axios":"../../node_modules/axios/index.js","../utils/PaginatedAdminList.js":"utils/PaginatedAdminList.js","../utils/alerts.js":"utils/alerts.js","../utils/spinner.js":"utils/spinner.js"}],"Admin/admin_edit-project-event.js":[function(require,module,exports) {
+},{"axios":"../../node_modules/axios/index.js","../utils/PaginatedAdminList.js":"utils/PaginatedAdminList.js","../utils/alerts.js":"utils/alerts.js","../utils/spinner.js":"utils/spinner.js","../utils/http.js":"utils/http.js","../utils/modalHandlers.js":"utils/modalHandlers.js"}],"Admin/admin_edit-project-event.js":[function(require,module,exports) {
 "use strict";
 
 var _axios = _interopRequireDefault(require("axios"));
@@ -13254,7 +13381,7 @@ var featuredCheckbox = document.getElementById('featured');
 var editProjEveButton = document.getElementById('editProjEveButton');
 if (editProjEve) {
   var type = editProjEve.dataset.type;
-  if (type === "event") {
+  if (type === "events") {
     var place = editProjEve.dataset.place;
     var time = editProjEve.dataset.time;
     var date = new Date("1970-01-01T".concat(time));
@@ -13264,7 +13391,7 @@ if (editProjEve) {
   }
   formEditProjEve.addEventListener('submit', /*#__PURE__*/function () {
     var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
-      var formData, url, imageCoverFile, imageCover, imagesFiles, images, finalFormData, finalDate, slug, response;
+      var formData, url, imageCoverFile, imageCover, imagesFiles, images, finalFormData, finalDate, slug, response, _err$response;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
@@ -13290,7 +13417,7 @@ if (editProjEve) {
               });
             }
             slug = editProjEve.dataset.slug;
-            if (type === 'event') {
+            if (type === 'events') {
               finalDate = "".concat(formData.get('date'), "T").concat(formData.get('time'));
               finalFormData.append('place', formData.get('place'));
               url = "/api/v1/events/".concat(editProjEve.dataset.id);
@@ -13314,23 +13441,25 @@ if (editProjEve) {
             response = _context.sent;
             if (response.data.status === 'success') (0, _alerts.showAlert)(response.data.message, 'Updated successfully.');
             setTimeout(function () {
-              window.location.href = "/".concat(type, "/").concat(slug);
+              var _response$data$data$u;
+              window.location.href = "/".concat(type, "/").concat((_response$data$data$u = response.data.data.updatedProject) !== null && _response$data$data$u !== void 0 && _response$data$data$u.slug ? response.data.data.updatedProject.slug : response.data.data.updatedEvent.slug);
             }, 2000);
-            _context.next = 31;
+            _context.next = 32;
             break;
           case 28:
             _context.prev = 28;
             _context.t0 = _context["catch"](19);
             console.error(_context.t0);
-          case 31:
-            _context.prev = 31;
+            (0, _alerts.showAlert)('error', ((_err$response = _context.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || 'An error occurred while updating.');
+          case 32:
+            _context.prev = 32;
             (0, _spinner.buttonSpinner)(editProjEveButton, 'Update', 'Updating');
-            return _context.finish(31);
-          case 34:
+            return _context.finish(32);
+          case 35:
           case "end":
             return _context.stop();
         }
-      }, _callee, null, [[19, 28, 31, 34]]);
+      }, _callee, null, [[19, 28, 32, 35]]);
     }));
     return function (_x) {
       return _ref.apply(this, arguments);
@@ -13342,144 +13471,10 @@ if (editProjEve) {
 
 var _PaginatedList = _interopRequireDefault(require("../utils/PaginatedList.js"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
-function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
-function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } /* eslint-disable */
+/* eslint-disable */
+
 var eventListContainer = document.querySelector('#event-list-container');
 var eventListPagination = document.querySelector('#event-list-pagination');
-var currentPage = 1;
-var projectsPerPage = 1;
-var type = '_id';
-function cardEvent(event, container) {
-  var _event$imageCover;
-  var markup = "\n      <div class=\"col\">\n        <div class=\"card shadow\">\n          <div class=\"card-body rounded\">\n            <h4 class=\"card-title text-slate-900 fw-semibold\">".concat(event.name, "</h4>\n            <p class=\"card-text text-slate-600\">").concat(event.richDescription.slice(0, 100)).concat(event.richDescription.length > 100 ? "..." : '', "</p>\n            ").concat((_event$imageCover = event.imageCover) !== null && _event$imageCover !== void 0 && _event$imageCover.signedUrl ? "<img class\"object-fit-cover\" src=\"".concat(event.imageCover.signedUrl, "\" width=\"100%\" height=\"200\" />") : '', "\n            <a class=\"btn bg-green-500 text-slate-50 mt-3\" href=\"/events/").concat(event.slug, "\">Read More</a>\n          </div>\n        </div>\n      </div>\n      ");
-  container.innerHTML += markup;
-}
-function renderPagination(totalPages, hasNextPage) {
-  var prevButton = document.createElement('li');
-  prevButton.className = "page-item ".concat(currentPage === 1 ? 'disabled' : '');
-  prevButton.innerHTML = "\n    <a class=\"page-link\" aria-label=\"Previous\">\n      <span aria-hidden=\"true\">\xAB</span>\n    </a>\n  ";
-  if (currentPage > 1) {
-    prevButton.addEventListener('click', function () {
-      return changeProjectPage(currentPage - 1);
-    });
-  }
-  eventListPagination.appendChild(prevButton);
-  if (totalPages <= 5) {
-    var _loop = function _loop(i) {
-      var pageItem = document.createElement('li');
-      pageItem.className = "page-item ".concat(i === currentPage ? 'active' : '');
-      pageItem.innerHTML = "<a class=\"page-link\">".concat(i, "</a>");
-      pageItem.addEventListener('click', function () {
-        return changeProjectPage(i);
-      });
-      eventListPagination.appendChild(pageItem);
-    };
-    for (var i = 1; i <= totalPages; i++) {
-      _loop(i);
-    }
-  } else {
-    var createPageItem = function createPageItem(i) {
-      var pageItem = document.createElement('li');
-      pageItem.className = "page-item ".concat(i === currentPage ? 'active' : '');
-      pageItem.innerHTML = "<a class=\"page-link\">".concat(i, "</a>");
-      pageItem.addEventListener('click', function () {
-        return changeProjectPage(i);
-      });
-      eventListPagination.appendChild(pageItem);
-    };
-    createPageItem(1);
-    if (currentPage > 4) {
-      var ellipsisItem = document.createElement('li');
-      ellipsisItem.className = 'page-item disabled';
-      ellipsisItem.innerHTML = "<a class=\"page-link\">...</a>";
-      eventListPagination.appendChild(ellipsisItem);
-    }
-    for (var _i = Math.max(2, currentPage - 2); _i <= Math.min(totalPages - 1, currentPage + 2); _i++) {
-      createPageItem(_i);
-    }
-    if (currentPage < totalPages - 3) {
-      var _ellipsisItem = document.createElement('li');
-      _ellipsisItem.className = 'page-item disabled';
-      _ellipsisItem.innerHTML = "<a class=\"page-link\">...</a>";
-      eventListPagination.appendChild(_ellipsisItem);
-    }
-    createPageItem(totalPages);
-  }
-  var nextButton = document.createElement('li');
-  nextButton.className = "page-item ".concat(!hasNextPage ? 'disabled' : '');
-  nextButton.innerHTML = "\n    <a class=\"page-link\" aria-label=\"Next\">\n      <span aria-hidden=\"true\">\xBB</span>\n    </a>\n  ";
-  if (hasNextPage) {
-    nextButton.addEventListener('click', function () {
-      return changeProjectPage(currentPage + 1);
-    });
-  }
-  eventListPagination.appendChild(nextButton);
-}
-function renderEvents() {
-  return _renderEvents.apply(this, arguments);
-}
-function _renderEvents() {
-  _renderEvents = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-    var data, hasNextPage;
-    return _regeneratorRuntime().wrap(function _callee$(_context) {
-      while (1) switch (_context.prev = _context.next) {
-        case 0:
-          spinner(eventListContainer, 'Loading events');
-          _context.prev = 1;
-          _context.next = 4;
-          return fetchEvents();
-        case 4:
-          data = _context.sent;
-          eventListContainer.innerHTML = '';
-          eventListPagination.innerHTML = '';
-          hasNextPage = currentPage < data.totalPages;
-          data.data.doc.forEach(function (event) {
-            return cardEvent(event, eventListContainer);
-          });
-          if (!(data.data.doc.length === 0)) {
-            _context.next = 12;
-            break;
-          }
-          eventListContainer.innerHTML = '<p class="fs-6 text-slate-400">No events available.</p>';
-          return _context.abrupt("return");
-        case 12:
-          if (data.totalPages > 1) renderPagination(data.totalPages, hasNextPage);
-          _context.next = 18;
-          break;
-        case 15:
-          _context.prev = 15;
-          _context.t0 = _context["catch"](1);
-          eventListContainer.innerHTML = '<p class="text-danger">Failed to load events. Please try again later.</p>';
-        case 18:
-        case "end":
-          return _context.stop();
-      }
-    }, _callee, null, [[1, 15]]);
-  }));
-  return _renderEvents.apply(this, arguments);
-}
-function fetchEvents() {
-  return _fetchEvents.apply(this, arguments);
-}
-function _fetchEvents() {
-  _fetchEvents = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-      while (1) switch (_context2.prev = _context2.next) {
-        case 0:
-          _context2.next = 2;
-          return fetchData("/api/v1/events?page=".concat(currentPage, "&limit=").concat(projectsPerPage, "&sort=").concat(type));
-        case 2:
-          return _context2.abrupt("return", _context2.sent);
-        case 3:
-        case "end":
-          return _context2.stop();
-      }
-    }, _callee2);
-  }));
-  return _fetchEvents.apply(this, arguments);
-}
 var eventList = null;
 if (eventListContainer) {
   if (!eventList) eventList = new _PaginatedList.default({
@@ -14239,7 +14234,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59925" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54767" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
