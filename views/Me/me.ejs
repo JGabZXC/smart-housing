@@ -1,4 +1,4 @@
-<section class="bg-white shadow container rounded-4 p-3 mt-3">
+<section id="me-container" class="bg-white shadow-md container p-3 mt-3">
     <div class="d-flex flex-column flex-md-row w-100 gap-5">
         <div class="pay-dues-container">
             <h2 class="fs-5 fw-semibold text-slate-900"><i class="bi bi-credit-card-2-back-fill"></i> Pay Dues</h2>
@@ -100,17 +100,17 @@
         <form id="change-password-form" class="d-flex flex-column account_actions_container gap-3">
             <div>
                 <label class="form-label fw-semibold m-0 text-slate-500" for="current-password">Current Password</label>
-                <input id="current-password" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="current-password" />
+                <input id="current-password" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="currentPassword" />
             </div>
             <div>
                 <label class="form-label fw-semibold m-0 text-slate-500" for="new-password">New Password</label>
-                <input id="new-password" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="new-password" />
+                <input id="new-password" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="password" />
             </div>
             <div>
                 <label class="form-label fw-semibold m-0 text-slate-500" for="confirm-new-password">Confirm New Password</label>
-                <input id="confirm-new-password" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="confirm-new-password" />
+                <input id="confirm-new-password" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="confirmPassword" />
             </div>
-        <button id="change-password-form-button" class="btn bg-green-600 text-slate-50 fw-semibold" type="button">Confirm</button>
+        <button id="change-password-form-button" class="btn bg-green-600 text-slate-50 fw-semibold" type="submit">Confirm</button>
         </form>
         <form id="change-details-form" class="d-flex flex-column account_actions_container gap-3">
             <div class="d-flex flex-column flex-sm-row gap-3 gap-sm-4">

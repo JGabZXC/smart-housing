@@ -118,10 +118,9 @@ exports.createEvent = catchAsync(async (req, res, next) => {
   });
 });
 exports.updateEvent = catchAsync(async (req, res, next) => {
-  const { name, date, richDescription, description, place } =
-    req.body;
+  const { name, date, richDescription, description, place } = req.body;
   const event = await Event.findById(req.params.id);
-  if(req.body.isFeatured === 'false') req.body.isFeatured = false;
+  if (req.body.isFeatured === 'false') req.body.isFeatured = false;
   if (!event) return next(new AppError('No event found with that ID', 404));
 
   if (
@@ -134,8 +133,6 @@ exports.updateEvent = catchAsync(async (req, res, next) => {
   let updatedEvent;
   const expiresAt = signedImages.getExpiresAt();
   const payload = {};
-
-  console.log(req.body.isFeatured);
 
   updatedEvent = await Event.findByIdAndUpdate(
     req.params.id,

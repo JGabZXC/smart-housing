@@ -41,6 +41,7 @@ const sendToken = (user, statusCode, res) => {
     },
   });
 };
+exports.sendToken = sendToken;
 
 exports.getAllUsers = handlerFactory.getAll(User);
 exports.getUser = handlerFactory.getOne(User, 'address');

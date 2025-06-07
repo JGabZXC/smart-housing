@@ -18,3 +18,12 @@ export const postData = async (url, params = {}) => {
     throw err;
   }
 }
+
+export const patchData = async (url, params = {}) => {
+  try {
+    const response = await axios.patch(url, params);
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+}
