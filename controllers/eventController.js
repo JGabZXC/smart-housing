@@ -135,8 +135,6 @@ exports.updateEvent = catchAsync(async (req, res, next) => {
   const expiresAt = signedImages.getExpiresAt();
   const payload = {};
 
-  console.log(req.body.isFeatured);
-
   updatedEvent = await Event.findByIdAndUpdate(
     req.params.id,
     {

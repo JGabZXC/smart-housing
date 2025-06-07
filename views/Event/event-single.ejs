@@ -3,7 +3,6 @@
 <div class="container" id="type-single-container" data-slug="<%= event.slug %>" data-typeid="<%= event._id %>" data-userid="<%= locals.user ? locals.user._id : ''%>" data-type="events">
     <section>
         <% const date = event.date.toLocaleString('en-US', {timeZone: 'Asia/Manila'})%>
-        <% console.log(event.imageCover) %>
       <div class="bg-image rounded-3 featured-photo-bg" style="background-image: url(<%= event.imageCover?.signedUrl ? event.imageCover.signedUrl : 'https://mdbcdn.b-cdn.net/img/new/slides/041.webp' %>);
         height: 400px;
         background-size: cover;
