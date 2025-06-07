@@ -72,7 +72,7 @@ class PaginatedList {
   }
 
   async render() {
-    spinner(this.container);
+    spinner(this.container, `Loading ${this.type}`);
 
     try {
       const data = await fetchData(`${this.endpoint}?page=${this.currentPage}&limit=${this.itemsPerPage}`);

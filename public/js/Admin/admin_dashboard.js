@@ -155,7 +155,7 @@ if(document.querySelector(selectors.project.section) || document.querySelector(s
       console.log(id, type);
 
       try {
-        buttonSpinner(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting...');
+        buttonSpinner(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting');
 
         const res = await axios.delete(`/api/v1/${type}/${id}`);
 
@@ -175,7 +175,7 @@ if(document.querySelector(selectors.project.section) || document.querySelector(s
         console.error(err);
         showAlert('error', err.response?.data?.message || 'Deletion failed.');
       } finally {
-        buttonSpinner(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting...');
+        buttonSpinner(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting');
       }
     });
 
@@ -197,7 +197,7 @@ if(document.querySelector(selectors.project.section) || document.querySelector(s
     const url = type === 'projects' ? '/api/v1/projects' : '/api/v1/events';
 
     try {
-      buttonSpinner(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating...');
+      buttonSpinner(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating');
       const response = await postData(url, formData);
       console.log(response);
       if (response.status === 'success') {
@@ -215,7 +215,7 @@ if(document.querySelector(selectors.project.section) || document.querySelector(s
       console.error(err);
       showAlert('error', err.response?.data?.message || 'Creation failed.');
     } finally {
-      buttonSpinner(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating...');
+      buttonSpinner(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating');
     }
   })
 
