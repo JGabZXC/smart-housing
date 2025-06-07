@@ -85,10 +85,11 @@ if (editProjEve) {
 
       if(response.data.status === 'success') showAlert(response.data.message, 'Updated successfully.');
       setTimeout(() => {
-        window.location.href = `/${type}/${response.data.data.updatedProject.slug}`;
+        window.location.href = `/${type}/${response.data.data.updatedProject?.slug ? response.data.data.updatedProject.slug : response.data.data.updatedEvent.slug}`;
       }, 2000);
     } catch (err) {
       console.error(err);
+      showAlert('error', err.response?.data?.message || 'An error occurred while updating.');
     } finally {
       buttonSpinner(editProjEveButton, 'Update', 'Updating')
     }
