@@ -10,6 +10,7 @@ const catchAsync = require('../utils/catchAsync');
 const validateHouse = require('../utils/validateHouse');
 const House = require('../models/houseModel');
 const GetIds = require('../utils/getIds');
+const Project = require('../models/projectModel');
 
 const cookieOptions = {
   expires: new Date(
@@ -256,7 +257,7 @@ exports.getIds = catchAsync(async (req, res, next) => {
   const { type, object, message = 'Nothing was found' } = req.body;
   const result = await GetIds(type, object);
 
-  if (result.length === 0) return next(new AppError(message, 404));
+  if (result?.length === 0) return next(new AppError(message, 404));
 
   res.status(200).json({
     status: 'success',

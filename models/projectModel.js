@@ -78,6 +78,10 @@ projectSchema.pre('findOneAndUpdate', async function (next) {
       return next(new AppError('There is already a featured project.', 400));
   }
 
+  if(update.name) {
+    update.slug = slugify(update.name || doc.name, { lower: true });
+  }
+
   next();
 });
 

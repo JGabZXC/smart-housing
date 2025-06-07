@@ -5,176 +5,143 @@ import { buttonSpinner } from '../utils/spinner.js';
 import { postData } from '../utils/http.js';
 import { searchSlug } from '../utils/modalHandlers.js';
 
-const adminProjectSection = document.querySelector('#admin-project-section');
-const adminProjectTableBody = document.querySelector('#admin-project-table-body');
-const adminProjectPagination = document.querySelector('#admin-project-pagination');
-const sortProject = document.querySelector('#sort-project');
-const showProject = document.querySelector('#show-project');
-
-const adminProjectSearchForm = document.querySelector('#admin-project-search-form');
-const adminProjectSearchButton = document.querySelector('#admin-project-search-button');
-
-const adminEventSection = document.querySelector('#admin-event-section');
-const adminEventTableBody = document.querySelector('#admin-event-table-body');
-const adminEventPagination = document.querySelector('#admin-event-pagination');
-const sortEvent = document.querySelector('#sort-event');
-const showEvent = document.querySelector('#show-event');
-
-const createDashboardForm = document.querySelector('#createDashboardForm');
-const modalDashboard = document.querySelector('#modalDashboard');
-const saveBtnDashboard = document.querySelector('#saveBtnDashboard');
-
-const modalDeleteDashboard = document.querySelector('#modalDeleteDashboard');
-const deleteBtnDashboard = document.querySelector('#deleteBtnDashboard');
-const titleEl = document.querySelector('#title');
-
-let adminProjectList, adminEventList = null;
-let existingModal, existingModalDelete;
-if(modalDashboard) existingModal = new bootstrap.Modal(modalDashboard);
-if(modalDeleteDashboard) existingModalDelete = new bootstrap.Modal(modalDeleteDashboard);
-
-function handleProjectSearch(event) {
-  searchSlug(
-    adminProjectList,
-    adminProjectSearchButton,
-    'admin-search-project',
-    'projects',
-    'project',
-    event
-  )
-}
-
-function handleEventSearch(event) {
-  searchSlug(
-    adminEventtList,
-    adminEventSearchButton,
-    'admin-event-project',
-    'events',
-    'event',
-    event
-  )
-}
-
-if(adminProjectSection) {
-  let id = '';
-  if (!adminProjectList) {
-    adminProjectList = new PaginatedAdminList({
-      container: adminProjectTableBody,
-      paginationContainer: adminProjectPagination,
-      endpoint: '/api/v1/projects',
-      type: 'projects',
-      itemsPerPage: 5,
-    });
-
-    adminProjectTableBody.addEventListener('click', (e) => {
-      const button = e.target.closest('button');
-      if(!button) return;
-
-      const { id: data_id, title: data_title} = button.dataset;
-      id = data_id;
-      titleEl.innerText = data_title;
-    });
-
-    modalDeleteDashboard.addEventListener('submit', async(e) => {
-      e.preventDefault();
-      try {
-        buttonSpinner(deleteBtnDashboard, 'Confirm', 'Deleting...')
-        const res = await axios({
-          method: 'DELETE',
-          url: `/api/v1/projects/${id}`
-        })
-
-        if(res.status === 204) {
-          showAlert('success', 'Project deleted successfully!');
-          await adminProjectList.render();
-        }
-        existingModalDelete.hide();
-        buttonSpinner(deleteBtnDashboard, 'Confirm', 'Deleting...');
-      } catch (err) {
-        console.log(err);
-        showAlert('error', err.response.data.message);
-        buttonSpinner(deleteBtnDashboard, 'Confirm', 'Deleting...')
-      }
-    });
-
-    sortProject.addEventListener('change', (e) => {
-      adminProjectList.sort = e.target.value;
-      adminProjectList.currentPage = 1; // Reset to first page on sort change
-      adminProjectList.render();
-    });
-
-    showProject.addEventListener('change', (e) => {
-      adminProjectList.itemsPerPage = parseInt(e.target.value, 10);
-      adminProjectList.currentPage = 1; // Reset to first page on items per page change
-      adminProjectList.render();
-    });
-
-    createDashboardForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const formData = new FormData(e.target);
-      const { imageCover, images } = Object.fromEntries(formData.entries());
-      if (imageCover && imageCover.length > 0) {
-        formData.append(`imageCover`, imageCover[0]);
-      }
-      if (images && images.length > 0) {
-        for (let i = 0; i < images.length; i++) {
-          formData.append(`images`, images[i]);
-        }
-      }
-
-      try {
-        buttonSpinner(saveBtnDashboard, 'Create', 'Creating...');
-        const response = await postData(`/api/v1/projects`, formData);
-
-        if(response.status === 'success') {
-          showAlert('success', 'Project created successfully!');
-          existingModal.hide();
-          buttonSpinner(saveBtnDashboard, 'Create', 'Creating...');
-          await adminProjectList.render();
-        }
-      } catch(err) {
-        showAlert('error', err.response.data?.message || 'An error occurred while creating the project.');
-      } finally {
-        buttonSpinner(saveBtnDashboard, 'Create', 'Creating...')
-      }
-    });
-
-    adminProjectSearchForm.addEventListener('submit', handleProjectSearch);
+const selectors = {
+  adminSection: '#admin-dashboard-section',
+  project: {
+    section: '#admin-project-section',
+    createButton: '#admin-project-create-button',
+    tableBody: '#admin-project-table-body',
+    pagination: '#admin-project-pagination',
+    sort: '#sort-project',
+    show: '#show-project',
+    searchForm: '#admin-project-search-form',
+    searchButton: '#admin-project-search-button',
+    endpoint: '/api/v1/projects',
+    type: 'projects',
+  },
+  event: {
+    section: '#admin-event-section',
+    createButton: '#admin-event-create-button',
+    tableBody: '#admin-event-table-body',
+    pagination: '#admin-event-pagination',
+    sort: '#sort-event',
+    show: '#show-event',
+    searchForm: '#admin-event-search-form',
+    searchButton: '#admin-event-search-button',
+    endpoint: '/api/v1/events',
+    type: 'events',
+  },
+  modal: {
+    form: '#createDashboardForm',
+    container: '#modalDashboard',
+    saveBtn: '#saveBtnDashboard',
+    deleteModal: '#modalDeleteDashboard',
+    deleteBtn: '#deleteBtnDashboard',
+    deleteForm: '#deleteDashboardForm',
+    title: '#title',
   }
+};
 
-  adminProjectList.render();
-}
+let projectList, eventList;
+let existingModalDelete;
+if(document.querySelector(selectors.modal.deleteModal)) existingModalDelete = new bootstrap.Modal(document.querySelector(selectors.modal.deleteModal));
 
-if(adminEventSection) {
-  if (!adminEventList) {
-    adminEventList = new PaginatedAdminList({
-      container: adminEventTableBody,
-      paginationContainer: adminEventPagination,
-      endpoint: '/api/v1/events',
-      type: 'events',
-      itemsPerPage: 5,
-    });
-
-    sortEvent.addEventListener('change', (e) => {
-      adminEventList.sort = e.target.value;
-      adminEventList.currentPage = 1; // Reset to first page on sort change
-      adminEventList.render();
-    });
-
-    showEvent.addEventListener('change', (e) => {
-      adminEventList.itemsPerPage = parseInt(e.target.value, 10);
-      adminEventList.currentPage = 1; // Reset to first page on items per page change
-      adminEventList.render();
-    });
-  }
-
-  adminEventList.render();
-}
-
-if (modalDashboard) {
-  modalDashboard.addEventListener('hidden.bs.modal', () => {
-    modalDashboard.removeEventListener('submit', handleProjectSearch);
-    modalDashboard.removeEventListener('submit', handleEventSearch);
+function setupSortHandler(sortElement, listInstance) {
+  sortElement.addEventListener('change', (e) => {
+    listInstance.sort = e.target.value;
+    listInstance.currentPage = 1; // Reset to first page on sort change
+    listInstance.render();
   });
+}
+
+function setupShowHandler(showElement, listInstance) {
+  showElement.addEventListener('change', (e) => {
+    listInstance.itemsPerPage = e.target.value;
+    listInstance.currentPage = 1;
+    listInstance.render();
+  })
+}
+
+function setupDeleteListener(tableBodySelector) {
+  document.querySelector(tableBodySelector).addEventListener('click', (e) => {
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    // Destructure data attributes
+    const { id, title, type } = button.dataset;
+
+    // Store values in form dataset
+    document.querySelector(selectors.modal.deleteForm).dataset.id = id;
+    document.querySelector(selectors.modal.deleteForm).dataset.type = type;
+
+    // Display title in modal
+    document.querySelector(selectors.modal.title).textContent = title;
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.querySelector(selectors.modal.deleteModal));
+    modal.show();
+  });
+}
+
+if(document.querySelector(selectors.project.section) || document.querySelector(selectors.event.section)) {
+  if(!projectList || !eventList) {
+    projectList = new PaginatedAdminList({
+      container: document.querySelector(selectors.project.tableBody),
+      paginationContainer: document.querySelector(selectors.project.pagination),
+      endpoint: selectors.project.endpoint,
+      type: selectors.project.type,
+      itemsPerPage: 5
+    });
+
+    eventList = new PaginatedAdminList({
+      container: document.querySelector(selectors.event.tableBody),
+      paginationContainer: document.querySelector(selectors.event.pagination),
+      endpoint: selectors.event.endpoint,
+      type: selectors.event.type,
+      itemsPerPage: 5
+    });
+    let id, type;
+    setupDeleteListener(selectors.project.tableBody);
+    setupDeleteListener(selectors.event.tableBody);
+
+    document.querySelector(selectors.modal.deleteForm).addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { id, type } = document.querySelector(selectors.modal.deleteForm).dataset;
+      console.log(id, type);
+
+      try {
+        buttonSpinner(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting...');
+
+        const res = await axios.delete(`/api/v1/${type}/${id}`);
+
+        if (res.status === 204) {
+          showAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully!`);
+
+          // Render appropriate list
+          if (type === 'project') {
+            await projectList.render();
+          } else if (type === 'event') {
+            await eventList.render();
+          }
+        }
+
+        bootstrap.Modal.getInstance(selectors.modal.deleteModal).hide();
+      } catch (err) {
+        console.error(err);
+        showAlert('error', err.response?.data?.message || 'Deletion failed.');
+      } finally {
+        buttonSpinner(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting...');
+      }
+    });
+
+    setupSortHandler(document.querySelector(selectors.event.sort), eventList);
+    setupSortHandler(document.querySelector(selectors.project.sort), projectList);
+    setupShowHandler(document.querySelector(selectors.project.show), projectList);
+    setupShowHandler(document.querySelector(selectors.event.show), eventList);
+    document.querySelector(selectors.project.searchForm).addEventListener('submit', (e) => searchSlug(projectList, document.querySelector(selectors.project.searchButton), 'admin-search-project', selectors.project.type, 'Project', e));
+    document.querySelector(selectors.event.searchForm).addEventListener('submit', (e) => searchSlug(eventList, document.querySelector(selectors.event.searchButton), 'admin-search-event', selectors.event.type, 'Event', e));
+  }
+
+  projectList.render();
+  eventList.render();
 }
