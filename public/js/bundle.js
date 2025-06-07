@@ -6648,6 +6648,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.buttonSpinner = buttonSpinner;
 exports.spinner = spinner;
 /* eslint-disable */
+
 function buttonSpinner(target, defaultText, loadingText) {
   var keepDisabled = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
   var button = target;
@@ -6665,8 +6666,13 @@ function buttonSpinner(target, defaultText, loadingText) {
   button.innerHTML = "<span class=\"spinner-border spinner-border-sm\" role=\"status\" aria-hidden=\"true\"></span> ".concat(loadingText, "...");
 }
 function spinner(target) {
+  var loadingText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'Loading';
   var element = target;
-  element.innerHTML = "<span class=\"spinner-border spinner-border-sm\" role=\"status\" aria-hidden=\"true\"></span>";
+  if (element.tagName === 'TBODY' || target.tagName === 'TABLE') {
+    target.innerHTML = "\n      <tr>\n        <td colspan=\"100%\" class=\"text-center text-slate-600\">\n          <span class=\"spinner-border spinner-border-sm\" role=\"status\" aria-hidden=\"true\"></span> ".concat(loadingText, "\n        </td>\n      </tr>\n    ");
+  } else {
+    element.innerHTML = "<p class=\"text-slate-600\"><span class=\"spinner-border spinner-border-sm\" role=\"status\" aria-hidden=\"true\"></span> ".concat(loadingText, "</p>");
+  }
 }
 },{}],"../../node_modules/axios/lib/helpers/bind.js":[function(require,module,exports) {
 'use strict';
@@ -12794,7 +12800,7 @@ var PaginatedList = /*#__PURE__*/function () {
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              (0, _spinner.spinner)(this.container);
+              (0, _spinner.spinner)(this.container, "Loading ".concat(this.type));
               _context.prev = 1;
               _context.next = 4;
               return (0, _http.fetchData)("".concat(this.endpoint, "?page=").concat(this.currentPage, "&limit=").concat(this.itemsPerPage));
@@ -13259,7 +13265,7 @@ if (document.querySelector(selectors.project.section) || document.querySelector(
               _document$querySelect = document.querySelector(selectors.modal.deleteForm).dataset, id = _document$querySelect.id, type = _document$querySelect.type;
               console.log(id, type);
               _context.prev = 3;
-              (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting...');
+              (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting');
               _context.next = 7;
               return _axios.default.delete("/api/v1/".concat(type, "/").concat(id));
             case 7:
@@ -13298,7 +13304,7 @@ if (document.querySelector(selectors.project.section) || document.querySelector(
               (0, _alerts.showAlert)('error', ((_err$response = _context.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || 'Deletion failed.');
             case 25:
               _context.prev = 25;
-              (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting...');
+              (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting');
               return _context.finish(25);
             case 28:
             case "end":
@@ -13334,7 +13340,7 @@ if (document.querySelector(selectors.project.section) || document.querySelector(
             formData = new FormData(e.target);
             url = type === 'projects' ? '/api/v1/projects' : '/api/v1/events';
             _context2.prev = 4;
-            (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating...');
+            (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating');
             _context2.next = 8;
             return (0, _http.postData)(url, formData);
           case 8:
@@ -13374,7 +13380,7 @@ if (document.querySelector(selectors.project.section) || document.querySelector(
             (0, _alerts.showAlert)('error', ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || 'Creation failed.');
           case 27:
             _context2.prev = 27;
-            (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating...');
+            (0, _spinner.buttonSpinner)(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating');
             return _context2.finish(27);
           case 30:
           case "end":
@@ -14370,7 +14376,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58124" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59471" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
