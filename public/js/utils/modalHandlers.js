@@ -15,14 +15,14 @@ export const searchSlug = async (paginatedAdminList, searchBtn, inputName, resou
   try {
     buttonSpinner(searchBtn, `Search ${resourceLabel}`, 'Searching...');
     const checkSlug = await postData(`/api/v1/getIds`, {
-      type: resourceLabel,
+      type: resourceType,
       object: {
         slug: searchInput,
       },
       message: `No ${resourceLabel} found with that slug`,
     });
 
-    const { _id } = checkSlug.data.doc[0];
+    const { _id } = checkSlug.data?.doc[0];
     if (!_id) {
       showAlert('error', `No ${resourceLabel} found with that slug`);
       return;
@@ -33,6 +33,7 @@ export const searchSlug = async (paginatedAdminList, searchBtn, inputName, resou
     await paginatedAdminList.render();
     paginatedAdminList.endpoint = `/api/v1/${resourceType}`; // Reset endpoint after search
   } catch(err) {
+    console.log(err);
     showAlert('error', err.response?.data.message || `An error occurred while searching for the ${resourceLabel}.`);
   } finally {
     buttonSpinner(searchBtn, `Search ${resourceLabel}`, 'Searching...');

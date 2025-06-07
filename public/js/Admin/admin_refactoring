@@ -1,0 +1,242 @@
+/* eslint-disable */
+
+
+/* eslint-disable */
+import PaginatedAdminList  from "../utils/PaginatedAdminList.js"
+import { showAlert } from '../utils/alerts.js';
+import { buttonSpinner } from '../utils/spinner.js';
+import { postData } from '../utils/http.js';
+import { searchSlug } from '../utils/modalHandlers.js';
+
+function addEventFields() {
+  if (!createDashboardForm.querySelector('#place')) {
+    const placeDiv = document.createElement('div');
+    placeDiv.className = 'mb-3';
+    placeDiv.id = 'place-field';
+    placeDiv.innerHTML = `
+      <label for="place" class="form-label">Place</label>
+      <input type="text" class="form-control" id="place" name="place" required />
+    `;
+    createDashboardForm.querySelector('.modal-body').insertBefore(
+      placeDiv,
+      createDashboardForm.querySelector('.modal-body').children[2] // Insert after Date
+    );
+  }
+  if (!createDashboardForm.querySelector('#time')) {
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'mb-3';
+    timeDiv.id = 'time-field';
+    timeDiv.innerHTML = `
+      <label for="time" class="form-label">Time</label>
+      <input type="time" class="form-control" id="time" name="time" required />
+    `;
+    createDashboardForm.querySelector('.modal-body').insertBefore(
+      timeDiv,
+      createDashboardForm.querySelector('.modal-body').children[3] // After Place
+    );
+  }
+}
+
+function removeEventFields() {
+  const placeDiv = createDashboardForm.querySelector('#place-field');
+  const timeDiv = createDashboardForm.querySelector('#time-field');
+  if (placeDiv) placeDiv.remove();
+  if (timeDiv) timeDiv.remove();
+}
+
+function handleProjectSearch(event) {
+  searchSlug(
+    adminProjectList,
+    adminProjectSearchButton,
+    'admin-search-project',
+    'projects',
+    'project',
+    event
+  )
+}
+
+function handleEventSearch(event) {
+  searchSlug(
+    adminEventList,
+    adminEventSearchButton,
+    'admin-event-project',
+    'events',
+    'event',
+    event
+  )
+}
+
+async function handleCreateDashboard(event) {
+  event.preventDefault();
+
+  const formData = new FormData(event.target);
+  const { imageCover, images } = Object.fromEntries(formData.entries());
+  if (imageCover && imageCover.length > 0) {
+    formData.append(`imageCover`, imageCover[0]);
+  }
+  if (images && images.length > 0) {
+    for (let i = 0; i < images.length; i++) {
+      formData.append(`images`, images[i]);
+    }
+  }
+
+  const url = currentType === 'project' ? '/api/v1/projects' : '/api/v1/events';
+
+  try {
+    buttonSpinner(saveBtnDashboard, 'Create', 'Creating...');
+    const response = await postData(url, formData);
+
+    if(response.status === 'success') {
+      showAlert('success', `${currentType} created successfully!`);
+      existingModal.hide();
+      buttonSpinner(saveBtnDashboard, 'Create', 'Creating...');
+      await adminProjectList.render();
+    }
+  } catch(err) {
+    showAlert('error', err.response.data?.message || `An error occurred while creating the ${currentType}.`);
+  } finally {
+    buttonSpinner(saveBtnDashboard, 'Create', 'Creating...')
+  }
+}
+
+let currentType = 'project';
+
+const adminProjectSection = document.querySelector('#admin-project-section');
+const adminProjectCreateButton = document.querySelector('#admin-project-create-button');
+const adminProjectTableBody = document.querySelector('#admin-project-table-body');
+const adminProjectPagination = document.querySelector('#admin-project-pagination');
+const sortProject = document.querySelector('#sort-project');
+const showProject = document.querySelector('#show-project');
+
+const adminProjectSearchForm = document.querySelector('#admin-project-search-form');
+const adminProjectSearchButton = document.querySelector('#admin-project-search-button');
+
+const adminEventSection = document.querySelector('#admin-event-section');
+const adminEventCreateButton = document.querySelector('#admin-event-create-button');
+const adminEventTableBody = document.querySelector('#admin-event-table-body');
+const adminEventPagination = document.querySelector('#admin-event-pagination');
+const sortEvent = document.querySelector('#sort-event');
+const showEvent = document.querySelector('#show-event');
+
+const adminEventSearchForm = document.querySelector('#admin-event-search-form');
+const adminEventSearchButton = document.querySelector('#admin-event-search-button');
+
+const createDashboardForm = document.querySelector('#createDashboardForm');
+const modalDashboard = document.querySelector('#modalDashboard');
+const saveBtnDashboard = document.querySelector('#saveBtnDashboard');
+
+const modalDeleteDashboard = document.querySelector('#modalDeleteDashboard');
+const deleteBtnDashboard = document.querySelector('#deleteBtnDashboard');
+const titleEl = document.querySelector('#title');
+
+let adminProjectList, adminEventList = null;
+let existingModal, existingModalDelete;
+if(modalDashboard) existingModal = new bootstrap.Modal(modalDashboard);
+if(modalDeleteDashboard) existingModalDelete = new bootstrap.Modal(modalDeleteDashboard);
+
+if(adminProjectSection) {
+  let id = '';
+  if (!adminProjectList) {
+    adminProjectList = new PaginatedAdminList({
+      container: adminProjectTableBody,
+      paginationContainer: adminProjectPagination,
+      endpoint: '/api/v1/projects',
+      type: 'projects',
+      itemsPerPage: 5,
+    });
+
+    adminProjectTableBody.addEventListener('click', (e) => {
+      const button = e.target.closest('button');
+      if(!button) return;
+
+      const { id: data_id, title: data_title} = button.dataset;
+      id = data_id;
+      titleEl.innerText = data_title;
+    });
+
+    modalDeleteDashboard.addEventListener('submit', async(e) => {
+      e.preventDefault();
+      try {
+        buttonSpinner(deleteBtnDashboard, 'Confirm', 'Deleting...')
+        const res = await axios({
+          method: 'DELETE',
+          url: `/api/v1/projects/${id}`
+        })
+
+        if(res.status === 204) {
+          showAlert('success', 'Project deleted successfully!');
+          await adminProjectList.render();
+        }
+        existingModalDelete.hide();
+        buttonSpinner(deleteBtnDashboard, 'Confirm', 'Deleting...');
+      } catch (err) {
+        console.log(err);
+        showAlert('error', err.response.data.message);
+        buttonSpinner(deleteBtnDashboard, 'Confirm', 'Deleting...')
+      }
+    });
+
+    sortProject.addEventListener('change', (e) => {
+      adminProjectList.sort = e.target.value;
+      adminProjectList.currentPage = 1; // Reset to first page on sort change
+      adminProjectList.render();
+    });
+
+    showProject.addEventListener('change', (e) => {
+      adminProjectList.itemsPerPage = parseInt(e.target.value, 10);
+      adminProjectList.currentPage = 1; // Reset to first page on items per page change
+      adminProjectList.render();
+    });
+
+    adminProjectSearchForm.addEventListener('submit', handleProjectSearch);
+  }
+
+  adminProjectList.render();
+}
+
+if(adminEventSection) {
+  if (!adminEventList) {
+    adminEventList = new PaginatedAdminList({
+      container: adminEventTableBody,
+      paginationContainer: adminEventPagination,
+      endpoint: '/api/v1/events',
+      type: 'events',
+      itemsPerPage: 5,
+    });
+
+    sortEvent.addEventListener('change', (e) => {
+      adminEventList.sort = e.target.value;
+      adminEventList.currentPage = 1; // Reset to first page on sort change
+      adminEventList.render();
+    });
+
+    showEvent.addEventListener('change', (e) => {
+      adminEventList.itemsPerPage = parseInt(e.target.value, 10);
+      adminEventList.currentPage = 1; // Reset to first page on items per page change
+      adminEventList.render();
+    });
+
+    adminEventSearchForm.addEventListener('submit', handleEventSearch);
+  }
+
+  adminEventList.render();
+}
+
+if(adminProjectCreateButton || adminEventCreateButton) {
+  adminProjectCreateButton.addEventListener('click',() => {
+    currentType = 'project';
+    removeEventFields();
+  });
+
+  adminEventCreateButton.addEventListener('click',() => {
+    addEventFields();
+  });
+}
+
+if (modalDashboard) {
+  createDashboardForm.addEventListener('submit', handleCreateDashboard);
+  modalDashboard.addEventListener('hidden.bs.modal', () => {
+    modalDashboard.removeEventListener('submit', handleProjectSearch);
+    modalDashboard.removeEventListener('submit', handleEventSearch);
+  });
+}

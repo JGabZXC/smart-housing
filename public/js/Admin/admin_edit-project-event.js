@@ -85,7 +85,7 @@ if (editProjEve) {
 
       if(response.data.status === 'success') showAlert(response.data.message, 'Updated successfully.');
       setTimeout(() => {
-        window.location.href = `/${type}/${slug}`;
+        window.location.href = `/${type}/${response.data.data.updatedProject.slug}`;
       }, 2000);
     } catch (err) {
       console.error(err);

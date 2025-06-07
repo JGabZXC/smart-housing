@@ -82,6 +82,10 @@ eventSchema.pre('findOneAndUpdate', async function (next) {
       return next(new AppError('There is already a featured event', 400));
   }
 
+  if(update.name) {
+    update.slug = slugify(update.name, { lower: true });
+  }
+
   next();
 });
 
