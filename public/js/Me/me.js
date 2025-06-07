@@ -36,7 +36,6 @@ if(changePasswordForm) {
 if(changeDetailsForm) {
   changeDetailsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const {userid} = changeDetailsForm.dataset;
     const formData = new FormData(e.target);
     const body = {
       name: `${formData.get('first-name')} ${formData.get('middle-initial')} ${formData.get('last-name')}`.trim(),
