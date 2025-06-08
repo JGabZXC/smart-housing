@@ -4,7 +4,7 @@ import { PaginatedAdminAddressList }  from "../utils/PaginatedAdminList.js"
 import { setupSortHandler, setupShowHandler } from './admin_dashboard.js';
 import { showAlert } from '../utils/alerts.js';
 import { buttonSpinner, spinner } from '../utils/spinner.js';
-import { fetchData, patchData, postData } from '../utils/http.js';
+import { deleteData, fetchData, patchData, postData } from '../utils/http.js';
 
 const selectors = {
   address: {
@@ -26,6 +26,8 @@ const selectors = {
     modalFormBody: document.querySelector('.modal-body'),
     modalFormSaveButton: document.querySelector('#address-modal-save-btn'),
     modalFormCloseButton: document.querySelector('#address-modal-close-btn'),
+    modalDelete: document.querySelector('#delete'),
+    modalDeleteButtonDelete: document.querySelector('#delete-btn'),
   },
   modalForm: {
     phase: document.querySelector('#phase'),
@@ -33,6 +35,7 @@ const selectors = {
     lot: document.querySelector('#lot'),
     street: document.querySelector('#street'),
     status: document.querySelector('#status'),
+    completeAddress: document.querySelector('#complete-address'),
   }
 }
 
@@ -69,9 +72,12 @@ function modalFormBuilder(doc) {
 
 let addressList;
 
-let existingModalCreate;
+let existingModalCreate, existingModalDelete;
 if(selectors.modal.modalBody) {
   existingModalCreate = new bootstrap.Modal(selectors.modal.modalBody);
+}
+if(selectors.modal.modalDelete) {
+  existingModalDelete = new bootstrap.Modal(selectors.modal.modalDelete);
 }
 
 if(selectors.address.section) {
@@ -137,6 +143,10 @@ if(selectors.address.section) {
           showAlert('error', 'Failed to load address details. Please try again later.');
         }
       }
+      if(e.target.closest('button')?.getAttribute('id') === 'delete-btn') {
+          selectors.modal.modalDelete.dataset.selectedId = selectedId;
+          selectors.modalForm.completeAddress.textContent =  e.target.closest('td')?.dataset.address;
+      }
     });
     
     selectors.modal.modalForm.addEventListener('submit', async (e) => {
@@ -175,6 +185,27 @@ if(selectors.address.section) {
       selectors.modal.modalForm.innerHTML = '';
       delete selectors.modal.modalForm.dataset.selectedId;
     });
+
+    selectors.modal.modalDelete.addEventListener('hidden.bs.modal', ()=> {
+      delete selectors.modal.modalDelete.dataset.selectedId;
+    })
+
+    selectors.modal.modalDeleteButtonDelete.addEventListener('click', async () => {
+      const selectedId = selectors.modal.modalDelete.dataset.selectedId;
+      try {
+        buttonSpinner(selectors.modal.modalDeleteButtonDelete, 'Confirm', 'Deleting');
+
+        await deleteData(`${selectors.address.endpoint}/${selectedId}`);
+
+        showAlert('success', 'Address deleted successfully!');
+        existingModalDelete.hide();
+        await addressList.render();
+      } catch(err) {
+        showAlert('error', err.response?.data?.message || 'Failed to delete address. Please try again later.');
+      } finally {
+        buttonSpinner(selectors.modal.modalDeleteButtonDelete, 'Confirm', 'Deleting');
+      }
+    })
   }
 
 

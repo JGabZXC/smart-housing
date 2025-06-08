@@ -80,7 +80,7 @@ export class PaginatedAdminAddressList extends PaginatedAdminlist {
       <td class="text-slate-800" style="vertical-align: middle">${item.lot}</td>
       <td class="text-slate-800" style="vertical-align: middle">${item.street}</td>
       <td class="text-slate-800" style="vertical-align: middle">${item.status}</td>
-      <td data-id="${item._id}">
+      <td data-id="${item._id}" data-address="${item.completeAddress}">
           <button id="edit-btn" class="btn" type="button" data-bs-toggle="modal" data-bs-target="#addressModal">
             <i class="bi bi-pencil-square"></i>
           </button>

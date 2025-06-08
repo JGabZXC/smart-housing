@@ -37,6 +37,25 @@
   </div>
 </div>
 
+<div class="modal fade" id="delete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-red-600 text-white">
+        <h5 class="modal-title" id="deleteLabel">Delete Address</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this address?</p>
+        <p id="complete-address">Complete address</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button id="delete-btn" type="button" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <section id="admin-address-section" class="container">
     <h2 class="fs-6 fw-semibold">All Address</h2>
     <div class="d-flex flex-column justify-content-between align-items-center flex-lg-row w-100 gap-2 gap-md-4">

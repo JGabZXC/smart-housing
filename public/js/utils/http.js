@@ -26,3 +26,12 @@ export const patchData = async (url, params = {}) => {
     throw err;
   }
 }
+
+export const deleteData = async (url) => {
+  try {
+    const response = await axios.delete(url);
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+}
