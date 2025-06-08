@@ -177,7 +177,8 @@ if(selectors.address.section) {
       } catch(err) {
         showAlert('error', err.response?.data?.message || 'Failed to submit the form. Please try again later.');
       } finally {
-        buttonSpinner(document.querySelector('#address-modal-save-btn'), 'Submit', 'Submitting');
+        // InnerHTML gets reset after the modal is closed
+        // buttonSpinner(document.querySelector('#address-modal-save-btn'), 'Submit', 'Submitting');
       }
     });
 
