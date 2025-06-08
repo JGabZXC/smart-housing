@@ -49,6 +49,24 @@ houseSchema.pre('save', async function (next) {
   next();
 });
 
+houseSchema.pre('findOneAndUpdate', async function (next) {
+  const update = this.getUpdate();
+  if (update.phase || update.block || update.lot || update.street) {
+    const house = await mongoose.model('House').findOne({
+      phase: update.phase || this.phase,
+      block: update.block || this.block,
+      lot: update.lot || this.lot,
+      street: update.street || this.street,
+    });
+
+    if (house)
+      return next(
+        new AppError('House already exists or under maintenance', 400),
+      );
+  }
+  next();
+});
+
 houseSchema.pre(/^find/, function (next) {
   this.select('-__v');
   next();

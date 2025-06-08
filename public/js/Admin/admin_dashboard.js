@@ -84,7 +84,7 @@ function removeEventFields() {
   if (timeDiv) timeDiv.remove();
 }
 
-function setupSortHandler(sortElement, listInstance) {
+export function setupSortHandler(sortElement, listInstance) {
   sortElement.addEventListener('change', (e) => {
     listInstance.sort = e.target.value;
     listInstance.currentPage = 1; // Reset to first page on sort change
@@ -92,7 +92,7 @@ function setupSortHandler(sortElement, listInstance) {
   });
 }
 
-function setupShowHandler(showElement, listInstance) {
+export function setupShowHandler(showElement, listInstance) {
   showElement.addEventListener('change', (e) => {
     listInstance.itemsPerPage = e.target.value;
     listInstance.currentPage = 1;
@@ -153,7 +153,6 @@ if(document.querySelector(selectors.project.section) || document.querySelector(s
     document.querySelector(selectors.modal.deleteForm).addEventListener('submit', async (e) => {
       e.preventDefault();
       const { id, type } = document.querySelector(selectors.modal.deleteForm).dataset;
-      console.log(id, type);
 
       try {
         buttonSpinner(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting');
@@ -173,7 +172,6 @@ if(document.querySelector(selectors.project.section) || document.querySelector(s
 
         existingModalDelete.hide();
       } catch (err) {
-        console.error(err);
         showAlert('error', err.response?.data?.message || 'Deletion failed.');
       } finally {
         buttonSpinner(document.querySelector(selectors.modal.deleteBtn), 'Confirm', 'Deleting');
@@ -200,7 +198,7 @@ if(document.querySelector(selectors.project.section) || document.querySelector(s
     try {
       buttonSpinner(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating');
       const response = await postData(url, formData);
-      console.log(response);
+
       if (response.status === 'success') {
         showAlert('success', `${type.charAt(0).toUpperCase() + type.slice(1)} created successfully!`);
         existingModalCreate.hide();
@@ -213,7 +211,6 @@ if(document.querySelector(selectors.project.section) || document.querySelector(s
         }
       }
     } catch(err) {
-      console.error(err);
       showAlert('error', err.response?.data?.message || 'Creation failed.');
     } finally {
       buttonSpinner(document.querySelector(selectors.modal.createBtn), 'Create', 'Creating');

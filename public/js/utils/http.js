@@ -5,7 +5,6 @@ export const fetchData = async (url, params = {}) => {
     const response = await axios.get(url, { params });
     return response.data;
   } catch(err) {
-    console.error('Error fetching data:', err);
     throw err; // Re-throw the error for further handling if needed
   }
 }
@@ -22,6 +21,15 @@ export const postData = async (url, params = {}) => {
 export const patchData = async (url, params = {}) => {
   try {
     const response = await axios.patch(url, params);
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export const deleteData = async (url) => {
+  try {
+    const response = await axios.delete(url);
     return response.data;
   } catch (err) {
     throw err;

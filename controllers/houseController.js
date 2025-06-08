@@ -19,7 +19,9 @@ exports.getAllHouses = catchAsync(async (req, res, next) => {
     status: 'success',
     results: houses.length,
     totalPages,
-    houses,
+    data: {
+      doc: houses,
+    },
   });
 });
 exports.getHouse = factory.getOne(House);

@@ -91,7 +91,6 @@ class PaginatedList {
       items.forEach(item => this.createCard(item));
       if (totalPages > 1) this.renderPagination(totalPages, hasNextPage);
     } catch (error) {
-      console.log(error);
       this.container.innerHTML = `<p class="text-danger">Failed to load ${this.type}. Please try again later.</p>`;
     }
   }

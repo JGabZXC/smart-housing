@@ -51,6 +51,8 @@ exports.createOne = (Model) =>
         new AppError('You cannot create a document with a date', 400),
       );
 
+    console.log(req.body);
+
     const doc = await Model.create(req.body);
 
     res.status(201).json({

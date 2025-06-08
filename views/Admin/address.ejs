@@ -1,0 +1,116 @@
+<div class="modal fade" id="addressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-green-700 text-slate-100">
+        <h5 class="modal-title" id="addressModalLabel">Edit Address</h5>
+        <button type="button" class="btn-close text-slate-100" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+        <form id="addressForm">
+          <div class="modal-body">
+              <div class="mb-3">
+                <label for="phase" class="form-label fw-semibold">Phase</label>
+                <input type="number" class="form-control" id="phase" name="phase">
+              </div>
+              <div class="mb-3">
+                <label for="block" class="form-label fw-semibold">Block</label>
+                <input type="text" class="form-control" id="block" name="block">
+              </div>
+              <div class="mb-3">
+                <label for="lot" class="form-label fw-semibold">Lot</label>
+                <input type="number" class="form-control" id="lot" name="lot">
+              </div>
+              <div class="mb-3">
+                <label for="street" class="form-label fw-semibold">Street</label>
+                <input type="text" class="form-control" id="street" name="street">
+              </div>
+              <div class="mb-3">
+                <label for="status" class="form-label fw-semibold">Status</label>
+                <input type="text" class="form-control border border-warning text-warning" id="status" name="status">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button id="address-modal-save-btn" type="submit" class="btn bg-green-700 text-slate-100">Submit</button>
+            </div>
+        </form>
+      </div>
+  </div>
+</div>
+
+<div class="modal fade" id="delete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-red-600 text-white">
+        <h5 class="modal-title" id="deleteLabel">Delete Address</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this address?</p>
+        <p id="complete-address">Complete address</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button id="delete-btn" type="button" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="admin-address-section" class="container">
+    <h2 class="fs-6 fw-semibold">All Address</h2>
+    <div class="d-flex flex-column justify-content-between align-items-center flex-lg-row w-100 gap-2 gap-md-4">
+        <form id="search-address-form" class="d-flex align-items-center w-100 gap-4">
+            <input class="form-control text-slate-600 rounded-3 border-slate-400 py-1 px-2 w-50" type="search" name="admin-search-event" placeholder="phase, block, lot, status" />
+            <button id="search-address-button" class="btn bg-green-800 text-slate-100 rounded-3" type="submit">Search Address</button>
+        </form>
+        <div class="d-flex flex-column justify-content-lg-end flex-md-row gap-2 w-100 gap-md-4">
+            <label class="form-label d-flex gap-2 m-0" for="sort-address">Sort by:
+                <select id="sort-address" class="rounded-2 border-slate-400">
+                    <option value="_id">Id</option>
+                    <option value="phase">Phase</option>
+                </select>
+            </label>
+            <label class="form-label d-flex gap-2 m-0" for="show-address">Show Item:
+                <select id="show-address" class="rounded-2 border-slate-400">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </label>
+        </div>
+    </div>
+    <div class="border-1 border-slate-700 rounded-3 mt-3 border p-2">
+        <button id="admin-create-address-button" class="btn bg-green-800 text-slate-100 rounded-3" type="button" data-bs-target="#addressModal" data-bs-toggle="modal">Create Address</button>
+        <div class="table-responsive custom-dashboard-table-height mt-1">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>Block</th>
+                        <th>Lot</th>
+                        <th class="month-range-width">Street</th>
+                        <th class="month-range-width">Status</th>
+                        <th class="month-range-width">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-address-table-body">
+                    <tr>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>Maligaya</td>
+                        <td>Unoccupied</td>
+                        <td>View, Edit, Delete</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav>
+            <ul id="admin-address-pagination" class="pagination">
+                <li class="page-item"><a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
+            </ul>
+        </nav>
+    </div>
+</section>

@@ -33,7 +33,9 @@ class PaginatedAdminlist extends PaginatedList{
   async render() {
     spinner(this.container);
     try {
-      const data = await fetchData(`${this.endpoint}?page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}`);
+      const url = this.endpoint.includes('search') ? `${this.endpoint}&page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}` : `${this.endpoint}?page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}`;
+
+      const data = await fetchData(url);
       this.container.innerHTML = '';
       this.paginationContainer.innerHTML = '';
 
@@ -60,9 +62,35 @@ class PaginatedAdminlist extends PaginatedList{
       items.forEach(item => !item.isFeatured && this.createCard(item));
       if (totalPages > 1) this.renderPagination(totalPages, hasNextPage);
     } catch (error) {
-      console.log(error);
       this.container.innerHTML = `<p class="text-danger">Failed to load ${this.type}. Please try again later.</p>`;
     }
+  }
+}
+
+export class PaginatedAdminAddressList extends PaginatedAdminlist {
+  constructor({ container, paginationContainer, endpoint, type, itemsPerPage = 1, sort = '_id' }) {
+    super({ container, paginationContainer, endpoint, type, itemsPerPage, sort })
+  }
+
+  createCard(item) {
+    const markup = `
+    <tr>
+      <td class="text-slate-800" style="vertical-align: middle">${item.phase}</td>
+      <td class="text-slate-800" style="vertical-align: middle">${item.block}</td>
+      <td class="text-slate-800" style="vertical-align: middle">${item.lot}</td>
+      <td class="text-slate-800" style="vertical-align: middle">${item.street}</td>
+      <td class="text-slate-800" style="vertical-align: middle">${item.status}</td>
+      <td data-id="${item._id}" data-address="${item.completeAddress}">
+          <button id="edit-btn" class="btn" type="button" data-bs-toggle="modal" data-bs-target="#addressModal">
+            <i class="bi bi-pencil-square"></i>
+          </button>
+          <button id="delete-btn" class="btn" type="button" data-bs-toggle="modal" data-bs-target="#delete">
+            <i class="bi bi-trash"></i>
+          </button>
+      </td>
+    </tr>
+    `;
+    this.container.innerHTML += markup;
   }
 }
 
