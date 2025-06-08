@@ -3,8 +3,8 @@
 import { PaginatedAdminAddressList }  from "../utils/PaginatedAdminList.js"
 import { setupSortHandler, setupShowHandler } from './admin_dashboard.js';
 import { showAlert } from '../utils/alerts.js';
-import { buttonSpinner } from '../utils/spinner.js';
-import { postData } from '../utils/http.js';
+import { buttonSpinner, spinner } from '../utils/spinner.js';
+import { fetchData, patchData, postData } from '../utils/http.js';
 
 const selectors = {
   address: {
@@ -23,11 +23,56 @@ const selectors = {
     modalBody: document.querySelector('#addressModal'),
     modalLabel: document.querySelector('#addressModalLabel'),
     modalForm: document.querySelector('#addressForm'),
+    modalFormBody: document.querySelector('.modal-body'),
     modalFormSaveButton: document.querySelector('#address-modal-save-btn'),
+    modalFormCloseButton: document.querySelector('#address-modal-close-btn'),
+  },
+  modalForm: {
+    phase: document.querySelector('#phase'),
+    block: document.querySelector('#block'),
+    lot: document.querySelector('#lot'),
+    street: document.querySelector('#street'),
+    status: document.querySelector('#status'),
   }
 }
 
+function modalFormBuilder(doc) {
+  return `
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="phase" class="form-label fw-semibold">Phase</label>
+                  <input type="number" class="form-control" id="phase" name="phase" value=${doc?.phase || ''}>
+                </div>
+                <div class="mb-3">
+                  <label for="block" class="form-label fw-semibold">Block</label>
+                  <input type="text" class="form-control" id="block" name="block" value=${doc?.block || ''}>
+                </div>
+                <div class="mb-3">
+                  <label for="lot" class="form-label fw-semibold">Lot</label>
+                  <input type="number" class="form-control" id="lot" name="lot" value=${doc?.lot || ''}>
+                </div>
+                <div class="mb-3">
+                  <label for="street" class="form-label fw-semibold">Street</label>
+                  <input type="text" class="form-control" id="street" name="street" value=${doc?.street || ''}>
+                </div>
+                <div class="mb-3">
+                  <label for="status" class="form-label fw-semibold">Status</label>
+                  <input type="text" class="form-control border border-warning text-warning" id="status" name="status" value=${doc?.status || ''}>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button id="address-modal-close-btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button id="address-modal-save-btn" type="submit" class="btn bg-green-700 text-slate-100">Submit</button>
+            </div>
+          `;
+}
+
 let addressList;
+
+let existingModalCreate;
+if(selectors.modal.modalBody) {
+  existingModalCreate = new bootstrap.Modal(selectors.modal.modalBody);
+}
 
 if(selectors.address.section) {
   if(!addressList) {
@@ -45,8 +90,69 @@ if(selectors.address.section) {
     setupShowHandler(selectors.address.show, addressList);
 
     selectors.address.createButton.addEventListener('click', () => {
+      selectors.modal.modalLabel.textContent = 'Create New Address';
+      selectors.modal.modalForm.innerHTML = modalFormBuilder();
+    });
 
-    })
+    selectors.address.tableBody.addEventListener('click', async (e) => {
+      const selectedId = e.target.closest('td')?.dataset.id;
+      if(!selectedId) return;
+      if(e.target.closest('button')?.getAttribute('id') === 'edit-btn') {
+        try {
+          selectors.modal.modalLabel.textContent = 'Edit Address';
+          spinner(selectors.modal.modalForm, 'Loading address details');
+          const response = await fetchData(`${selectors.address.endpoint}/${selectedId}`);
+
+          const doc = response.data.doc;
+
+          if(response.status === 'success') {
+            selectors.modal.modalForm.innerHTML = '';
+            selectors.modal.modalForm.dataset.selectedId = selectedId;
+
+            selectors.modal.modalForm.innerHTML = modalFormBuilder(doc);
+          }
+        } catch(err) {
+          showAlert('error', 'Failed to load address details. Please try again later.');
+        }
+      }
+    });
+    
+    selectors.modal.modalForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const label = selectors.modal.modalLabel.textContent;
+      const selectedId = selectors.modal.modalForm.dataset.selectedId;
+      const baseURL = label === 'Create New Address' ? '/api/v1/housings' : `/api/v1/housings/${selectedId}`;
+      let type = label === 'Create New Address' ? 'post': 'patch';
+
+      const formData = new FormData(e.target);
+      const body = {
+        phase: formData.get('phase'),
+        block: formData.get('block'),
+        lot: formData.get('lot'),
+        street: formData.get('street'),
+        status: formData.get('status').toLowerCase()
+      }
+
+      try {
+        buttonSpinner(document.querySelector('#address-modal-save-btn'), 'Submit', 'Submitting');
+        const response = await (type === 'post' ? postData(baseURL, body) : patchData(baseURL, body));
+
+        if(response.status === 'success') {
+          showAlert('success', `${label} successfully!`);
+          existingModalCreate.hide();
+          await addressList.render();
+        }
+      } catch(err) {
+        showAlert('error', err.response?.data?.message || 'Failed to submit the form. Please try again later.');
+      } finally {
+        buttonSpinner(document.querySelector('#address-modal-save-btn'), 'Submit', 'Submitting');
+      }
+    });
+
+    selectors.modal.modalBody.addEventListener('hidden.bs.modal', () => {
+      selectors.modal.modalForm.innerHTML = '';
+      delete selectors.modal.modalForm.dataset.selectedId;
+    });
   }
 
 

@@ -31,6 +31,6 @@ export function spinner(target, loadingText = 'Loading') {
       </tr>
     `;
   } else {
-    element.innerHTML = `<p class="text-slate-600"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${loadingText}</p>`;
+    element.innerHTML = `<p class="text-slate-600 p-2 m-0"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${loadingText}</p>`;
   }
 }

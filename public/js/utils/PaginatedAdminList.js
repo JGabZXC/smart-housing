@@ -60,7 +60,6 @@ class PaginatedAdminlist extends PaginatedList{
       items.forEach(item => !item.isFeatured && this.createCard(item));
       if (totalPages > 1) this.renderPagination(totalPages, hasNextPage);
     } catch (error) {
-      console.log(error);
       this.container.innerHTML = `<p class="text-danger">Failed to load ${this.type}. Please try again later.</p>`;
     }
   }
@@ -80,7 +79,7 @@ export class PaginatedAdminAddressList extends PaginatedAdminlist {
       <td class="text-slate-800" style="vertical-align: middle">${item.street}</td>
       <td class="text-slate-800" style="vertical-align: middle">${item.status}</td>
       <td data-id="${item._id}">
-        <button id="edit-btn" class="btn" type="button" data-bs-toggle="modal" data-bs-target="#createAddress">
+          <button id="edit-btn" class="btn" type="button" data-bs-toggle="modal" data-bs-target="#addressModal">
             <i class="bi bi-pencil-square"></i>
           </button>
           <button id="delete-btn" class="btn" type="button" data-bs-toggle="modal" data-bs-target="#delete">
