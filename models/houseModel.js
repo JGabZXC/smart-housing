@@ -51,6 +51,7 @@ houseSchema.pre('save', async function (next) {
 
 houseSchema.pre('findOneAndUpdate', async function (next) {
   const update = this.getUpdate();
+  const updateId = this.getQuery()._id;
   if (update.phase || update.block || update.lot || update.street) {
     const house = await mongoose.model('House').findOne({
       phase: update.phase || this.phase,
@@ -58,6 +59,8 @@ houseSchema.pre('findOneAndUpdate', async function (next) {
       lot: update.lot || this.lot,
       street: update.street || this.street,
     });
+
+    if(updateId === house._id.toString()) return next;
 
     if (house)
       return next(
