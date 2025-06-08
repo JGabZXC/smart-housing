@@ -14,8 +14,8 @@ const selectors = {
     pagination: document.querySelector('#admin-address-pagination'),
     sort: document.querySelector('#sort-address'),
     show: document.querySelector('#show-address'),
-    searchForm: document.querySelector('#admin-address-search-form'),
-    searchButton: document.querySelector('#admin-address-search-button'),
+    searchForm: document.querySelector('#search-address-form'),
+    searchButton: document.querySelector('#search-address-button'),
     endpoint: '/api/v1/housings',
     type: 'addresses',
   },
@@ -88,6 +88,28 @@ if(selectors.address.section) {
 
     setupSortHandler(selectors.address.sort, addressList);
     setupShowHandler(selectors.address.show, addressList);
+
+    selectors.address.searchForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const input = formData.get('admin-search-event').trim();
+      if(!input) {
+        addressList.endpoint = `/api/v1/housings`;
+        addressList.render();
+        return;
+      }
+
+      try {
+        addressList.currentPage = 1;
+        addressList.endpoint = `/api/v1/housings?search=${input}`;
+        buttonSpinner(selectors.address.searchButton, 'Search Address', 'Searching');
+        await addressList.render();
+      } catch (err) {
+        showAlert('error', err.response?.data?.message || 'Failed to search address. Please try again later.');
+      } finally {
+        buttonSpinner(selectors.address.searchButton, 'Search Address', 'Searching');
+      }
+    })
 
     selectors.address.createButton.addEventListener('click', () => {
       selectors.modal.modalLabel.textContent = 'Create New Address';
