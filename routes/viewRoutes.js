@@ -45,7 +45,7 @@ router
   );
 
 router
-  .route('/address')
+  .route('/admin/address')
   .get(
     authController.protect,
     authController.protectTo('admin'),

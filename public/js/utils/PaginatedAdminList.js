@@ -66,4 +66,31 @@ class PaginatedAdminlist extends PaginatedList{
   }
 }
 
+export class PaginatedAdminAddressList extends PaginatedAdminlist {
+  constructor({ container, paginationContainer, endpoint, type, itemsPerPage = 1, sort = '_id' }) {
+    super({ container, paginationContainer, endpoint, type, itemsPerPage, sort })
+  }
+
+  createCard(item) {
+    const markup = `
+    <tr>
+      <td class="text-slate-800" style="vertical-align: middle">${item.phase}</td>
+      <td class="text-slate-800" style="vertical-align: middle">${item.block}</td>
+      <td class="text-slate-800" style="vertical-align: middle">${item.lot}</td>
+      <td class="text-slate-800" style="vertical-align: middle">${item.street}</td>
+      <td class="text-slate-800" style="vertical-align: middle">${item.status}</td>
+      <td data-id="${item._id}">
+        <button id="edit-btn" class="btn" type="button" data-bs-toggle="modal" data-bs-target="#createAddress">
+            <i class="bi bi-pencil-square"></i>
+          </button>
+          <button id="delete-btn" class="btn" type="button" data-bs-toggle="modal" data-bs-target="#delete">
+            <i class="bi bi-trash"></i>
+          </button>
+      </td>
+    </tr>
+    `;
+    this.container.innerHTML += markup;
+  }
+}
+
 export default PaginatedAdminlist;

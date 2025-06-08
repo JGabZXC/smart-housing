@@ -83,7 +83,7 @@ function removeEventFields() {
   if (timeDiv) timeDiv.remove();
 }
 
-function setupSortHandler(sortElement, listInstance) {
+export function setupSortHandler(sortElement, listInstance) {
   sortElement.addEventListener('change', (e) => {
     listInstance.sort = e.target.value;
     listInstance.currentPage = 1; // Reset to first page on sort change
@@ -91,7 +91,7 @@ function setupSortHandler(sortElement, listInstance) {
   });
 }
 
-function setupShowHandler(showElement, listInstance) {
+export function setupShowHandler(showElement, listInstance) {
   showElement.addEventListener('change', (e) => {
     listInstance.itemsPerPage = e.target.value;
     listInstance.currentPage = 1;

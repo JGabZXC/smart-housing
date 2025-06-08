@@ -112,7 +112,7 @@ exports.getPayment = catchAsync(async (req, res, next) => {
 });
 
 exports.getAddress = catchAsync(async (req, res, next) => {
-  res.status(200).render('address', {
+  res.status(200).render('Admin/address', {
     title: 'Address',
   });
 });

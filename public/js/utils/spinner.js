@@ -25,7 +25,7 @@ export function spinner(target, loadingText = 'Loading') {
   if (element.tagName === 'TBODY' || target.tagName === 'TABLE') {
     target.innerHTML = `
       <tr>
-        <td colspan="100%" class="text-center text-slate-600">
+        <td colspan="100%" class="text-slate-600">
           <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${loadingText}
         </td>
       </tr>
