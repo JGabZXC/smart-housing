@@ -106,7 +106,7 @@ exports.getAdminDashboard = catchAsync(async (req, res, next) => {
 });
 
 exports.getPayment = catchAsync(async (req, res, next) => {
-  res.status(200).render('payment', {
+  res.status(200).render('Admin/manual_payment', {
     title: 'Payment',
   });
 });
@@ -118,8 +118,8 @@ exports.getAddress = catchAsync(async (req, res, next) => {
 });
 
 exports.getCreateResident = catchAsync(async (req, res, next) => {
-  res.status(200).render('create_resident', {
-    title: 'Create Resident',
+  res.status(200).render('Admin/create_user', {
+    title: 'Create User',
   });
 });
 

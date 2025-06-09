@@ -4,42 +4,28 @@ const Payment = require('../models/paymentModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const User = require('../models/userModel');
-const APIFeautres = require('../utils/apiFeatures');
-
-const isDateRangeAlreadyPaid = async function (userId, addressId, dateRange) {
-  const [startMonth, endMonth] = dateRange.split('-');
-
-  const existingPayments = await Payment.find({
-    user: userId,
-    address: addressId,
-  });
-
-  const overlappingPayment = existingPayments.find((payment) => {
-    const [paidStart, paidEnd] = payment.dateRange.split('-');
-
-    return (
-      +startMonth === +paidStart ||
-      +startMonth === +paidEnd ||
-      +endMonth === +paidEnd ||
-      +endMonth === +paidStart
-    );
-  });
-
-  return overlappingPayment
-    ? { overlaps: true, payment: overlappingPayment }
-    : { overlaps: false };
-};
+const APIFeatures = require('../utils/apiFeatures');
+const PaymentManager = require('../utils/paymentManager');
 
 const insertPayment = async function (session) {
-  await Payment.create({
-    user: session.client_reference_id,
-    address: session.metadata.address,
-    amount: session.amount_total / 100, // Convert from cents to PHP
-    dateRange: session.metadata.dateRange,
-    stripeSessionId: session.id,
-    paymentIntentId: session.payment_intent,
-    paid: true,
+  const fromDate = new Date(session.metadata.dateRange.split('TO')[0]);
+  const toDate = new Date(session.metadata.dateRange.split('TO')[1]);
+  const user = await User.findById(session.client_reference_id).populate(
+    'address',
+  );
+  const paymentManager = new PaymentManager.CreatePayment({
+    modelInstance: Payment,
+    user,
+    fromDate,
+    toDate,
+    type: 'stripe',
   });
+
+  await paymentManager.addPaymentDate(
+    fromDate,
+    toDate,
+    session.amount_total / 100,
+  );
 };
 
 exports.getAllPayments = catchAsync(async (req, res, next) => {
@@ -53,66 +39,72 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
     filter = { user: user._id };
   }
 
-  const features = new APIFeautres(Payment.find(filter), req.query)
+  const features = new APIFeatures(Payment.find(filter), req.query)
     .filter()
     .sort()
     .limitFields()
     .paginate();
 
-  const payments = await features.query
-    .populate({
+  const [doc, totalPayments] = await Promise.all([
+    features.query.populate({
       path: 'user',
-      select: 'email name',
-    })
-    .populate('address');
+      select: 'email',
+    }),
+    Payment.countDocuments(filter),
+  ]);
+
+  const totalPages = Math.ceil(totalPayments / (req.query.limit || 10));
 
   res.status(200).json({
     status: 'success',
-    results: payments.length,
+    results: doc.length,
+    totalPages,
     data: {
-      doc: payments,
+      doc,
     },
   });
 });
 exports.getPayment = handler.getOne(Payment);
-// exports.createPayment = handler.createOne(Payment);
 exports.createPayment = catchAsync(async (req, res, next) => {
-  // const payment = await Payment.create(req.body);
-  const { email, amount, dateRange } = req.body;
+  const { email, amount, fromDate, toDate } = req.body;
+
+  console.log(req.body);
 
   if (!email) return next(new AppError('Please provide an email address', 400));
 
   if (!+amount || +amount === 0)
     return next(new AppError('Please provide an amount', 400));
 
-  if (!amount || !dateRange)
-    return next(new AppError('Please provide an amount and date range', 400));
+  if (!fromDate || !toDate)
+    return next(new AppError('Please provide date', 400));
+
+  const newFromDate = new Date(fromDate);
+  const newToDate = new Date(toDate);
+
+  if (Number.isNaN(newFromDate) || Number.isNaN(newToDate))
+    return next(new AppError('Invalid date format', 400));
 
   const user = await User.findOne({ email });
-
   if (!user)
     return next(new AppError('No user found with that email address', 404));
-
-  const { overlaps } = await isDateRangeAlreadyPaid(
-    user._id,
-    user.address,
-    dateRange,
-  );
-
-  if (overlaps)
-    return next(new AppError(`Payment for ${dateRange} already exists`, 400));
-
-  const paymentMod = await Payment.create({
-    user: user._id,
-    address: user.address,
-    amount,
-    dateRange,
+  const paymentManager = new PaymentManager.CreatePayment({
+    modelInstance: Payment,
+    user,
+    fromDate: newFromDate,
+    toDate: newToDate,
+    type: 'manual',
   });
+
+  const payment = await paymentManager.addPaymentDate(
+    newFromDate,
+    newToDate,
+    amount,
+  );
 
   res.status(201).json({
     status: 'success',
     data: {
-      payment: paymentMod,
+      payment,
     },
   });
 });
@@ -120,35 +112,48 @@ exports.updatePayment = handler.updateOne(Payment);
 exports.deletePayment = handler.deleteOne(Payment);
 
 exports.createCheckoutSession = catchAsync(async (req, res, next) => {
-  const { dateRange } = req.body;
+  const { fromDate, toDate } = req.body;
 
-  if (!dateRange)
-    return next(new AppError('Please provide amount and date range', 400));
+  if (!fromDate || !toDate)
+    return next(new AppError('Please provide date', 400));
 
-  // format(MMYYYY-MMYYYY)
-  const [start, end] = dateRange.split('-');
-  const startMonth = parseInt(start.substring(0, 2), 10);
-  const startYear = parseInt(start.substring(2), 10);
-  const endMonth = parseInt(end.substring(0, 2), 10);
-  const endYear = parseInt(end.substring(2), 10);
+  const newFromDate = new Date(fromDate);
+  const newToDate = new Date(toDate);
 
-  const months = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+  if (Number.isNaN(newFromDate) || Number.isNaN(newToDate))
+    return next(new AppError('Invalid date format', 400));
 
-  if (months <= 0) return next(new AppError('Invalid date range', 400));
-  //  012020-012020 will still proceed, so it needs to be 012020-022020 to be accepted
-  if (months <= 1)
-    return next(new AppError('Date range must cover at least 2 months', 400));
+  const convertedFromDate = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: '2-digit',
+  }).format(newFromDate);
+  const convertedToDate = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: '2-digit',
+  }).format(newToDate);
 
-  const amount = months * 100; // Assuming 100 PHP per month
+  const paymentManager = new PaymentManager.CreatePayment({
+    modelInstance: Payment,
+    user: req.user,
+    fromDate,
+    toDate,
+    type: 'stripe',
+  });
 
-  const { overlaps } = await isDateRangeAlreadyPaid(
-    req.user._id,
-    req.user.address,
-    dateRange,
-  );
+  if (!paymentManager.isValidMonthPeriod(newFromDate, newToDate))
+    return next(
+      new AppError(
+        'Payment period must cover at least one full calendar month',
+        400,
+      ),
+    );
 
-  if (overlaps)
-    return next(new AppError(`Payment for ${dateRange} already exists`, 400));
+  if (paymentManager.validatePaymentDates(newFromDate, newToDate))
+    return next(new AppError('End date must be after start date', 400));
+
+  const dateRange = `${convertedFromDate}TO${convertedToDate}`;
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -163,16 +168,18 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
           currency: 'php',
           product_data: {
             name: 'Payment for dues',
-            description: `Payment for ${dateRange}. Do not forget to screenshot the payment confirmation.`,
+            description: `Payment for ${convertedFromDate} to ${convertedToDate}. Do not forget to screenshot the payment confirmation.`,
           },
-          unit_amount: amount * 100, // Convert to pesos (PHP)
+          unit_amount:
+            paymentManager.getNumberOfMonths(newFromDate, newToDate) *
+            100 * // Assuming 100 PHP per month
+            100, // Convert to pesos (PHP)
         },
         quantity: 1,
       },
     ],
     metadata: {
       dateRange,
-      address: String(req.user.address._id),
     },
   });
 
@@ -193,13 +200,12 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
       process.env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
-    // Stripe will be the one who will get this error, not the our server.
+    // Stripe will be the one who will get this error, not our server.
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    console.log('Payment succeeded:', session);
     // Insert the payment into the database
     insertPayment(session);
   }

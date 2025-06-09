@@ -9,12 +9,13 @@ const payDuesButton = document.querySelector('#pay-dues-button');
 
 const stripe = Stripe('pk_test_51QwOPPClThVOR2ixkE3rzDKQQYLle1QBOujl0hWgtIpWH94iMUulfvWPPeHakIrWMD2XeE2zZdXHUSNNDH2BUJik00A03piR06');
 
-export const payWithStripe = async (dateRange) =>{
+export const payWithStripe = async (fromDate, toDate) =>{
   try {
     const session = await axios(`/api/v1/payments/payment-session`, {
       method: 'POST',
       data: {
-        dateRange
+        fromDate,
+        toDate,
       }
     });
 
@@ -32,12 +33,6 @@ if(paymentStripeForm) {
     const formData = new FormData(paymentStripeForm);
     const fromDate = formData.get('from-date');
     const toDate = formData.get('to-date');
-    const fromMMYYYY = fromDate ? fromDate.slice(5, 7) + fromDate.slice(0, 4) : '';
-    const toMMYYYY = toDate ? toDate.slice(5, 7) + toDate.slice(0, 4) : '';
-
-    const dateRange = `${fromMMYYYY}-${toMMYYYY}`;
-
-    console.log(fromDate, toDate);
 
     if(!fromDate || !toDate) {
       return showAlert('error', 'Please select a valid date range.');
@@ -45,7 +40,7 @@ if(paymentStripeForm) {
 
     try {
       buttonSpinner(payDuesButton, "Pay with Stripe <i class=\"bi bi-stripe\"></i>", "Processing payment");
-      await payWithStripe(dateRange);
+      await payWithStripe(fromDate, toDate);
     } catch (err) {
       showAlert('error', err.response.data.message);
     } finally {
