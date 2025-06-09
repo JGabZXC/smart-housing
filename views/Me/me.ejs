@@ -22,7 +22,6 @@
                         <% if(payment.length > 0) { %>
                             <thead>
                                 <tr>
-                                    <th>#</th>
                                     <th class="month-range-width">Month Range</th>
                                     <th>Amount</th>
                                     <th class="date-paid-width">Date Paid</th>
@@ -31,9 +30,8 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <% payment.forEach((due, i) => { %>
+                                <% payment.forEach((due) => { %>
                                 <tr>
-                                    <td><%= i + 1 %></td>
                                     <td><%= due.formattedDateRange %></td>
                                     <td>₱<%= due.amount %></td>
                                     <td><%= new Intl.DateTimeFormat("en-us", {

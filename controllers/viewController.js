@@ -106,7 +106,7 @@ exports.getAdminDashboard = catchAsync(async (req, res, next) => {
 });
 
 exports.getPayment = catchAsync(async (req, res, next) => {
-  res.status(200).render('payment', {
+  res.status(200).render('Admin/manual_payment', {
     title: 'Payment',
   });
 });

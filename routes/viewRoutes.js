@@ -37,7 +37,7 @@ router
   );
 
 router
-  .route('/payment')
+  .route('/admin/manual-payment')
   .get(
     authController.protect,
     authController.protectTo('admin'),

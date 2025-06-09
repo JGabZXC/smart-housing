@@ -4,7 +4,7 @@ const Payment = require('../models/paymentModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const User = require('../models/userModel');
-const APIFeautres = require('../utils/apiFeatures');
+const APIFeatures = require('../utils/apiFeatures');
 
 const isDateRangeAlreadyPaid = async function (userId, addressId, dateRange) {
   const [startMonth, endMonth] = dateRange.split('-');
@@ -53,24 +53,28 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
     filter = { user: user._id };
   }
 
-  const features = new APIFeautres(Payment.find(filter), req.query)
+  const features = new APIFeatures(Payment.find(filter), req.query)
     .filter()
     .sort()
     .limitFields()
     .paginate();
 
-  const payments = await features.query
-    .populate({
+  const [doc, totalPayments] = await Promise.all([
+    features.query.populate({
       path: 'user',
-      select: 'email name',
-    })
-    .populate('address');
+      select: 'email',
+    }),
+    Payment.countDocuments(filter),
+  ]);
+
+  const totalPages = Math.ceil(totalPayments / (req.query.limit || 10));
 
   res.status(200).json({
     status: 'success',
-    results: payments.length,
+    results: doc.length,
+    totalPages,
     data: {
-      doc: payments,
+      doc,
     },
   });
 });
@@ -107,6 +111,7 @@ exports.createPayment = catchAsync(async (req, res, next) => {
     address: user.address,
     amount,
     dateRange,
+    paymentMethod: 'manual',
   });
 
   res.status(201).json({
