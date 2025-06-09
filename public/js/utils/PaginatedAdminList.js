@@ -130,8 +130,6 @@ export class PaginatedAdminPaymentList extends PaginatedAdminAddressList {
       this.container.innerHTML = '';
       this.paginationContainer.innerHTML = '';
 
-      console.log(data);
-
       const items = data.data.doc;
       const totalPages = data.totalPages;
       const hasNextPage = this.currentPage < totalPages;
@@ -156,7 +154,7 @@ export class PaginatedAdminPaymentList extends PaginatedAdminAddressList {
       if (totalPages > 1) this.renderPagination(totalPages, hasNextPage);
     } catch (error) {
       this.container.innerHTML = `<p class="text-danger">Failed to load ${this.type}. Please try again later.</p>`;
-      throw err;
+      throw error;
     }
   }
 }

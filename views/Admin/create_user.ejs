@@ -1,0 +1,48 @@
+
+<section class="container mt-3">
+    <form id="createResidentForm" class="mx-auto w-75 my-0">
+        <div>
+            <label class="form-label" for="name">Name</label>
+            <input class="form-control" type="text" placeholder="e.g. John Doe" name="name" id="name" required/>
+        </div>
+        <div class="mt-2">
+            <label class="form-label" for="contactNumber">Contact Number</label>
+            <input class="form-control" type="tel" maxlength="11" placeholder="00000000000" name="contactNumber" id="contactNumber" required/>
+        </div>
+        <div class="mt-2">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-control" type="email" placeholder="holidayhomes@gmail.com" name="email" id="email" required/>
+        </div>
+        <div class="mt-2"><label class="form-label mb-0">Address</label>
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+                <div class="mt-0">
+                    <label class="form-label" for="phase">Phase</label>
+                    <input class="form-control" type="number" placeholder="e.g. 1" name="phase" id="phase" required/>
+                </div>
+                <div class="mt-0">
+                    <label class="form-label" for="block">Block</label>
+                    <input class="form-control" type="number" placeholder="e.g. 2" name="block" id="block" required/>
+                </div>
+                <div class="mt-0">
+                    <label class="form-label" for="lot">Lot</label>
+                    <input class="form-control" type="number" placeholder="e.g. 3" name="lot" id="lot" required/>
+                </div>
+                <div class="mt-0">
+                    <label class="form-label" for="street">Street</label>
+                    <input class="form-control" type="text" placeholder="e.g. Maligaya" name="street" id="street" required/>
+                </div>
+            </div>
+        </div>
+        <div class="mt-2">
+            <label class="form-label" for="password">Password</label>
+            <input class="form-control" type="text" placeholder="enter your password" name="password" id="password" required/>
+        </div>
+        <div class="mt-2">
+            <label class="form-label" for="confirmPassword">Confirm Password</label>
+            <input class="form-control" type="text" placeholder="confirm your password" name="confirmPassword" id="confirmPassword" required/>
+        </div>
+        <div class="text-end mt-2">
+            <button id="createResidentSubmitButton" class="btn bg-green-700 text-slate-100" type="submit">Create Resident</button>
+        </div>
+    </form>
+</section>

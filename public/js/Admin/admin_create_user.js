@@ -1,9 +1,8 @@
 /* eslint-disable */
 
-import axios from "axios";
-import { showAlert } from './alerts';
-import { buttonSpinner } from './_eventAndProjHelper';
-import { postData } from './utils/http';
+import { showAlert } from '../utils/alerts.js';
+import { buttonSpinner } from '../utils/spinner.js';
+import { postData } from '../utils/http.js';
 
 const createResidentForm = document.querySelector('#createResidentForm');
 const createResidentSubmitButton = document.querySelector('#createResidentSubmitButton');
@@ -23,25 +22,21 @@ if(createResidentForm) {
 
     try {
       buttonSpinner(createResidentSubmitButton, 'Create Resident', 'Submitting');
-      const res = await axios({
-        method: 'POST',
-        url: `/api/v1/users/signup`,
-        data: {
-          name,
-          contactNumber,
-          email,
-          address: {
-            phase,
-            block,
-            lot,
-            street,
-          },
-          password,
-          confirmPassword,
-        }
-      })
+      const res = await postData('/api/v1/users/signup', {
+        name,
+        contactNumber,
+        email,
+        address: {
+          phase,
+          block,
+          lot,
+          street,
+        },
+        password,
+        confirmPassword,
+      });
 
-      if(res.data.status === 'success') showAlert(res.data.message, 'success');
+      if(res.status === 'success') showAlert(res.data.message, 'success');
       createResidentForm.reset();
     } catch (err) {
       showAlert('error', err.response.data.message)
