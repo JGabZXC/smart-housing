@@ -114,7 +114,7 @@ export class PaginatedAdminPaymentList extends PaginatedAdminAddressList {
       day: "2-digit",
       timeZone: 'Asia/Manila'
     }).format(new Date(item.paymentDate))}</td>
-      <td style="vertical-align: middle">${item.stripeSessionId}</td>
+      <td style="vertical-align: middle">${item.stripeSessionId || 'NA'}</td>
       <td style="vertical-align: middle">${item.paymentMethod}</td>
     </tr>
     `;

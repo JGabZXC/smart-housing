@@ -68,6 +68,8 @@ exports.getPayment = handler.getOne(Payment);
 exports.createPayment = catchAsync(async (req, res, next) => {
   const { email, amount, fromDate, toDate } = req.body;
 
+  console.log(req.body);
+
   if (!email) return next(new AppError('Please provide an email address', 400));
 
   if (!+amount || +amount === 0)
