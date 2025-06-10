@@ -21,11 +21,7 @@ const insertPayment = async function (session) {
     type: 'stripe',
   });
 
-  await paymentManager.addPaymentDate(
-    fromDate,
-    toDate,
-    session.amount_total / 100,
-  );
+  await paymentManager.addPaymentDate(session.amount_total / 100);
 };
 
 exports.getAllPayments = catchAsync(async (req, res, next) => {
@@ -68,8 +64,6 @@ exports.getPayment = handler.getOne(Payment);
 exports.createPayment = catchAsync(async (req, res, next) => {
   const { email, amount, fromDate, toDate } = req.body;
 
-  console.log(req.body);
-
   if (!email) return next(new AppError('Please provide an email address', 400));
 
   if (!+amount || +amount === 0)
@@ -78,8 +72,10 @@ exports.createPayment = catchAsync(async (req, res, next) => {
   if (!fromDate || !toDate)
     return next(new AppError('Please provide date', 400));
 
-  const newFromDate = new Date(fromDate);
-  const newToDate = new Date(toDate);
+  const { start: newFromDate, end: newToDate } = PaymentManager.normalizeDates(
+    fromDate,
+    toDate,
+  );
 
   if (Number.isNaN(newFromDate) || Number.isNaN(newToDate))
     return next(new AppError('Invalid date format', 400));
@@ -95,11 +91,13 @@ exports.createPayment = catchAsync(async (req, res, next) => {
     type: 'manual',
   });
 
-  const payment = await paymentManager.addPaymentDate(
-    newFromDate,
-    newToDate,
-    amount,
-  );
+  try {
+    await PaymentManager.validatePaymentPeriod(paymentManager);
+  } catch (err) {
+    return next(new AppError(err.message, 400));
+  }
+
+  const payment = await paymentManager.addPaymentDate(amount);
 
   res.status(201).json({
     status: 'success',
@@ -117,8 +115,10 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
   if (!fromDate || !toDate)
     return next(new AppError('Please provide date', 400));
 
-  const newFromDate = new Date(fromDate);
-  const newToDate = new Date(toDate);
+  const { start: newFromDate, end: newToDate } = PaymentManager.normalizeDates(
+    fromDate,
+    toDate,
+  );
 
   if (Number.isNaN(newFromDate) || Number.isNaN(newToDate))
     return next(new AppError('Invalid date format', 400));
@@ -142,16 +142,11 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
     type: 'stripe',
   });
 
-  if (!paymentManager.isValidMonthPeriod(newFromDate, newToDate))
-    return next(
-      new AppError(
-        'Payment period must cover at least one full calendar month',
-        400,
-      ),
-    );
-
-  if (paymentManager.validatePaymentDates(newFromDate, newToDate))
-    return next(new AppError('End date must be after start date', 400));
+  try {
+    await PaymentManager.validatePaymentPeriod(paymentManager);
+  } catch (err) {
+    return next(new AppError(err.message, 400));
+  }
 
   const dateRange = `${convertedFromDate}TO${convertedToDate}`;
 
@@ -171,7 +166,7 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
             description: `Payment for ${convertedFromDate} to ${convertedToDate}. Do not forget to screenshot the payment confirmation.`,
           },
           unit_amount:
-            paymentManager.getNumberOfMonths(newFromDate, newToDate) *
+            PaymentManager.getNumberOfMonths(newFromDate, newToDate) *
             100 * // Assuming 100 PHP per month
             100, // Convert to pesos (PHP)
         },

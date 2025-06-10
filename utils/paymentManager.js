@@ -17,35 +17,12 @@ class CreatePayment {
     this.type = type;
   }
 
-  async addPaymentDate(startDate, endDate, amount = 100) {
-    // Validate dates
-    if (startDate >= endDate) {
-      throw new Error('End date must be after start date');
-    }
-
-    // Check if period is at least 1 calendar month
-    if (!this.isValidMonthPeriod(startDate, endDate)) {
-      throw new Error(
-        'Payment period must cover at least one full calendar month',
-      );
-    }
-
-    // Check for duplicates
-    if (await this.hasPaymentPeriod(startDate, endDate)) {
-      throw new Error('Duplicate payment period detected');
-    }
-
-    // Check for overlapping periods
-    const overlapping = this.findOverlappingPeriods(startDate, endDate);
-    if (overlapping.length > 0) {
-      throw new Error('Payment period overlaps with existing period');
-    }
-
+  async addPaymentDate(amount = 100) {
     return await this.modelInstance.create({
       user: this.user._id,
       address: this.user.address,
       amount: amount,
-      dateRange: `${startDate.toISOString().split('T')[0]}TO${endDate.toISOString().split('T')[0]}`,
+      dateRange: `${this.fromDate.toISOString().split('T')[0]}TO${this.toDate.toISOString().split('T')[0]}`,
       stripedSessionId: this.stripedSessionId,
       paymentIntentId: this.paymentIntentId,
       paymentMethod: this.type,
@@ -69,32 +46,20 @@ class CreatePayment {
     });
   }
 
-  findOverlappingPeriods(startDate, endDate) {
-    return this.modelInstance.findOne({
-      user: this.user._id,
-      dateRange: `${startDate.toISOString().split('T')[0]}TO${endDate.toISOString().split('T')[0]}`,
+  async findOverlappingPeriods(startDate, endDate) {
+    const payments = await this.modelInstance.find({ user: this.user._id });
+
+    if (!payments || payments.length === 0) return false;
+
+    return payments.some((payment) => {
+      const [paymentStart, paymentEnd] = payment.dateRange.split('TO');
+      const paymentStartDate = new Date(paymentStart);
+      const paymentEndDate = new Date(paymentEnd);
+
+      // console.log({ startDate, endDate, paymentStartDate, paymentEndDate, overlapse: startDate <= paymentEndDate && endDate >= paymentStartDate});
+
+      return startDate < paymentEndDate && endDate > paymentStartDate;
     });
-  }
-
-  getNumberOfMonths(startDate, endDate) {
-    const startYear = startDate.getFullYear();
-    const startMonth = startDate.getMonth();
-    const endYear = endDate.getFullYear();
-    const endMonth = endDate.getMonth();
-
-    // Calculate the total number of months
-    let months = (endYear - startYear) * 12 + (endMonth - startMonth);
-
-    // Adjust for partial months
-    if (endDate.getDate() < startDate.getDate()) {
-      months -= 1;
-    }
-
-    return months;
-  }
-
-  validatePaymentDates(startDate, endDate) {
-    return startDate >= endDate;
   }
 }
 
@@ -118,7 +83,64 @@ function getMonthName(dateRange) {
   };
 }
 
+function normalizeDates(startDate, endDate) {
+  const fromDate = new Date(startDate);
+  const toDate = new Date(endDate);
+
+  const normalizedStart = new Date(
+    Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), 1),
+  );
+  const normalizedEnd = new Date(
+    Date.UTC(toDate.getFullYear(), toDate.getMonth(), 1),
+  );
+
+  return {
+    start: normalizedStart,
+    end: normalizedEnd,
+  };
+}
+
+function getNumberOfMonths(startDate, endDate) {
+  const startYear = startDate.getFullYear();
+  const startMonth = startDate.getMonth();
+  const endYear = endDate.getFullYear();
+  const endMonth = endDate.getMonth();
+
+  // Calculate the total number of months
+  let months = (endYear - startYear) * 12 + (endMonth - startMonth);
+
+  // Adjust for partial months
+  if (endDate.getDate() < startDate.getDate()) {
+    months -= 1;
+  }
+
+  return months;
+}
+
+async function validatePaymentPeriod(paymentManager) {
+  const { fromDate, toDate } = paymentManager;
+
+  // Check date validity
+  if (fromDate >= toDate) throw new Error('End date must be after start date');
+
+  if (!paymentManager.isValidMonthPeriod(fromDate, toDate))
+    throw new Error(
+      'Payment period must cover at least one full calendar month',
+    );
+
+  // Check for duplicates
+  if (await paymentManager.hasPaymentPeriod(fromDate, toDate))
+    throw new Error('Duplicate payment period detected');
+
+  // Check for overlapping periods
+  if (await paymentManager.findOverlappingPeriods(fromDate, toDate))
+    throw new Error('Payment period overlaps with existing period');
+}
+
 module.exports = {
   CreatePayment,
   getMonthName,
+  normalizeDates,
+  getNumberOfMonths,
+  validatePaymentPeriod,
 };

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const paymentManager = require('../utils/paymentManager');
+const PaymentManager = require('../utils/paymentManager');
 
 const paymentSchema = new mongoose.Schema(
   {
@@ -49,7 +49,7 @@ paymentSchema.pre(/^find/, async function (next) {
 });
 
 paymentSchema.virtual('formattedDateRange').get(function () {
-  const { startMonthName, endMonthName } = paymentManager.getMonthName(
+  const { startMonthName, endMonthName } = PaymentManager.getMonthName(
     this.dateRange,
   );
 
