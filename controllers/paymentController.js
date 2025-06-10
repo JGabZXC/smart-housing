@@ -18,6 +18,8 @@ const insertPayment = async function (session) {
     user,
     fromDate,
     toDate,
+    stripedSessionId: session.id,
+    paymentIntentId: session.payment_intent,
     type: 'stripe',
   });
 
