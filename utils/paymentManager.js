@@ -22,7 +22,10 @@ class CreatePayment {
       user: this.user._id,
       address: this.user.address,
       amount: amount,
-      dateRange: `${this.fromDate.toISOString().split('T')[0]}TO${this.toDate.toISOString().split('T')[0]}`,
+      dateRange: {
+        from: this.fromDate,
+        to: this.toDate,
+      },
       stripedSessionId: this.stripedSessionId,
       paymentIntentId: this.paymentIntentId,
       paymentMethod: this.type,
@@ -42,40 +45,33 @@ class CreatePayment {
   async hasPaymentPeriod(startDate, endDate) {
     return await this.modelInstance.findOne({
       user: this.user._id,
-      dateRange: `${startDate.toISOString().split('T')[0]}TO${endDate.toISOString().split('T')[0]}`,
+      'dateRange.from': startDate,
+      'dateRange.to': endDate,
     });
   }
 
   async findOverlappingPeriods(startDate, endDate) {
-    const payments = await this.modelInstance.find({ user: this.user._id });
+    const payments = await this.modelInstance.find({
+      user: this.user._id,
+      'dateRange.from': { $lt: endDate },
+      'dateRange.to': { $gt: startDate },
+    });
 
     if (!payments || payments.length === 0) return false;
 
-    return payments.some((payment) => {
-      const [paymentStart, paymentEnd] = payment.dateRange.split('TO');
-      const paymentStartDate = new Date(paymentStart);
-      const paymentEndDate = new Date(paymentEnd);
-
-      // console.log({ startDate, endDate, paymentStartDate, paymentEndDate, overlapse: startDate <= paymentEndDate && endDate >= paymentStartDate});
-
-      return startDate < paymentEndDate && endDate > paymentStartDate;
-    });
+    return payments.length > 0;
   }
 }
 
 function getMonthName(dateRange) {
   // Split the dateRange string into start and end parts
-  const [start, end] = dateRange.split('TO');
-
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-
+  const { from, to } = dateRange;
   // Options for formatting the month name
   const options = { month: 'long', year: 'numeric' };
 
   // Format the dates to display month name and year
-  const startMonthName = startDate.toLocaleDateString('en-US', options);
-  const endMonthName = endDate.toLocaleDateString('en-US', options);
+  const startMonthName = from.toLocaleDateString('en-US', options);
+  const endMonthName = to.toLocaleDateString('en-US', options);
 
   return {
     startMonthName,

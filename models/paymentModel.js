@@ -18,8 +18,14 @@ const paymentSchema = new mongoose.Schema(
       required: [true, 'A payment must have an amount'],
     },
     dateRange: {
-      type: String,
-      required: [true, 'A payment must have a date range'],
+      from: {
+        type: Date,
+        required: true,
+      },
+      to: {
+        type: Date,
+        required: true,
+      },
     },
     paymentDate: {
       type: Date,
@@ -55,19 +61,6 @@ paymentSchema.virtual('formattedDateRange').get(function () {
 
   return `${startMonthName} - ${endMonthName}`;
 });
-
-// paymentSchema.post(/^find/, (doc) => {
-//   if (doc.length > 0) {
-//     doc.forEach((docu) => {
-//       const { startMonthName, endMonthName } = getMonthName(docu.dateRange);
-//       docu.dateRange = `${startMonthName} - ${endMonthName}`;
-//     });
-//     return;
-//   }
-//
-//   const { startMonthName, endMonthName } = getMonthName(doc.dateRange);
-//   doc.dateRange = `${startMonthName} - ${endMonthName}`;
-// });
 
 const Payment = mongoose.model('Payment', paymentSchema);
 

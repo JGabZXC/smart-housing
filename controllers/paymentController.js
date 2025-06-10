@@ -33,6 +33,15 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
     if (!user)
       return next(new AppError('No user found with that email address', 404));
     filter = { user: user._id };
+    if (req.query.fromDate && req.query.toDate) {
+      const fromDate = new Date(req.query.fromDate);
+      const toDate = new Date(req.query.toDate);
+      filter = {
+        ...filter,
+        'dateRange.from': { $gte: fromDate },
+        'dateRange.to': { $lte: toDate },
+      };
+    }
   }
 
   const features = new APIFeatures(Payment.find(filter), req.query)
@@ -41,10 +50,11 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
     .limitFields()
     .paginate();
 
+  // console.log(await features.query);
+
   const [doc, totalPayments] = await Promise.all([
     features.query.populate({
-      path: 'user',
-      select: 'email',
+      path: 'user'
     }),
     Payment.countDocuments(filter),
   ]);
