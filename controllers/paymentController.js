@@ -13,12 +13,13 @@ const insertPayment = async function (session) {
   const user = await User.findById(session.client_reference_id).populate(
     'address',
   );
+  console.log(session);
   const paymentManager = new PaymentManager.CreatePayment({
     modelInstance: Payment,
     user,
     fromDate,
     toDate,
-    stripedSessionId: session.id,
+    stripeSessionId: session.id,
     paymentIntentId: session.payment_intent,
     type: 'stripe',
   });
