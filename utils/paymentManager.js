@@ -4,7 +4,7 @@ class CreatePayment {
     user,
     fromDate,
     toDate,
-    stripedSessionId = null,
+    stripeSessionId = null,
     paymentIntentId = null,
     type = 'manual',
   }) {
@@ -12,7 +12,7 @@ class CreatePayment {
     this.user = user;
     this.fromDate = fromDate;
     this.toDate = toDate;
-    this.stripedSessionId = stripedSessionId;
+    this.stripeSessionId = stripeSessionId;
     this.paymentIntentId = paymentIntentId;
     this.type = type;
   }
@@ -26,7 +26,7 @@ class CreatePayment {
         from: this.fromDate,
         to: this.toDate,
       },
-      stripedSessionId: this.stripedSessionId,
+      stripeSessionId: this.stripeSessionId,
       paymentIntentId: this.paymentIntentId,
       paymentMethod: this.type,
     });
