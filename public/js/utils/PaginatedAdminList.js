@@ -141,7 +141,9 @@ export class PaginatedAdminPaymentList extends PaginatedAdminAddressList {
       }
 
       if (!items.length) {
-        this.container.innerHTML = `<p class="fs-6 text-slate-400">No ${this.type} available.</p>`;
+        this.container.innerHTML = `<tr>
+          <td colspan="100%" class="fs-6 text-slate-400">Either no ${this.type.slice(0, this.type.length - 1)} record exists or no ${this.type.slice(0, this.type.length - 1)} date is recorded.</td>
+        </tr>`;
         return;
       }
 

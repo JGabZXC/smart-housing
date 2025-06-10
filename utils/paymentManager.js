@@ -17,35 +17,15 @@ class CreatePayment {
     this.type = type;
   }
 
-  async addPaymentDate(startDate, endDate, amount = 100) {
-    // Validate dates
-    if (startDate >= endDate) {
-      throw new Error('End date must be after start date');
-    }
-
-    // Check if period is at least 1 calendar month
-    if (!this.isValidMonthPeriod(startDate, endDate)) {
-      throw new Error(
-        'Payment period must cover at least one full calendar month',
-      );
-    }
-
-    // Check for duplicates
-    if (await this.hasPaymentPeriod(startDate, endDate)) {
-      throw new Error('Duplicate payment period detected');
-    }
-
-    // Check for overlapping periods
-    const overlapping = this.findOverlappingPeriods(startDate, endDate);
-    if (overlapping.length > 0) {
-      throw new Error('Payment period overlaps with existing period');
-    }
-
+  async addPaymentDate(amount = 100) {
     return await this.modelInstance.create({
       user: this.user._id,
       address: this.user.address,
       amount: amount,
-      dateRange: `${startDate.toISOString().split('T')[0]}TO${endDate.toISOString().split('T')[0]}`,
+      dateRange: {
+        from: this.fromDate,
+        to: this.toDate,
+      },
       stripedSessionId: this.stripedSessionId,
       paymentIntentId: this.paymentIntentId,
       paymentMethod: this.type,
@@ -65,52 +45,33 @@ class CreatePayment {
   async hasPaymentPeriod(startDate, endDate) {
     return await this.modelInstance.findOne({
       user: this.user._id,
-      dateRange: `${startDate.toISOString().split('T')[0]}TO${endDate.toISOString().split('T')[0]}`,
+      'dateRange.from': startDate,
+      'dateRange.to': endDate,
     });
   }
 
-  findOverlappingPeriods(startDate, endDate) {
-    return this.modelInstance.findOne({
+  async findOverlappingPeriods(startDate, endDate) {
+    const payments = await this.modelInstance.find({
       user: this.user._id,
-      dateRange: `${startDate.toISOString().split('T')[0]}TO${endDate.toISOString().split('T')[0]}`,
+      'dateRange.from': { $lt: endDate },
+      'dateRange.to': { $gt: startDate },
     });
-  }
 
-  getNumberOfMonths(startDate, endDate) {
-    const startYear = startDate.getFullYear();
-    const startMonth = startDate.getMonth();
-    const endYear = endDate.getFullYear();
-    const endMonth = endDate.getMonth();
+    if (!payments || payments.length === 0) return false;
 
-    // Calculate the total number of months
-    let months = (endYear - startYear) * 12 + (endMonth - startMonth);
-
-    // Adjust for partial months
-    if (endDate.getDate() < startDate.getDate()) {
-      months -= 1;
-    }
-
-    return months;
-  }
-
-  validatePaymentDates(startDate, endDate) {
-    return startDate >= endDate;
+    return payments.length > 0;
   }
 }
 
 function getMonthName(dateRange) {
   // Split the dateRange string into start and end parts
-  const [start, end] = dateRange.split('TO');
-
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-
+  const { from, to } = dateRange;
   // Options for formatting the month name
   const options = { month: 'long', year: 'numeric' };
 
   // Format the dates to display month name and year
-  const startMonthName = startDate.toLocaleDateString('en-US', options);
-  const endMonthName = endDate.toLocaleDateString('en-US', options);
+  const startMonthName = from.toLocaleDateString('en-US', options);
+  const endMonthName = to.toLocaleDateString('en-US', options);
 
   return {
     startMonthName,
@@ -118,7 +79,64 @@ function getMonthName(dateRange) {
   };
 }
 
+function normalizeDates(startDate, endDate) {
+  const fromDate = new Date(startDate);
+  const toDate = new Date(endDate);
+
+  const normalizedStart = new Date(
+    Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), 1),
+  );
+  const normalizedEnd = new Date(
+    Date.UTC(toDate.getFullYear(), toDate.getMonth(), 1),
+  );
+
+  return {
+    start: normalizedStart,
+    end: normalizedEnd,
+  };
+}
+
+function getNumberOfMonths(startDate, endDate) {
+  const startYear = startDate.getFullYear();
+  const startMonth = startDate.getMonth();
+  const endYear = endDate.getFullYear();
+  const endMonth = endDate.getMonth();
+
+  // Calculate the total number of months
+  let months = (endYear - startYear) * 12 + (endMonth - startMonth);
+
+  // Adjust for partial months
+  if (endDate.getDate() < startDate.getDate()) {
+    months -= 1;
+  }
+
+  return months;
+}
+
+async function validatePaymentPeriod(paymentManager) {
+  const { fromDate, toDate } = paymentManager;
+
+  // Check date validity
+  if (fromDate >= toDate) throw new Error('End date must be after start date');
+
+  if (!paymentManager.isValidMonthPeriod(fromDate, toDate))
+    throw new Error(
+      'Payment period must cover at least one full calendar month',
+    );
+
+  // Check for duplicates
+  if (await paymentManager.hasPaymentPeriod(fromDate, toDate))
+    throw new Error('Duplicate payment period detected');
+
+  // Check for overlapping periods
+  if (await paymentManager.findOverlappingPeriods(fromDate, toDate))
+    throw new Error('Payment period overlaps with existing period');
+}
+
 module.exports = {
   CreatePayment,
   getMonthName,
+  normalizeDates,
+  getNumberOfMonths,
+  validatePaymentPeriod,
 };

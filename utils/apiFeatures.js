@@ -41,6 +41,8 @@ class APIFeatures {
       'fields',
       'search',
       'email',
+      'fromDate',
+      'toDate',
     ];
     excludedFields.forEach((el) => delete queryObj[el]);
 
