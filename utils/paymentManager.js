@@ -117,7 +117,7 @@ async function validatePaymentPeriod(paymentManager) {
   const { fromDate, toDate } = paymentManager;
 
   // Check date validity
-  if (fromDate >= toDate) throw new Error('End date must be after start date');
+  if (toDate < fromDate) throw new Error('To date is before From date.');
 
   if (!paymentManager.isValidMonthPeriod(fromDate, toDate))
     throw new Error(

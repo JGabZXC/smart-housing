@@ -50,8 +50,6 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
     .limitFields()
     .paginate();
 
-  // console.log(await features.query);
-
   const [doc, totalPayments] = await Promise.all([
     features.query.populate({
       path: 'user'
@@ -147,8 +145,8 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
   const paymentManager = new PaymentManager.CreatePayment({
     modelInstance: Payment,
     user: req.user,
-    fromDate,
-    toDate,
+    fromDate: newFromDate,
+    toDate: newToDate,
     type: 'stripe',
   });
 
