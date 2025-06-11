@@ -54,15 +54,13 @@ houseSchema.pre('findOneAndUpdate', async function (next) {
   const updateId = this.getQuery()._id;
   if (update.phase || update.block || update.lot || update.street) {
     const house = await mongoose.model('House').findOne({
-      phase: update.phase || this.phase,
-      block: update.block || this.block,
-      lot: update.lot || this.lot,
-      street: update.street || this.street,
+      phase: update.phase,
+      block: update.block,
+      lot: update.lot,
+      street: update.street,
     });
 
-    if(updateId === house._id.toString()) return next;
-
-    if (house)
+    if (house && updateId !== house._id.toString())
       return next(
         new AppError('House already exists or under maintenance', 400),
       );
