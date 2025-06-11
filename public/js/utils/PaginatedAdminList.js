@@ -8,6 +8,7 @@ class PaginatedAdminList extends PaginatedList{
   constructor({ container, paginationContainer, endpoint, type, itemsPerPage = 1, sort = '_id' }) {
     super({ container, paginationContainer, endpoint, type, itemsPerPage })
     this.sort = sort;
+    this.abortController = null;
   }
 
   createCard(item) {
@@ -31,11 +32,13 @@ class PaginatedAdminList extends PaginatedList{
   }
 
   async render() {
+    if (this.abortController) this.abortController.abort();
     spinner(this.container);
     try {
+      this.abortController = new AbortController();
       const url = this.endpoint.includes('search') ? `${this.endpoint}&page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}` : `${this.endpoint}?page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}`;
 
-      const data = await fetchData(url);
+      const data = await fetchData(url, { signal: this.abortController.signal });
       this.container.innerHTML = '';
       this.paginationContainer.innerHTML = '';
 
@@ -62,14 +65,30 @@ class PaginatedAdminList extends PaginatedList{
       items.forEach(item => !item.isFeatured && this.createCard(item));
       if (totalPages > 1) this.renderPagination(totalPages, hasNextPage);
     } catch (error) {
-      this.container.innerHTML = `<p class="text-danger">Failed to load ${this.type}. Please try again later.</p>`;
+      if(error.name === 'CanceledError') {
+       this.container.innerHTML = `
+        <tr>
+          <td colspan="100%">
+             <p class="text-red-600 m-0">Previous request was cancelled.</p>
+          </td>
+        </tr>
+      `;
+      } else {
+        this.container.innerHTML = `
+        <tr>
+          <td colspan="100%">
+             <p class="text-red-600 m-0">Failed to load ${this.type}. Please try again later</p>
+          </td>
+        </tr>
+        `;
+      }
     }
   }
 }
 
 export class PaginatedAdminAddressList extends PaginatedAdminList {
   constructor({ container, paginationContainer, endpoint, type, itemsPerPage = 1, sort = '_id' }) {
-    super({ container, paginationContainer, endpoint, type, itemsPerPage, sort })
+    super({ container, paginationContainer, endpoint, type, itemsPerPage, sort });
   }
 
   createCard(item) {
@@ -94,11 +113,12 @@ export class PaginatedAdminAddressList extends PaginatedAdminList {
   }
 }
 
-export class PaginatedAdminPaymentList extends PaginatedAdminAddressList {
+export class PaginatedAdminPaymentList extends PaginatedAdminList {
   constructor({ container, paginationContainer, endpoint, type, itemsPerPage = 1, sort = '_id', fromDate, toDate }) {
     super({ container, paginationContainer, endpoint, type, itemsPerPage, sort })
     this.fromDate = fromDate;
     this.toDate = toDate;
+    this.abortController = null;
   }
 
   createCard(item, index) {
@@ -122,11 +142,13 @@ export class PaginatedAdminPaymentList extends PaginatedAdminAddressList {
   }
 
   async render() {
+    if (this.abortController) this.abortController.abort();
     spinner(this.container);
     try {
+      this.abortController = new AbortController();
       const url = this.fromDate && this.toDate ? `${this.endpoint}${this.endpoint.includes('email') ? '&' : '?'}page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}&fromDate=${this.fromDate}&toDate=${this.toDate}` : `${this.endpoint}${this.endpoint.includes('email') ? '&' : '?'}page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}`;
 
-      const data = await fetchData(url);
+      const data = await fetchData(url, { signal: this.abortController.signal });
       this.container.innerHTML = '';
       this.paginationContainer.innerHTML = '';
 
@@ -155,7 +177,6 @@ export class PaginatedAdminPaymentList extends PaginatedAdminAddressList {
       items.forEach((item, index) => !item.isFeatured && this.createCard(item, index));
       if (totalPages > 1) this.renderPagination(totalPages, hasNextPage);
     } catch (error) {
-      this.container.innerHTML = `<p class="text-danger">Failed to load ${this.type}. Please try again later.</p>`;
       throw error;
     }
   }

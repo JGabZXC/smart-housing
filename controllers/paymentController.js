@@ -13,7 +13,6 @@ const insertPayment = async function (session) {
   const user = await User.findById(session.client_reference_id).populate(
     'address',
   );
-  console.log(session);
   const paymentManager = new PaymentManager.CreatePayment({
     modelInstance: Payment,
     user,
@@ -55,7 +54,7 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
 
   const [doc, totalPayments] = await Promise.all([
     features.query.populate({
-      path: 'user'
+      path: 'user',
     }),
     Payment.countDocuments(filter),
   ]);
@@ -197,14 +196,15 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
 });
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
+  const endpointSecret =
+    process.env.NODE_ENV === 'development'
+      ? process.env.STRIPE_WEBHOOK_SECRET_DEV
+      : process.env.STRIPE_WEBHOOK_SECRET;
+
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET,
-    );
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
     // Stripe will be the one who will get this error, not our server.
     return res.status(400).send(`Webhook Error: ${err.message}`);

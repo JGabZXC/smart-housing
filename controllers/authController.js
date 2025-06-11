@@ -10,7 +10,6 @@ const catchAsync = require('../utils/catchAsync');
 const validateHouse = require('../utils/validateHouse');
 const House = require('../models/houseModel');
 const GetIds = require('../utils/getIds');
-const Project = require('../models/projectModel');
 
 const cookieOptions = {
   expires: new Date(
@@ -165,7 +164,7 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.logout = (req, res) => {
-  res.clearCookie('jwt');
+  res.clearCookie('jwt', { httpOnly: true });
   res.status(200).json({ status: 'success' });
 };
 
@@ -193,7 +192,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
   const currentUser = await User.findById(decoded.id).populate({
-    path: "address",
+    path: 'address',
   });
   if (!currentUser)
     return next(

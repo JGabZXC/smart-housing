@@ -67,7 +67,7 @@ if(manualPaymentSection) {
       paginationContainer,
       endpoint: '/api/v1/payments',
       type: 'payments',
-      itemsPerPage: 5,
+      itemsPerPage: 1,
       sort: 'paymentDate',
       fromDate: undefined,
       toDate: undefined,
@@ -113,7 +113,17 @@ if(manualPaymentSection) {
       try {
         await manualPaymentList.render();
       } catch(err) {
-        showAlert('error', err.response?.data?.message || 'An error occurred while filtering payments.');
+        if(err.name === 'CanceledError') {
+          manualPaymentTableBody.innerHTML = `
+          <tr>
+            <td colspan="100%">
+               <p class="text-red-600 m-0">Previous request was cancelled.</p>
+            </td>
+          </tr>
+          `;
+        } else {
+          showAlert('error', err.response?.data?.message || 'An error occurred while filtering payments.');
+        }
       }
     });
     manualPaymentForm.addEventListener('submit', async (e) => {
