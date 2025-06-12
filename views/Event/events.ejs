@@ -5,8 +5,8 @@
         <div class="border rounded border-0 overflow-hidden bg-green-600">
             <div class="row g-0">
                 <div class="col-lg-6 ">
-                    <div class="text-white p-4 p-md-5">
-                        <h2 class="fw-bold text-white"><%= featuredEvent.name %></h2>
+                    <div class="text-slate-50 p-4 p-md-5">
+                        <h2 class="fw-bold"><%= featuredEvent.name %></h2>
                         <% const date = new Date(featuredEvent.date); %>
                         <% const finalDate = new Intl.DateTimeFormat('en-US', {
                             year: 'numeric',
@@ -16,7 +16,7 @@
                             minute: '2-digit',
                             second: '2-digit'
                         }).format(date) %>
-                        <p class="mb-3" style="color: #adb5bd;"><%= featuredEvent.place %> (<%= finalDate %>)</p>
+                        <p class="mb-3"><%= featuredEvent.place %> (<%= finalDate %>)</p>
                         <p class="mb-3">
                             <%= featuredEvent.richDescription.slice(0, 400) %>
                             <%= featuredEvent.richDescription.length > 400 ? '...' : '' %>

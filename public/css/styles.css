@@ -707,6 +707,12 @@
     height: 20rem !important;
 }
 
+#president-card {
+    border-radius: 32px !important;
+    height: 220px;
+    width: 170px;
+}
+
 @media (min-width: 768px) {
     .pay-dues-container {
         width: 30% !important;
@@ -716,34 +722,29 @@
         box-shadow: var(--bs-box-shadow-lg) !important;
         border-radius: 16px !important;
     }
-}
 
-@media (min-width: 768px) {
-    .account_details_container {
-        width: 50% !important;
-    }
-}
-
-@media (min-width: 768px) {
     .account_actions_container {
         width: 100% !important;
     }
-}
 
-@media (min-width: 768px) {
+    .account_details_container {
+        width: 50% !important;
+    }
+
     .paid-dues-height {
         max-height: 20rem !important;
     }
-}
 
-@media (min-width: 768px) {
     .shadow-md-up {
         box-shadow: var(--bs-box-shadow-lg) !important;
     }
-}
 
-@media (min-width: 768px) {
     .bg-white-md {
         background-color: #ffffff !important;
+    }
+
+    #president-card {
+        height: 375px;
+        width: 290px;
     }
 }
