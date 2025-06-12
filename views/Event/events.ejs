@@ -17,7 +17,10 @@
                             second: '2-digit'
                         }).format(date) %>
                         <p class="mb-3" style="color: #adb5bd;"><%= featuredEvent.place %> (<%= finalDate %>)</p>
-                        <p class="mb-3"><%= featuredEvent.richDescription %></p>
+                        <p class="mb-3">
+                            <%= featuredEvent.richDescription.slice(0, 400) %>
+                            <%= featuredEvent.richDescription.length > 400 ? '...' : '' %>
+                        </p>
                         <div class="my-3">
                             <% if(locals.user) { %>
                                 <a class="btn btn-primary btn-lg me-2" role="button" href="#">Attend</a>
