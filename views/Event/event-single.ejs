@@ -2,7 +2,14 @@
 
 <div class="container" id="type-single-container" data-slug="<%= event.slug %>" data-typeid="<%= event._id %>" data-userid="<%= locals.user ? locals.user._id : ''%>" data-type="events">
     <section>
-        <% const date = event.date.toLocaleString('en-US', {timeZone: 'Asia/Manila'})%>
+        <% const date = event.date.toLocaleString('en-US', {
+            month: 'long',
+            day: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'Asia/Manila'
+        })%>
       <div class="bg-image rounded-3 featured-photo-bg" style="background-image: url(<%= event.imageCover?.signedUrl ? event.imageCover.signedUrl : 'https://mdbcdn.b-cdn.net/img/new/slides/041.webp' %>);
         height: 400px;
         background-size: cover;
@@ -10,7 +17,7 @@
           <div class="d-flex align-items-center mask h-100 p-5" style="background-color: rgba(0, 0, 0, 0.6);">
               <div>
                   <div class="text-white">
-                      <h1 class="mb-3"><%= event.name %></h1>
+                      <h1 class="mb-3 fw-semibold"><%= event.name %></h1>
                       <h4 class="mb-3"><%= event.place %> <br/> <small><%= date %></small></h4>
                       <% if(locals.user) { %>
                           <a class="btn btn-outline-light btn-lg" role="button" href="#">Attend Event</a>

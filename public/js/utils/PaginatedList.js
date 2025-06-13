@@ -19,7 +19,10 @@ class PaginatedList {
         <div class="card shadow">
           <div class="card-body rounded">
             <h4 class="card-title text-slate-900 fw-semibold">${item.name}</h4>
-            <p class="card-text text-slate-600">${item.richDescription?.slice(0, 100) || ''}...</p>
+            <p class="card-text text-slate-600">
+              ${item.richDescription?.slice(0, 100)}
+              ${item.richDescription.length > 100 ? '...' : ''}
+            </p>
             ${item.imageCover?.signedUrl ? `<img class="object-fit-cover border rounded-3" src="${item.imageCover.signedUrl}" alt="${item.name}" width="100%" height="200" />` : ''}
             <a class="btn bg-green-500 text-slate-50 mt-3" href="/${this.type}/${item.slug}">Read More ⟶</a>
           </div>
