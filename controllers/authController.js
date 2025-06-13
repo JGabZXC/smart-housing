@@ -164,9 +164,14 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.logout = (req, res) => {
-  res.clearCookie('jwt', { httpOnly: true });
+  const cookieOpts = {
+    ...cookieOptions,
+  }
+  delete cookieOpts.expires;
+  res.clearCookie('jwt', cookieOpts);
   res.status(200).json({ status: 'success' });
 };
+
 
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
