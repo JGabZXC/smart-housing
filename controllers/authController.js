@@ -164,8 +164,17 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.logout = (req, res) => {
-  res.clearCookie('jwt', { httpOnly: true });
-  res.status(200).json({ status: 'success' });
+  res.set(
+    'Cache-Control',
+    'no-store, no-cache, must-revalidate, proxy-revalidate',
+  );
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  res.set('Surrogate-Control', 'no-store');
+  const cookOpt = { ...cookieOptions };
+  delete cookOpt.expires;
+  res.clearCookie('jwt', cookOpt);
+  return res.status(200).json({ status: 'success' });
 };
 
 exports.protect = catchAsync(async (req, res, next) => {
