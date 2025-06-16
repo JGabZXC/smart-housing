@@ -16,7 +16,7 @@ async function GetIds(type, object) {
   if (type === 'message') return await Message.find(object).select('id');
   if (type === 'payment') return await Payment.find(object).select('id');
   if (type === 'projects') return await Project.find(object).select('id');
-  if (type === 'user') return await User.find(object).select('id');
+  if (type === 'user') return await User.find(object);
 }
 
 module.exports = GetIds;
