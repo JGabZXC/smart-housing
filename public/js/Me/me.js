@@ -39,7 +39,8 @@ if(changeDetailsForm) {
     const formData = new FormData(e.target);
     const body = {
       name: `${formData.get('first-name')} ${formData.get('middle-initial')} ${formData.get('last-name')}`.trim(),
-      email: formData.get('email') || ''
+      email: formData.get('email') || '',
+      contactNumber: formData.get('number') || ''
     }
     try {
       buttonSpinner(changeDetailsFormButton, 'Confirm', 'Loading');
