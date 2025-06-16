@@ -129,7 +129,55 @@
                 <label class="form-label fw-semibold m-0 text-slate-500" for="email">New Email</label>
                 <input id="email" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="email" name="email" />
             </div>
+            <div>
+                <label class="form-label fw-semibold m-0 text-slate-500" for="number">New Contact Number</label>
+                <input id="number" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="number" name="number" />
+            </div>
             <button id="change-details-form-button" class="btn bg-green-600 text-slate-50 fw-semibold" type="submit">Confirm</button>
         </form>
+    </div>
+</section>
+<section id="bookDetailsSection" class="container mt-3">
+    <h2 class="fs-4 fw-semibold text-slate-900"><i class="bi bi-calendar-event-fill"></i> Book Event</h2>
+    <div class="d-flex flex-column justify-content-between flex-sm-column flex-md-row flex-lg-row flex-xl-row flex-xxl-row gap-5">
+        <form id="bookEventPlace" class="w-100">
+            <div class="w-100">
+                <input class="form-control mb-3" name="date" id="date" type="date" />
+                <input class="form-control mb-3" name="time" id="time" type="time" />
+                <!--    PRE-SELECTED FOR NOW    -->
+                <!--    TODO:
+                        1. Add a function to add more event places
+                        2. Add a function to check if the event place is available
+                        3. Add a function to store the places in the database, so other places that will be built in the future will be added to the list
+                -->
+                <label class="form-label mb-0">Select Event Place</label>
+                <select class="form-select mb-3 mt-0" name="place" id="place">
+                    <option value="Phase 3 Clubhouse">Phase 3 Clubhouse</option>
+                    <option value="Phase 2 Clubhouse">Phase 2 Clubhouse</option>
+                    <option value="Phase 3 Court">Phase 3 Court</option>
+                    <option value="Phase 4 Court">Phase 4 Court</option>
+                </select>
+                <button id="buttonEventSubmit" class="btn bg-green-600 fw-semibold text-slate-50 w-100" type="submit">Book Event Place</button>
+            </div>
+        </form>
+        <div class="w-100">
+            <h4 class="fs-5 fw-semibold text-slate-900">Event you booked</h4>
+            <div class="table-responsive" style="overflow-y: auto; max-height: 200px;">
+                <table id="eventBookedTable" class="table">
+                    <thead>
+                    <tr>
+                        <th class="text-slate-600">Event Date</th>
+                        <th class="text-slate-600">Place</th>
+                        <th class="text-slate-600">Approved</th>
+                    </tr>
+                    </thead>
+                    <tbody id="eventTableBody">
+                        <tr>
+                            <td colspan="100%" class="text-slate-600">Loading</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </section>
