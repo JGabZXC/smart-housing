@@ -1,13 +1,16 @@
 /* eslint-disable */
 
+import "@babel/polyfill"
 import "./Project/projects.js"
 import "./Admin/admin_dashboard.js"
 import "./Admin/admin_edit-project-event.js"
 import "./Admin/admin_address.js"
 import "./Admin/admin_manual_payment.js"
 import "./Admin/admin_create_user.js"
+import "./Admin/admin_update_user.js"
 import "./Event/events.js"
 import "./Message/message.js"
 import "./Login/login.js"
 import "./Payment/payment.js"
 import "./Me/me.js"
+import "./Me/bookEvent.js"

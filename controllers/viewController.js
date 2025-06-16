@@ -124,7 +124,7 @@ exports.getCreateResident = catchAsync(async (req, res, next) => {
 });
 
 exports.getUpdateResident = catchAsync(async (req, res, next) => {
-  res.status(200).render('update_resident', {
+  res.status(200).render('Admin/update_user', {
     title: 'Update Resident',
   });
 });
