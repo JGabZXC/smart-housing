@@ -4,10 +4,35 @@ const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 const EventResident = require('../models/eventResidentModel');
 
-exports.getAllEvents = handler.getAll(EventResident);
+exports.getAllEvents = catchAsync(async (req, res, next) => {
+  const features = new APIFeatures(
+    EventResident.find().populate('user'),
+    req.query,
+  )
+    .sort()
+    .paginate();
+
+  const [events, totalEvents] = await Promise.all([
+    features.query,
+    EventResident.find().countDocuments(),
+  ]);
+  const totalPages = Math.ceil(totalEvents / (req.query.limit || 10));
+  let finalEvents = events;
+  if(req.query.sort === 'user.name') {
+    finalEvents = events.sort((a, b) => a.user.name.localeCompare(b.user.name));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    results: events.length,
+    totalPages,
+    data: {
+      doc: finalEvents,
+    },
+  });
+});
 exports.getEvent = handler.getOne(EventResident);
 exports.getMyEvent = catchAsync(async (req, res, next) => {
-  req.query.sort = '-createdAt';
   const features = new APIFeatures(
     EventResident.find({ user: req.user._id }),
     req.query,
@@ -15,11 +40,10 @@ exports.getMyEvent = catchAsync(async (req, res, next) => {
     .sort()
     .paginate();
 
-  const events = await features.query;
-
-  const totalEvents = await EventResident.find({
-    user: req.user._id,
-  }).countDocuments();
+  const [events, totalEvents] = await Promise.all(
+    features.query,
+    EventResident.find().countDocuments(),
+  );
   const totalPages = Math.ceil(totalEvents / (req.query.limit || 10));
 
   res.status(200).json({
