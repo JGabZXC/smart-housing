@@ -182,4 +182,77 @@ export class PaginatedAdminPaymentList extends PaginatedAdminList {
   }
 }
 
+export class PaginatedAdminBookingEvent extends PaginatedAdminList {
+  constructor({ container, paginationContainer, endpoint, type, itemsPerPage = 1, sort = '-createdAt' }) {
+    super({ container, paginationContainer, endpoint, type, itemsPerPage, sort })
+    this.abortController = null;
+  }
+
+  createCard(item, index) {
+    const markup = `
+    <tr class="text-slate-800">
+      <td style="vertical-align: middle">${item.user.name}</td>
+      <td style="vertical-align: middle">${item.place}</td>
+      <td style="vertical-align: middle">${item.user.contactNumber}</td>
+      <td style="vertical-align: middle">${item.user.email}</td>
+      <td style="vertical-align: middle">${item.user.address.completeAddress}</td>
+      <td style="vertical-align: middle">${item.approvedBy ? item.approvedBy.name : ""}</td>
+      <td style="vertical-align: middle">
+        <button class="btn bg-${item.approved ? "yellow" : "green"}-700 text-slate-100 fw-semibold" data-eventstatus="${item.approved ? "disapprove" : "approve"}" data-eventid="${item._id}">${item.approved ? "Unapprove" : "Approve"}</button>
+      </td>
+    </tr>
+    `;
+    this.container.innerHTML += markup;
+  }
+
+  async render() {
+    if (this.abortController) this.abortController.abort();
+    spinner(this.container);
+    try {
+      this.abortController = new AbortController();
+      const url = this.endpoint.includes('email') ? `${this.endpoint}&page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}` : `${this.endpoint}?page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}`;
+
+      const data = await fetchData(url, { signal: this.abortController.signal });
+      this.container.innerHTML = '';
+      this.paginationContainer.innerHTML = '';
+
+      const items = data.data.doc;
+      const totalPages = data.totalPages;
+      const hasNextPage = this.currentPage < totalPages;
+
+      if (!items.length) {
+        this.container.innerHTML = `<p class="fs-6 text-slate-400">No ${this.type} available.</p>`;
+        return;
+      }
+
+      if(this.currentPage === 1) {
+        const featuredItem = items.find(item => item.isFeatured === true);
+        if(featuredItem) this.createCard(featuredItem);
+      }
+
+      items.forEach(item => !item.isFeatured && this.createCard(item));
+      if (totalPages > 1) this.renderPagination(totalPages, hasNextPage);
+    } catch (error) {
+      if(error.name === 'CanceledError') {
+        this.container.innerHTML = `
+        <tr>
+          <td colspan="100%">
+             <p class="text-red-600 m-0">Previous request was cancelled.</p>
+          </td>
+        </tr>
+      `;
+      } else {
+        // this.container.innerHTML = `
+        // <tr>
+        //   <td colspan="100%">
+        //      <p class="text-red-600 m-0">Failed to load ${this.type}. Please try again later</p>
+        //   </td>
+        // </tr>
+        // `;
+        throw error;
+      }
+    }
+  }
+}
+
 export default PaginatedAdminList;
