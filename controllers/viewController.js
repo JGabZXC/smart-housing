@@ -1,12 +1,9 @@
-const { GetObjectCommand } = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-const s3 = require('../utils/s3Bucket');
-
 const catchAsync = require('../utils/catchAsync');
 const Project = require('../models/projectModel');
 const Event = require('../models/eventModel');
 const Garbage = require('../models/garbageModel');
 const Payment = require('../models/paymentModel');
+const EventResident = require('../models/eventResidentModel');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
@@ -147,5 +144,11 @@ exports.editProjEvePage = catchAsync(async (req, res, next) => {
     title: data.name,
     data,
     type,
+  });
+});
+
+exports.acceptEventBookings = catchAsync(async (req, res, next) => {
+  res.status(200).render('Admin/acceptEventBookings', {
+    title: 'Event Bookings',
   });
 });
