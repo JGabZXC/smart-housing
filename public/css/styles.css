@@ -707,6 +707,23 @@
     height: 20rem !important;
 }
 
+#tableAcceptEventBookings {
+    height: 30rem !important;
+    position: relative;
+}
+
+#tableAcceptEventBookings thead {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 1;
+}
+
+#tableAcceptEventBookings thead th {
+    background-color: #fff;
+    border-bottom: 2px solid #dee2e6;
+}
+
 @media (min-width: 768px) {
     .pay-dues-container {
         width: 30% !important;
