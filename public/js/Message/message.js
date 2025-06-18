@@ -17,7 +17,7 @@ const commentPaginationType = document.querySelector('#comment-pagination-type')
 let abortController;
 
 let currentPage = 1;
-const messagesPerPage = 1;
+const messagesPerPage = 10;
 let hasNextPage = false;
 
 async function getMessages(type, id) {
@@ -182,12 +182,15 @@ if(formMessage) {
     e.preventDefault();
     const formData = new FormData(formMessage);
 
+    if(abortController) abortController
+
     try {
       buttonSpinner(submitMessageBtn, 'Submit', 'Submitting')
       const res = await axios({
         method: 'POST',
         url: `/api/v1/${type}/${typeID}/messages`,
         data: { message: formData.get('comment') },
+        signal: abortController ? abortController.signal : undefined,
       });
       const message = res.data;
       console.log(message);
