@@ -59,7 +59,7 @@
                             <%= featuredEvent.richDescription.length > 200 ? '...' : '' %>
                         </p>
                         <div class="my-3">
-                            <a class="btn me-2 bg-yellow-300 text-slate-600 fw-semibold" role="button" href="#">Attend</a>
+                            <a id="attendEventIndex" class="btn me-2 bg-yellow-300 text-slate-600 fw-semibold attend-button" role="button" href="#">Attend</a>
                             <a class="btn me-2 border border-yellow-300 text-yellow-300 text-button fw-semibold transition" role="button" href="/events/<%= featuredEvent.slug %>">Read More</a>
                         </div>
                     </div>

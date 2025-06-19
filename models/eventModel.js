@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const AppError = require('../utils/appError');
 const slugify = require('slugify');
+const AppError = require('../utils/appError');
 
 const eventSchema = new mongoose.Schema({
   name: {
@@ -30,13 +30,15 @@ const eventSchema = new mongoose.Schema({
   imageCover: {
     key: String,
     signedUrl: String,
-    signedUrlExpires: Date
+    signedUrlExpires: Date,
   },
-  images: [{
-    key: String,
-    signedUrl: String,
-    signedUrlExpires: Date
-  }],
+  images: [
+    {
+      key: String,
+      signedUrl: String,
+      signedUrlExpires: Date,
+    },
+  ],
   isFeatured: {
     type: Boolean,
     default: false,
@@ -82,7 +84,7 @@ eventSchema.pre('findOneAndUpdate', async function (next) {
       return next(new AppError('There is already a featured event', 400));
   }
 
-  if(update.name) {
+  if (update.name) {
     update.slug = slugify(update.name, { lower: true });
   }
 
