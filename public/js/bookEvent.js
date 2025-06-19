@@ -56,7 +56,6 @@ if(eventBookedTable) {
 }
 
 if(bookEventPlace) {
-  console.log(bookEventPlace);
   bookEventPlace.addEventListener("submit", async(e) => {
     e.preventDefault();
     const formData = new FormData(bookEventPlace);
