@@ -204,19 +204,34 @@ exports.deleteEvent = catchAsync(async (req, res, next) => {
 });
 exports.attendEvent = catchAsync(async (req, res, next) => {
   const event = await Event.findById(req.params.id);
+  const { type } = req.query;
+  console.log(type);
+
+  if (type && type !== 'attend' && type !== 'leave')
+    return next(
+      new AppError('Invalid type parameter. Use "attend" or "leave".', 400),
+    );
 
   if (!event) return next(new AppError('Event not found!'));
 
-  if (event.attendees.includes(req.user._id))
-    return next(new AppError('You are already attending this event!'));
+  const update = {};
+  if (type === 'leave') {
+    update.$pull = { attendees: req.user._id };
+  } else {
+    if (event.attendees.includes(req.user._id))
+      return next(new AppError('You are already attending this event!'));
+    update.$push = { attendees: req.user._id };
+  }
 
-  event.attendees.push(req.user._id);
-  await event.save();
+  const updatedEvent = await Event.findByIdAndUpdate(req.params.id, update, {
+    new: true,
+    runValidators: true,
+  });
 
   res.status(200).json({
     status: 'success',
     data: {
-      event,
+      updatedEvent,
     },
   });
 });

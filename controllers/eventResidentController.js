@@ -65,8 +65,6 @@ exports.getMyEvent = catchAsync(async (req, res, next) => {
 exports.createEvent = catchAsync(async (req, res, next) => {
   req.body.user = req.user._id;
 
-  console.log(req.body);
-
   const event = await EventResident.create(req.body);
 
   res.status(201).json({

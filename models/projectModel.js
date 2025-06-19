@@ -1,7 +1,3 @@
-// const { GetObjectCommand } = require('@aws-sdk/client-s3');
-// const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-// const s3 = require('../utils/s3Bucket');
-
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const AppError = require('../utils/appError');

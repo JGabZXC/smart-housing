@@ -68,4 +68,12 @@ router
     viewController.getUpdateResident,
   );
 
+router
+  .route('/admin/event-bookings')
+  .get(
+    authController.protect,
+    authController.protectTo('admin'),
+    viewController.acceptEventBookings,
+  );
+
 module.exports = router;
