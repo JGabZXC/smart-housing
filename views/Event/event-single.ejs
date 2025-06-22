@@ -19,8 +19,8 @@
                   <div class="text-white">
                       <h1 class="mb-3 fw-semibold"><%= event.name %></h1>
                       <h4 class="mb-3"><%= event.place %> <br/> <small><%= date %></small></h4>
-                      <% const isAttending = event.attendees.some(attendee => attendee.toString() === user._id.toString()); %>
                       <% if(locals.user) { %>
+                            <% const isAttending = event.attendees.some(attendee => attendee.toString() === user._id.toString()); %>
                           <button id="attendEventSingle" class="btn me-2 border border-yellow-300 text-yellow-300 text-button fw-semibold transition attend-button" data-eventid=<%= event._id %> data-attended=<%= isAttending %>><%= isAttending ? "Leave Event" : "Attend Event" %></button>
                       <% } %>
                   </div>

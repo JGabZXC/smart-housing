@@ -20,7 +20,7 @@ exports.changePassword = catchAsync(async (req, res, next) => {
 });
 
 exports.changeDetails = catchAsync(async (req, res, next) => {
-  const { name, email } = req.body;
+  const { name, email, contactNumber } = req.body;
 
   if (typeof name !== 'string' || typeof email !== 'string')
     return next(new AppError('Name or email must be strings', 400));
@@ -33,19 +33,19 @@ exports.changeDetails = catchAsync(async (req, res, next) => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
-  if (!email ) delete req.body.email;
-  if(!name) delete req.body.name;
+  if (!email) delete req.body.email;
+  if (!name) delete req.body.name;
+  if (!contactNumber) delete req.body.contactNumber;
 
-  if(email) {
+  if (email) {
     const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     if (!isValid) return next(new AppError('Invalid email format', 400));
   }
 
-
   const updatedUser = await User.findByIdAndUpdate(req.user._id, req.body, {
     new: true,
-    runValidators: true,
+    validateModifiedOnly: true,
   });
 
   authController.sendToken(updatedUser, 200, res);
