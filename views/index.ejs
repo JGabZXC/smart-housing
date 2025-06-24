@@ -75,36 +75,42 @@
         <h1 class="text-center fw-bold mb-3 text-slate-900">GARBAGE COLLECTION</h1>
             <div>
               <div class="table-responsive">
-                <table class="table">
-                  <thead>
-                    <% const phase3 = garbages.filter(garbage => garbage.phase === 3); %>
-                    <tr>
-                      <% phase3.forEach(gb => { %>
-                      <th class="text-slate-900 fw-semibold"><%= gb.day %></th>
-                      <% }); %>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <%
-                        // Find the maximum number of timeLocation entries across all days
-                        const maxTimeLocations = Math.max(...phase3.map(day => day.timeLocation.length));
-                      %>
-                    <% for (let i = 0; i < maxTimeLocations; i++) { %>
-                    <tr>
-                      <% phase3.forEach(day => { %>
-                      <td class="text-slate-600">
-                        <% if (day.timeLocation[i]) { %>
-                        <%= day.timeLocation[i].time %> (<%= day.timeLocation[i].street %>)
-                        <% } else { %>
-                        <!-- If no data for this row, leave the cell empty -->
-                        &nbsp;
-                        <% } %>
-                      </td>
-                      <% }); %>
-                    </tr>
-                    <% } %>
-                  </tbody>
-                </table>
+                  <% garbages.map(garbage => { %>
+                    <h2 class="fs-5 text-slate-600 fw-semibold">Phase <%= garbage.phase %></h2>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <% garbage.schedule.forEach(sched => { %>
+                          <th class="text-slate-900 fw-semibold"><%= sched.day %></th>
+                          <% }); %>
+                        </tr>
+                      </thead>
+                        <tbody>
+                       <%
+                       // Find the maximum number of time slots across all days
+                       let maxSlots = 0;
+                       garbage.schedule.forEach(sched => {
+                           if (sched.timeLocation.length > maxSlots) {
+                               maxSlots = sched.timeLocation.length;
+                           }
+                       });
+
+                       // Create rows for each time slot
+                       for (let i = 0; i < maxSlots; i++) { %>
+                       <tr class="text-slate-900 fw-semibold">
+                           <% garbage.schedule.forEach(sched => { %>
+                               <td>
+                                   <% if (sched.timeLocation[i]) { %>
+                                       <%= sched.timeLocation[i].time %>
+                                       ( <%= sched.timeLocation[i].street.join(', ') %> )
+                                   <% } %>
+                               </td>
+                           <% }); %>
+                       </tr>
+                       <% } %>
+                      </tbody>
+                    </table>
+                  <% }); %>
               </div>
             </div>
           </div>
