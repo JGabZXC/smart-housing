@@ -76,4 +76,12 @@ router
     viewController.acceptEventBookings,
   );
 
+router
+  .route('/admin/garbage-collection')
+  .get(
+    authController.protect,
+    authController.protectTo('admin'),
+    viewController.getGarbageCollection,
+  );
+
 module.exports = router;

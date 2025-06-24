@@ -1,0 +1,95 @@
+<section id="garbageCollectionSection" class="container mt-3">
+    <div
+      class="modal fade"
+      id="garbageModal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="garbageModal"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">Create Garbage</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form id="createGarbageForm">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="phase" class="form-label">Phase</label>
+                <input class="form-control" type="number" id="phase" name="phase" />
+              </div>
+              <div class="mb-3">
+                <label for="day" class="form-label">Day</label>
+                <input class="form-control" type="text" id="day" name="day" />
+              </div>
+              <div class="mb-3">
+                <label for="street" class="form-label">Street</label>
+                <input class="form-control" type="text" id="street" name="street" />
+              </div>
+              <div class="mb-3">
+                <label for="from" class="form-label">Time From</label>
+                <input class="form-control" type="time" id="from" name="from" />
+              </div>
+              <div class="mb-3">
+                <label for="to" class="form-label">Time To</label>
+                <input class="form-control" type="time" id="to" name="to" />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn bg-slate-400 text-slate-100"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                id="garbageModalConfirm"
+                type="submit"
+                class="btn bg-green-700 text-slate-100"
+              >
+                Confirm
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="d-flex gap-3 align-items-center">
+        <h2 class="fs-5 m-0 text-slate-700 fw-bold">Collections</h2>
+        <button
+          id="createGarbageButton"
+          class="btn bg-green-700 text-slate-50 fw-bold"
+          data-bs-target="#garbageModal"
+          data-bs-toggle="modal"
+        >
+          + Garbage
+        </button>
+      </div>
+
+      <div id="listOfGarbages" class="text-slate-700">
+          <p>Fetching data...</p>
+      </div>
+        <nav>
+          <ul id="garbageCollectionPagination" class="pagination">
+              <li class="page-item">
+                  <a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span>
+                  </a>
+              </li>
+              <li class="page-item">
+                  <a class="page-link" href="#">1</a></li>
+              <li class="page-item">
+                  <a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span>
+                  </a>
+              </li>
+          </ul>
+        </nav>
+    </div>
+</section>
