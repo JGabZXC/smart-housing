@@ -82,7 +82,9 @@ exports.updateGarbageScheduleTimeLocation = catchAsync(
 );
 exports.insertGarbageSchedule = catchAsync(async (req, res, next) => {
   const { garbageId } = req.params;
-  const { day, timeLocation } = req.body;
+  const { schedule } = req.body;
+
+  const day = schedule.day;
 
   if (typeof day !== 'string' || !day)
     return next(new AppError('Day must be a string', 400));
@@ -93,10 +95,7 @@ exports.insertGarbageSchedule = catchAsync(async (req, res, next) => {
   const garbage = await Garbage.findOne({ _id: garbageId });
   if (!garbage) return next(new AppError('No garbage found with that ID', 404));
 
-  garbage.schedule.push({
-    day: formattedDay,
-    timeLocation,
-  });
+  garbage.schedule.push(schedule);
   const updatedGarbage = await garbage.save({
     validateModifiedOnly: true,
   });

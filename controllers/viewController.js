@@ -21,8 +21,6 @@ exports.getIndex = catchAsync(async (req, res, next) => {
       minute: '2-digit',
     });
 
-  console.log(garbages);
-
   res.status(200).render('index', {
     title: 'Holiday Homes',
     garbages,

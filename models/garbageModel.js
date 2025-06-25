@@ -15,7 +15,6 @@ const garbageSchema = new mongoose.Schema({
   phase: {
     type: Number,
     required: [true, 'Please provide Phase'],
-    unique: true,
   },
   schedule: [
     {
@@ -58,15 +57,15 @@ garbageSchema.pre('save', function (next) {
   this.schedule.forEach((schedule) => {
     const timeLocations = schedule.timeLocation.map((tl) => ({
       time: tl.time,
-      streets: tl.street
+      streets: tl.street,
     }));
 
     // Check for duplicate time entries
-    const timeStrings = timeLocations.map(tl => tl.time);
+    const timeStrings = timeLocations.map((tl) => tl.time);
     const uniqueTimes = new Set(timeStrings);
     if (timeStrings.length !== uniqueTimes.size) {
       return next(
-        new Error('Duplicate time entries are not allowed within the same day')
+        new Error('Duplicate time entries are not allowed within the same day'),
       );
     }
 
@@ -75,7 +74,7 @@ garbageSchema.pre('save', function (next) {
 
     if (allStreets.length !== uniqueStreets.size) {
       return next(
-        new Error('Duplicate streets are not allowed within the same day')
+        new Error('Duplicate streets are not allowed within the same day'),
       );
     }
   });

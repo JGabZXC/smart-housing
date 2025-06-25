@@ -1,95 +1,75 @@
+<!-- views/Admin/garbageCollection.ejs -->
 <section id="garbageCollectionSection" class="container mt-3">
-    <div
-      class="modal fade"
-      id="garbageModal"
-      data-bs-backdrop="static"
-      data-bs-keyboard="false"
-      tabindex="-1"
-      aria-labelledby="garbageModal"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-success text-white">
-            <h5 class="modal-title">Create Garbage</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <form id="createGarbageForm">
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="phase" class="form-label">Phase</label>
-                <input class="form-control" type="number" id="phase" name="phase" />
-              </div>
-              <div class="mb-3">
-                <label for="day" class="form-label">Day</label>
-                <input class="form-control" type="text" id="day" name="day" />
-              </div>
-              <div class="mb-3">
-                <label for="street" class="form-label">Street</label>
-                <input class="form-control" type="text" id="street" name="street" />
-              </div>
-              <div class="mb-3">
-                <label for="from" class="form-label">Time From</label>
-                <input class="form-control" type="time" id="from" name="from" />
-              </div>
-              <div class="mb-3">
-                <label for="to" class="form-label">Time To</label>
-                <input class="form-control" type="time" id="to" name="to" />
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn bg-slate-400 text-slate-100"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-              <button
-                id="garbageModalConfirm"
-                type="submit"
-                class="btn bg-green-700 text-slate-100"
-              >
-                Confirm
-              </button>
-            </div>
-          </form>
+  <!-- Create/Edit Modal -->
+  <div class="modal fade" id="garbageModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="modalTitle">Manage Collection</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-      </div>
-    </div>
-    <div>
-      <div class="d-flex gap-3 align-items-center">
-        <h2 class="fs-5 m-0 text-slate-700 fw-bold">Collections</h2>
-        <button
-          id="createGarbageButton"
-          class="btn bg-green-700 text-slate-50 fw-bold"
-          data-bs-target="#garbageModal"
-          data-bs-toggle="modal"
-        >
-          + Garbage
-        </button>
-      </div>
+        <form id="garbageForm">
+          <div class="modal-body">
+              <input type="hidden" id="garbageId">
+              <input type="hidden" id="scheduleId">
+              <input type="hidden" id="timeLocationId">
 
-      <div id="listOfGarbages" class="text-slate-700">
-          <p>Fetching data...</p>
+              <div id="phaseContainer" class="mb-3">
+                  <label for="phase" class="form-label">Phase</label>
+                  <input type="number" class="form-control" id="phase" required>
+              </div>
+
+              <div id="dayContainer" class="mb-3">
+                  <label for="day" class="form-label">Day</label>
+                  <select class="form-select" id="day" required>
+                      <option value="">Select day</option>
+                      <option value="Monday">Monday</option>
+                      <option value="Tuesday">Tuesday</option>
+                      <option value="Wednesday">Wednesday</option>
+                      <option value="Thursday">Thursday</option>
+                      <option value="Friday">Friday</option>
+                      <option value="Saturday">Saturday</option>
+                      <option value="Sunday">Sunday</option>
+                  </select>
+              </div>
+
+              <div id="timeContainer" class="mb-3">
+                  <label for="time" class="form-label">Time</label>
+                  <div class="input-group">
+                      <input type="time" class="form-control" id="timeFrom" required>
+                      <span class="input-group-text">to</span>
+                      <input type="time" class="form-control" id="timeTo" required>
+                  </div>
+              </div>
+
+              <div id="streetContainer" class="mb-3">
+                  <label for="streets" class="form-label">Streets</label>
+                  <div id="streetInputs">
+                      <div class="input-group mb-2">
+                          <input type="text" class="form-control street-input" required>
+                          <button type="button" class="btn btn-outline-secondary add-street">+</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-success">Save</button>
+          </div>
+        </form>
       </div>
-        <nav>
-          <ul id="garbageCollectionPagination" class="pagination">
-              <li class="page-item">
-                  <a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span>
-                  </a>
-              </li>
-              <li class="page-item">
-                  <a class="page-link" href="#">1</a></li>
-              <li class="page-item">
-                  <a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span>
-                  </a>
-              </li>
-          </ul>
-        </nav>
     </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Garbage Collection Schedule</h2>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#garbageModal">
+      Add Collection
+    </button>
+  </div>
+
+  <div id="garbageList">
+    <!-- Dynamic content will be inserted here -->
+  </div>
 </section>
