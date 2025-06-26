@@ -80,11 +80,44 @@ exports.updateGarbageScheduleTimeLocation = catchAsync(
     });
   },
 );
+exports.deleteGarbageScheduleTimeLocation = catchAsync(
+  async (req, res, next) => {
+    const { garbageId, scheduleId, timelocationId } = req.params;
+
+    const existingTimeLocation = await Garbage.findOne({
+      _id: garbageId,
+      'schedule._id': scheduleId,
+      'schedule.timeLocation._id': timelocationId,
+    });
+
+    if (!existingTimeLocation)
+      return next(new AppError('No time location found with that ID', 404));
+
+    const schedule = existingTimeLocation.schedule.id(scheduleId);
+    const toUpdateLocation = schedule.timeLocation.id(timelocationId);
+
+    if (!toUpdateLocation)
+      return next(new AppError('No time location found with that ID', 404));
+
+    schedule.timeLocation.pull(timelocationId) // Delete the time location
+
+    const updatedGarbage = await existingTimeLocation.save({
+      validateModifiedOnly: true,
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        doc: updatedGarbage,
+      },
+    });
+  },
+);
 exports.insertGarbageSchedule = catchAsync(async (req, res, next) => {
   const { garbageId } = req.params;
   const { schedule } = req.body;
 
-  const day = schedule.day;
+  const { day } = schedule;
 
   if (typeof day !== 'string' || !day)
     return next(new AppError('Day must be a string', 400));

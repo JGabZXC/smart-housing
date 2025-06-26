@@ -16,12 +16,12 @@
 
               <div id="phaseContainer" class="mb-3">
                   <label for="phase" class="form-label">Phase</label>
-                  <input type="number" class="form-control" id="phase" required>
+                  <input type="number" class="form-control" id="phase">
               </div>
 
               <div id="dayContainer" class="mb-3">
                   <label for="day" class="form-label">Day</label>
-                  <select class="form-select" id="day" required>
+                  <select class="form-select" id="day">
                       <option value="">Select day</option>
                       <option value="Monday">Monday</option>
                       <option value="Tuesday">Tuesday</option>
@@ -36,9 +36,9 @@
               <div id="timeContainer" class="mb-3">
                   <label for="time" class="form-label">Time</label>
                   <div class="input-group">
-                      <input type="time" class="form-control" id="timeFrom" required>
+                      <input type="time" class="form-control" id="timeFrom">
                       <span class="input-group-text">to</span>
-                      <input type="time" class="form-control" id="timeTo" required>
+                      <input type="time" class="form-control" id="timeTo">
                   </div>
               </div>
 
@@ -46,15 +46,15 @@
                   <label for="streets" class="form-label">Streets</label>
                   <div id="streetInputs">
                       <div class="input-group mb-2">
-                          <input type="text" class="form-control street-input" required>
+                          <input type="text" class="form-control street-input">
                           <button type="button" class="btn btn-outline-secondary add-street">+</button>
                       </div>
                   </div>
               </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-success">Save</button>
+            <button type="button" class="btn border border-green-700 text-green-700 fw-semibold" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn bg-green-700 text-slate-100 fw-semibold ">Save</button>
           </div>
         </form>
       </div>
@@ -63,8 +63,8 @@
 
   <!-- Main Content -->
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h4 mb-0">Garbage Collection Schedule</h2>
-    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#garbageModal">
+    <h2 class="h4 mb-0 text-slate-900 fw-bold">Garbage Collection Schedule</h2>
+    <button class="btn bg-green-700 text-slate-100 fw-semibold" data-bs-toggle="modal" data-bs-target="#garbageModal">
       Add Collection
     </button>
   </div>

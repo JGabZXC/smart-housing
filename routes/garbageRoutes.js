@@ -53,6 +53,11 @@ router
     authController.protect,
     authController.protectTo('admin'),
     garbageController.updateGarbageScheduleTimeLocation,
+  )
+  .delete(
+    authController.protect,
+    authController.protectTo('admin'),
+    garbageController.deleteGarbageScheduleTimeLocation,
   );
 
 module.exports = router;
