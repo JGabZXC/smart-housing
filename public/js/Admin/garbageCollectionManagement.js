@@ -14,6 +14,11 @@ class GarbageCollectionManager {
 
     this.setupEventListeners();
     this.loadCollections();
+
+    // Add reset form behavior before modal closes
+    document.getElementById('garbageModal').addEventListener('hide.bs.modal', () => {
+      this.resetForm();
+    });
   }
 
   setupEventListeners() {
@@ -156,8 +161,6 @@ class GarbageCollectionManager {
     console.log(body);
 
     try {
-      let response;
-
       if(body.phase && body.schedule.day === '') {
         await patchData(`/api/v1/garbages/${formData.garbageId}`, {
           phase: body.phase
@@ -215,13 +218,14 @@ class GarbageCollectionManager {
     const inputs = this.garbageForm.querySelectorAll('input, select');
 
     // Handle visibility and required attributes
-    if (!document.getElementById('garbageId').value) {
-      document.querySelector('#modalTitle').textContent = 'Add Collection';
-      document.querySelector('#phaseContainer').style.display = 'block';
-      document.querySelector('#dayContainer').style.display = 'block';
-      document.querySelector('#timeContainer').style.display = 'block';
-      document.querySelector('#streetContainer').style.display = 'block';
-    }
+    const isNewCollection = !document.getElementById('garbageId').value;
+
+    // Show all containers for new collection
+    document.querySelector('#modalTitle').textContent = isNewCollection ? 'Add Collection' : document.querySelector('#modalTitle').textContent;
+    document.querySelector('#phaseContainer').style.display = isNewCollection ? 'block' : document.querySelector('#phaseContainer').style.display;
+    document.querySelector('#dayContainer').style.display = isNewCollection ? 'block' : document.querySelector('#dayContainer').style.display;
+    document.querySelector('#timeContainer').style.display = isNewCollection ? 'block' : document.querySelector('#timeContainer').style.display;
+    document.querySelector('#streetContainer').style.display = isNewCollection ? 'block' : document.querySelector('#streetContainer').style.display;
 
     // Set required attribute based on container visibility
     inputs.forEach(input => {
@@ -236,6 +240,14 @@ class GarbageCollectionManager {
 
   resetForm() {
     this.garbageForm.reset();
+
+    this.configureModalDisplay({
+      title: 'Add Collection',
+      showTime: true,
+      showStreet: true,
+      showDay: true,
+      showPhase: true
+    })
 
     // Reset street inputs
     document.getElementById('streetInputs').innerHTML = `
@@ -271,6 +283,13 @@ class GarbageCollectionManager {
 
     document.body.insertAdjacentHTML('beforeend', confirmModal);
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+
+    // Add reset form behavior before modal closes
+    document.getElementById('deleteConfirmModal').addEventListener('hide.bs.modal', () => {
+      this.resetForm();
+      document.getElementById('deleteConfirmModal').remove();
+    });
+
     deleteModal.show();
 
     // Handle delete confirmation
@@ -281,7 +300,7 @@ class GarbageCollectionManager {
 
         if(deletedItem.status === 'success') {
           deleteModal.hide();
-          document.getElementById('deleteConfirmModal').remove();
+          // Remove modal cleanup as it's now handled in hide.bs.modal event
 
           // Show success notification modal
           this.showNotificationModal('Success', 'Time location deleted successfully', 'success');
@@ -289,14 +308,9 @@ class GarbageCollectionManager {
         }
       } catch (err) {
         deleteModal.hide();
-        document.getElementById('deleteConfirmModal').remove();
+        // Remove modal cleanup as it's now handled in hide.bs.modal event
         this.showNotificationModal('Error', 'Error deleting time location', 'danger');
       }
-    });
-
-    // Clean up modal when hidden
-    document.getElementById('deleteConfirmModal').addEventListener('hidden.bs.modal', function () {
-      this.remove();
     });
   }
 
@@ -349,73 +363,95 @@ class GarbageCollectionManager {
     }
   }
 
-  async handleAddDay(garbageId) {
-    document.getElementById('garbageId').value = garbageId;
+  // Helper method to configure modal display
+  configureModalDisplay({ title, showTime = false, showStreet = false, showDay = false, showPhase = false }) {
+    document.querySelector('#modalTitle').textContent = title;
+    document.querySelector('#timeContainer').style.display = showTime ? 'block' : 'none';
+    document.querySelector('#streetContainer').style.display = showStreet ? 'block' : 'none';
+    document.querySelector('#dayContainer').style.display = showDay ? 'block' : 'none';
+    document.querySelector('#phaseContainer').style.display = showPhase ? 'block' : 'none';
+  }
 
+  // Helper method to fetch garbage data
+  async fetchGarbageData(garbageId) {
     const garbageData = await fetchData(`/api/v1/garbages/${garbageId}`);
+    return garbageData.data.doc;
+  }
 
-    document.querySelector('#modalTitle').textContent = `Add Day for Phase ${garbageData.data.doc.phase}`;
-    document.querySelector('#timeContainer').style.display = 'none';
-    document.querySelector('#streetContainer').style.display = 'none';
-    document.querySelector('#dayContainer').style.display = 'block';
-    document.querySelector('#phaseContainer').style.display = 'none';
+  // Helper method to set form values
+  setFormValues({ garbageId = '', scheduleId = '', phase = '', day = '', timeFrom = '', timeTo = '', timeLocationId = '' }) {
+    document.getElementById('garbageId').value = garbageId;
+    document.getElementById('scheduleId').value = scheduleId;
+    document.getElementById('phase').value = phase;
+    document.getElementById('day').value = day;
+    document.getElementById('timeFrom').value = timeFrom;
+    document.getElementById('timeTo').value = timeTo;
+    if (timeLocationId !== undefined) {
+      document.getElementById('timeLocationId').value = timeLocationId;
+    }
+  }
+
+  async handleAddDay(garbageId) {
+    const garbageData = await this.fetchGarbageData(garbageId);
+
+    this.setFormValues({ garbageId });
+    this.configureModalDisplay({
+      title: `Add Day for Phase ${garbageData.phase}`,
+      showDay: true
+    });
+
     this.checkRequiredForm();
-
     this.modal.show();
   }
 
   async handleAddTime({ garbageId, scheduleId }) {
-    document.getElementById('garbageId').value = garbageId;
-    document.getElementById('scheduleId').value = scheduleId;
+    const garbageData = await this.fetchGarbageData(garbageId);
+    const schedule = garbageData.schedule.find(s => s._id === scheduleId);
 
+    this.setFormValues({ garbageId, scheduleId });
+    this.configureModalDisplay({
+      title: `Add Time for ${schedule.day}`,
+      showTime: true,
+      showStreet: true
+    });
 
-    const garbageData = await fetchData(`/api/v1/garbages/${garbageId}`);
-    const schedule = garbageData.data.doc.schedule.find(s => s._id === scheduleId);
-
-    document.querySelector('#modalTitle').textContent = `Add Time for ${schedule.day}`;
-    document.querySelector('#timeContainer').style.display = 'block';
-    document.querySelector('#streetContainer').style.display = 'block';
-    document.querySelector('#dayContainer').style.display = 'none';
-    document.querySelector('#phaseContainer').style.display = 'none';
     this.checkRequiredForm();
-
     this.modal.show();
   }
 
   async handleEditPhaseNumber(garbageId) {
-    document.getElementById('garbageId').value = garbageId;
-    const garbageData = await fetchData(`/api/v1/garbages/${garbageId}`);
+    const garbageData = await this.fetchGarbageData(garbageId);
 
-    document.querySelector('#modalTitle').textContent = `Edit Phase Number (${garbageData.data.doc.phase})`;
-    document.querySelector('#phaseContainer').style.display = 'block';
-    document.querySelector('#phase').value = garbageData.data.doc.phase;
-    document.querySelector('#timeContainer').style.display = 'none';
-    document.querySelector('#streetContainer').style.display = 'none';
-    document.querySelector('#dayContainer').style.display = 'none';
+    this.setFormValues({
+      garbageId,
+      phase: garbageData.phase
+    });
+
+    this.configureModalDisplay({
+      title: `Edit Phase Number (${garbageData.phase})`,
+      showPhase: true
+    });
+
     this.checkRequiredForm();
   }
 
   async handleEditName({ garbageId, scheduleId }) {
     this.resetForm();
-    document.getElementById('garbageId').value = garbageId;
-    document.getElementById('scheduleId').value = scheduleId;
-    document.getElementById('timeLocationId').value = '';
+    const garbageData = await this.fetchGarbageData(garbageId);
+    const schedule = garbageData.schedule.find(s => s._id === scheduleId);
 
-    const garbageData = await fetchData(`/api/v1/garbages/${garbageId}`);
-    const schedule = garbageData.data.doc.schedule.find(s => s._id === scheduleId);
+    this.setFormValues({
+      garbageId,
+      scheduleId,
+      phase: garbageData.phase,
+      day: schedule.day,
+      timeLocationId: ''
+    });
 
-    document.getElementById('phase').value = garbageData.data.doc.phase;
-    document.getElementById('day').value = schedule.day;
-    document.getElementById('timeFrom').value = '';
-    document.getElementById('timeTo').value = '';
-
-
-    document.querySelector('#modalTitle').textContent = `Edit Day Name`;
-    document.querySelector('#timeContainer').style.display = 'none';
-    document.querySelector('#streetContainer').style.display = 'none';
-    document.querySelector('#dayContainer').style.display = 'block';
-    document.querySelector('#day').value = schedule.day;
-    document.querySelector('#phaseContainer').style.display = 'none';
+    this.configureModalDisplay({
+      title: 'Edit Day Name',
+      showDay: true
+    });
 
     this.modal.show();
   }
@@ -443,12 +479,14 @@ class GarbageCollectionManager {
 
     document.body.insertAdjacentHTML('beforeend', notificationModal);
     const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
-    modal.show();
 
-    // Clean up modal when hidden
-    document.getElementById('notificationModal').addEventListener('hidden.bs.modal', function () {
-      this.remove();
+    // Add reset form behavior before modal closes
+    document.getElementById('notificationModal').addEventListener('hide.bs.modal', () => {
+      this.resetForm();
+      document.getElementById('notificationModal').remove();
     });
+
+    modal.show();
   }
 }
 
