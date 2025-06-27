@@ -724,6 +724,10 @@
     border-bottom: 2px solid #dee2e6;
 }
 
+.collection-width {
+    min-width: 200px !important;
+}
+
 @media (min-width: 768px) {
     .pay-dues-container {
         width: 30% !important;

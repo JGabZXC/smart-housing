@@ -3,7 +3,6 @@ const Project = require('../models/projectModel');
 const Event = require('../models/eventModel');
 const Garbage = require('../models/garbageModel');
 const Payment = require('../models/paymentModel');
-const EventResident = require('../models/eventResidentModel');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
@@ -150,5 +149,11 @@ exports.editProjEvePage = catchAsync(async (req, res, next) => {
 exports.acceptEventBookings = catchAsync(async (req, res, next) => {
   res.status(200).render('Admin/acceptEventBookings', {
     title: 'Event Bookings',
+  });
+});
+
+exports.getGarbageCollection = catchAsync(async (req, res, next) => {
+  res.status(200).render('Admin/garbageCollection', {
+    title: 'Garbage Collection',
   });
 });
