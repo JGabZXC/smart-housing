@@ -3,6 +3,8 @@
 // public/js/Admin/garbageCollection.js
 import { showAlert } from '../utils/alerts.js';
 import { deleteData, fetchData, patchData, postData } from '../utils/http.js';
+import collectionTemplate from './GarbageHandler/collectionTemplate.js';
+import handleEditTimeLocation from './GarbageHandler/handleEdit.js';
 
 const garbageCollectionSection = document.querySelector('#garbageCollectionSection');
 
@@ -76,73 +78,7 @@ class GarbageCollectionManager {
   }
 
   renderCollections(collections) {
-    this.garbageList.innerHTML = collections.map(garbage => `
-      <div class="card mb-3">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0 text-slate-900 fw-bold">Phase ${garbage.phase}</h5>
-          <div class="d-flex align-items-center gap-2">
-            <button class="btn btn-sm bg-green-700 add-day text-slate-100 fw-semibold" data-garbage-id="${garbage._id}">
-              Add Day
-            </button>
-            <button class="btn btn-sm edit-phase-number border border-green-700 text-green-700 fw-semibold" data-bs-toggle="modal" data-bs-target="#garbageModal" data-garbage-id="${garbage._id}">
-              Edit Phase Number
-            </button>
-          </div>
-        </div>
-        <div class="card-body">
-          ${garbage.schedule.map(schedule => `
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="mb-0 text-slate-700 fw-bold">${schedule.day}</h6>
-                <div class="d-flex align-items-center gap-2">
-                  <button class="btn btn-sm add-time border border-slate-400 text-slate-400 fw-semibold" 
-                    data-garbage-id="${garbage._id}"
-                    data-schedule-id="${schedule._id}">
-                    Add Time
-                  </button>
-                  <button class="btn btn-sm edit-name border border-slate-400 text-slate-400 fw-semibold" 
-                    data-garbage-id="${garbage._id}"
-                    data-schedule-id="${schedule._id}">
-                    Edit Name
-                  </button>
-                </div>
-              </div>
-              <table class="table table-sm">
-                <thead>
-                  <tr>
-                    <th class="text-slate-700 fw-semibold">Time</th>
-                    <th class="text-slate-700 fw-semibold">Streets</th>
-                    <th class="text-slate-700 fw-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${schedule.timeLocation.map(loc => `
-                    <tr>
-                      <td class="text-slate-600" style="vertical-align: middle">${loc.time}</td>
-                      <td class="text-slate-600" style="vertical-align: middle">${loc.street.join(', ')}</td>
-                      <td style="vertical-align: middle">
-                        <button class="btn btn-sm btn-outline-primary edit-time-location"
-                          data-garbage-id="${garbage._id}"
-                          data-schedule-id="${schedule._id}"
-                          data-time-location-id="${loc._id}">
-                          Edit
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger delete-time-location"
-                          data-garbage-id="${garbage._id}"
-                          data-schedule-id="${schedule._id}"
-                          data-time-location-id="${loc._id}">
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `).join('');
+    collectionTemplate.call(this, collections);
   }
 
   async handleFormSubmit() {
@@ -217,16 +153,6 @@ class GarbageCollectionManager {
     // Get all form inputs
     const inputs = this.garbageForm.querySelectorAll('input, select');
 
-    // Handle visibility and required attributes
-    const isNewCollection = !document.getElementById('garbageId').value;
-
-    // Show all containers for new collection
-    document.querySelector('#modalTitle').textContent = isNewCollection ? 'Add Collection' : document.querySelector('#modalTitle').textContent;
-    document.querySelector('#phaseContainer').style.display = isNewCollection ? 'block' : document.querySelector('#phaseContainer').style.display;
-    document.querySelector('#dayContainer').style.display = isNewCollection ? 'block' : document.querySelector('#dayContainer').style.display;
-    document.querySelector('#timeContainer').style.display = isNewCollection ? 'block' : document.querySelector('#timeContainer').style.display;
-    document.querySelector('#streetContainer').style.display = isNewCollection ? 'block' : document.querySelector('#streetContainer').style.display;
-
     // Set required attribute based on container visibility
     inputs.forEach(input => {
       const container = input.closest('div[id$="Container"]');
@@ -256,6 +182,35 @@ class GarbageCollectionManager {
       <button type="button" class="btn btn-outline-secondary add-street">+</button>
     </div>
   `;
+  }
+
+  // Helper method to configure modal display
+  configureModalDisplay({ title, showTime = false, showStreet = false, showDay = false, showPhase = false }) {
+    document.querySelector('#modalTitle').textContent = title;
+    document.querySelector('#timeContainer').style.display = showTime ? 'block' : 'none';
+    document.querySelector('#streetContainer').style.display = showStreet ? 'block' : 'none';
+    document.querySelector('#dayContainer').style.display = showDay ? 'block' : 'none';
+    document.querySelector('#phaseContainer').style.display = showPhase ? 'block' : 'none';
+    this.checkRequiredForm();
+  }
+
+  // Helper method to set form values
+  setFormValues({ garbageId = '', scheduleId = '', phase = '', day = '', timeFrom = '', timeTo = '', timeLocationId = '' }) {
+    document.getElementById('garbageId').value = garbageId;
+    document.getElementById('scheduleId').value = scheduleId;
+    document.getElementById('phase').value = phase;
+    document.getElementById('day').value = day;
+    document.getElementById('timeFrom').value = timeFrom;
+    document.getElementById('timeTo').value = timeTo;
+    if (timeLocationId !== undefined) {
+      document.getElementById('timeLocationId').value = timeLocationId;
+    }
+  }
+
+  // Helper method to fetch garbage data
+  async fetchGarbageData(garbageId) {
+    const garbageData = await fetchData(`/api/v1/garbages/${garbageId}`);
+    return garbageData.data.doc;
   }
 
   async handleDelete({ garbageId, scheduleId, timeLocationId }) {
@@ -315,80 +270,7 @@ class GarbageCollectionManager {
   }
 
   async handleEdit({ garbageId, scheduleId, timeLocationId }, type) {
-    try {
-      document.getElementById('garbageId').value = garbageId;
-      document.getElementById('scheduleId').value = scheduleId;
-      document.getElementById('timeLocationId').value = timeLocationId;
-      const data = await fetchData(`/api/v1/garbages/${garbageId}`);
-      const garbage = data.data.doc;
-
-      const schedule = garbage.schedule.find(s => s._id === scheduleId);
-      const timeLocation = schedule.timeLocation.find(t => t._id === timeLocationId);
-
-      document.querySelector('#modalTitle').textContent = `Edit Time ${timeLocation.time}`;
-      document.querySelector('#timeContainer').style.display = 'block';
-      document.querySelector('#streetContainer').style.display = 'block';
-      document.querySelector('#dayContainer').style.display = 'none';
-      document.querySelector('#phaseContainer').style.display = 'none';
-      const typeInput = document.createElement('input');
-      typeInput.type = 'hidden';
-      typeInput.id = 'type';
-      typeInput.value = type;
-      document.querySelector('#phaseContainer').appendChild(typeInput);
-      this.checkRequiredForm();
-
-      // Set time values
-      const [timeFrom, timeTo] = timeLocation.time.split('-');
-      document.getElementById('timeFrom').value = timeFrom;
-      document.getElementById('timeTo').value = timeTo;
-
-      // Set street inputs
-      const streetInputs = document.getElementById('streetInputs');
-      streetInputs.innerHTML = timeLocation.street
-        .map((street, index) => `
-        <div class="input-group mb-2">
-          <input type="text" class="form-control street-input" value="${street}" required>
-          ${index === 0
-          ? '<button type="button" class="btn btn-outline-secondary add-street">+</button>'
-          : '<button type="button" class="btn btn-outline-danger remove-street">-</button>'
-        }
-        </div>
-      `)
-        .join('');
-
-      this.modal.show();
-    } catch (err) {
-      console.log(err);
-      this.showNotificationModal('Error', 'Error loading time location data', 'danger');
-    }
-  }
-
-  // Helper method to configure modal display
-  configureModalDisplay({ title, showTime = false, showStreet = false, showDay = false, showPhase = false }) {
-    document.querySelector('#modalTitle').textContent = title;
-    document.querySelector('#timeContainer').style.display = showTime ? 'block' : 'none';
-    document.querySelector('#streetContainer').style.display = showStreet ? 'block' : 'none';
-    document.querySelector('#dayContainer').style.display = showDay ? 'block' : 'none';
-    document.querySelector('#phaseContainer').style.display = showPhase ? 'block' : 'none';
-  }
-
-  // Helper method to fetch garbage data
-  async fetchGarbageData(garbageId) {
-    const garbageData = await fetchData(`/api/v1/garbages/${garbageId}`);
-    return garbageData.data.doc;
-  }
-
-  // Helper method to set form values
-  setFormValues({ garbageId = '', scheduleId = '', phase = '', day = '', timeFrom = '', timeTo = '', timeLocationId = '' }) {
-    document.getElementById('garbageId').value = garbageId;
-    document.getElementById('scheduleId').value = scheduleId;
-    document.getElementById('phase').value = phase;
-    document.getElementById('day').value = day;
-    document.getElementById('timeFrom').value = timeFrom;
-    document.getElementById('timeTo').value = timeTo;
-    if (timeLocationId !== undefined) {
-      document.getElementById('timeLocationId').value = timeLocationId;
-    }
+    await handleEditTimeLocation.call(this, { garbageId, scheduleId, timeLocationId }, type);
   }
 
   async handleAddDay(garbageId) {
@@ -441,11 +323,7 @@ class GarbageCollectionManager {
     const schedule = garbageData.schedule.find(s => s._id === scheduleId);
 
     this.setFormValues({
-      garbageId,
-      scheduleId,
-      phase: garbageData.phase,
       day: schedule.day,
-      timeLocationId: ''
     });
 
     this.configureModalDisplay({
