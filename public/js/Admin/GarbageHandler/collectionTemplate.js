@@ -5,14 +5,28 @@ function renderCollections(collections) {
       <div class="card mb-3">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
           <h5 class="card-title mb-0 text-slate-900 fw-bold">Phase ${garbage.phase}</h5>
-          <div class="d-flex align-items-center gap-2">
-            <button class="btn btn-sm bg-green-700 add-day text-slate-100 fw-semibold" data-garbage-id="${garbage._id}">
-              Add Day
-            </button>
-            <button class="btn btn-sm edit-phase-number border border-green-700 text-green-700 fw-semibold" data-bs-toggle="modal" data-bs-target="#garbageModal" data-garbage-id="${garbage._id}">
-              Edit Phase Number
-            </button>
-          </div>
+          <div class="dropdown mb-2 mb-md-0">
+             <button class="btn dropdown-toggle text-slate-600" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                 <i class="bi bi-gear"></i> Actions
+               </button>
+               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <li>
+                     <button class="dropdown-item btn btn-sm add-day text-slate-600 fw-semibold" data-garbage-id="${garbage._id}">
+                      Add Day
+                    </button>
+                   </li>
+                   <li>
+                     <button class="dropdown-item btn btn-sm edit-phase-number text-slate-600 fw-semibold" data-bs-toggle="modal" data-bs-target="#garbageModal" data-garbage-id="${garbage._id}">
+                        Edit Phase Number
+                      </button>
+                   </li> 
+                   <li>
+                     <button class="dropdown-item btn btn-sm delete-phase-number text-slate-600 fw-semibold" data-garbage-id="${garbage._id}">
+                        Delete Phase
+                      </button>
+                   </li>
+               </ul>
+           </div>
         </div>
         <div class="card-body">
           ${garbage.schedule.map(schedule => `
@@ -35,9 +49,9 @@ function renderCollections(collections) {
               <table class="table table-sm">
                 <thead>
                   <tr>
-                    <th class="text-slate-700 fw-semibold">Time</th>
-                    <th class="text-slate-700 fw-semibold">Streets</th>
-                    <th class="text-slate-700 fw-semibold">Actions</th>
+                    <th class="collection-width text-slate-700 fw-semibold">Time</th>
+                    <th class="collection-width text-slate-700 fw-semibold">Streets</th>
+                    <th class="collection-width text-slate-700 fw-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>

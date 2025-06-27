@@ -60,6 +60,9 @@ class GarbageCollectionManager {
       if(e.target.matches('.edit-phase-number')) {
         this.handleEditPhaseNumber(e.target.dataset.garbageId);
       }
+      if(e.target.matches('.delete-phase-number')) {
+        this.handleDeletePhase(e.target.dataset.garbageId);
+      }
     });
 
     // Reset form when modal is hidden
@@ -332,6 +335,58 @@ class GarbageCollectionManager {
     });
 
     this.modal.show();
+  }
+
+  async handleDeletePhase(garbageId) {
+    const confirmModal = `
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">Delete Confirmation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete this Phase?</p>
+            <p>This action cannot be undone.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+    document.body.insertAdjacentHTML('beforeend', confirmModal);
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+
+    // Add reset form behavior before modal closes
+    document.getElementById('deleteConfirmModal').addEventListener('hide.bs.modal', () => {
+      this.resetForm();
+      document.getElementById('deleteConfirmModal').remove();
+    });
+
+    deleteModal.show();
+
+    // Handle delete confirmation
+    document.getElementById('confirmDelete').addEventListener('click', async () => {
+      try {
+        await deleteData(`/api/v1/garbages/${garbageId}`);
+
+        deleteModal.hide();
+        // Remove modal cleanup as it's now handled in hide.bs.modal event
+
+        // Show success notification modal
+        this.showNotificationModal('Success', 'Time location deleted successfully', 'success');
+        this.loadCollections();
+      } catch (err) {
+        deleteModal.hide();
+        // Remove modal cleanup as it's now handled in hide.bs.modal event
+        this.showNotificationModal('Error', 'Error deleting time location', 'danger');
+      }
+    });
   }
 
 // Add this helper method to your class
