@@ -1,38 +1,28 @@
 
 <% if(locals.featuredEvent) { %>
-<section class="py-4 py-xl-5">
+<section class="featured-event py-4 py-xl-5">
     <div class="container">
         <div class="border rounded border-0 overflow-hidden bg-green-600">
-            <div class="row g-0">
-                <div class="col-lg-6 ">
+            <div class="row g-0 flex-row-reverse">
+                <div class="col-md-6">
                     <div class="text-white p-4 p-md-5">
-                        <h2 class="fw-bold text-white"><%= featuredEvent.name %></h2>
-                        <% const date = new Date(featuredEvent.date); %>
-                        <% const finalDate = new Intl.DateTimeFormat('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                        }).format(date) %>
-                        <p class="mb-3"><%= featuredEvent.place %> (<%= finalDate %>)</p>
-                        <p class="mb-3">
-                            <%= featuredEvent.richDescription.slice(0, 400) %>
-                            <%= featuredEvent.richDescription.length > 400 ? '...' : '' %>
+                        <h2 class="fw-bold mb-3 text-slate-50"><%= featuredEvent.name %></h2>
+                        <p class="mb-4 text-slate-50">
+                            <%= featuredEvent.richDescription.slice(0, 200) %>
+                            <%= featuredEvent.richDescription.length > 200 ? '...' : '' %>
                         </p>
                         <div class="my-3">
                             <% if(locals.user) { %>
-                                <a class="btn btn-primary btn-lg me-2" role="button" href="#">Attend</a>
+                            <a id="attendEventIndex" class="btn me-2 bg-yellow-300 text-slate-600 fw-semibold attend-button" role="button" href="#">Attend</a>
                             <% } %>
-                            <a class="btn btn-light btn-lg" role="button" href="/events/<%= featuredEvent.slug %>">Read More</a>
+                            <a class="btn me-2 border border-yellow-300 text-yellow-300 text-button fw-semibold transition" role="button" href="/events/<%= featuredEvent.slug %>">Read More</a>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6  order-first order-lg-last" style="min-height: 250px;">
-                    <% if (featuredEvent.imageCover?.signedUrl) { %>
-                        <img class="w-100 h-100 fit-cover" src="<%= featuredEvent.imageCover.signedUrl %>" alt="<%= featuredEvent.name %>"/>
-                    <% } %>
+                <div class="col-md-6 col-lg-6 order-first order-md-last">
+                    <div style="height: 300px; overflow: hidden;">
+                        <img class="w-100 h-100 object-fit-cover" src="<%= featuredEvent.imageCover.signedUrl %>" alt="<%= featuredEvent.slug %>" />
+                    </div>
                 </div>
             </div>
         </div>
