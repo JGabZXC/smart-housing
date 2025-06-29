@@ -6,15 +6,13 @@
             <div class="row g-0 flex-row-reverse">
                 <div class="col-md-6">
                     <div class="text-white p-4 p-md-5">
+                        <span class="badge bg-yellow-300 text-slate-600 mb-2 fw-semibold px-3 py-2 align-self-start">Featured Event</span>
                         <h2 class="fw-bold mb-3 text-slate-50"><%= featuredEvent.name %></h2>
                         <p class="mb-4 text-slate-50">
                             <%= featuredEvent.richDescription.slice(0, 200) %>
                             <%= featuredEvent.richDescription.length > 200 ? '...' : '' %>
                         </p>
                         <div class="my-3">
-                            <% if(locals.user) { %>
-                            <a id="attendEventIndex" class="btn me-2 bg-yellow-300 text-slate-600 fw-semibold attend-button" role="button" href="#">Attend</a>
-                            <% } %>
                             <a class="btn me-2 border border-yellow-300 text-yellow-300 text-button fw-semibold transition" role="button" href="/events/<%= featuredEvent.slug %>">Read More</a>
                         </div>
                     </div>
