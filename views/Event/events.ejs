@@ -1,28 +1,19 @@
 
 <% if(locals.featuredEvent) { %>
-<section class="featured-event py-4 py-xl-5">
+<section id="featuredEventSection" class="py-4 py-xl-5">
     <div class="container">
-        <div class="border rounded border-0 overflow-hidden bg-green-600">
-            <div class="row g-0 flex-row-reverse">
-                <div class="col-md-6">
-                    <div class="text-white p-4 p-md-5">
-                        <span class="badge bg-yellow-300 text-slate-600 mb-2 fw-semibold px-3 py-2 align-self-start">Featured Event</span>
-                        <h2 class="fw-bold mb-3 text-slate-50"><%= featuredEvent.name %></h2>
-                        <p class="mb-4 text-slate-50">
-                            <%= featuredEvent.richDescription.slice(0, 200) %>
-                            <%= featuredEvent.richDescription.length > 200 ? '...' : '' %>
-                        </p>
-                        <div class="my-3">
-                            <a class="btn me-2 border border-yellow-300 text-yellow-300 text-button fw-semibold transition" role="button" href="/events/<%= featuredEvent.slug %>">Read More</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-6 order-first order-md-last">
-                    <div style="height: 300px; overflow: hidden;">
-                        <img class="w-100 h-100 object-fit-cover" src="<%= featuredEvent.imageCover.signedUrl %>" alt="<%= featuredEvent.slug %>" />
-                    </div>
-                </div>
+        <div class="card-minimal">
+          <img src="<%= featuredEvent.imageCover.signedUrl%>" alt="<%= featuredEvent.slug %>">
+          <div class="card-minimal-body">
+            <h3><%= featuredEvent.name %></h3>
+             <p>
+                <%= featuredEvent.richDescription.slice(0, 200) %>
+                <%= featuredEvent.richDescription.length > 200 ? '...' : '' %>
+            </p>
+            <div>
+                <a href="/events/<%= featuredEvent.slug %>">Read More</a>
             </div>
+          </div>
         </div>
     </div>
 </section>

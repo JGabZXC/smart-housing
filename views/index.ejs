@@ -1,7 +1,7 @@
-<section>
+<section id="heroBannerSection">
     <div class="position-relative" style="height: 600px;background-image: url('/img/holiday-homes-banner.webp');background-position: center;background-size: cover; background-attachment: fixed;">
         <div class="position-absolute top-0 start-0 w-100 h-100" style="background-color: rgba(3, 100, 63, 0.5);z-index: 1;"></div>
-        <div class="container h-100 position-relative" style="z-index: 2;">
+        <div id="heroContent" class="container h-100 position-relative" style="z-index: 2;">
             <div class="text-center text-md-start d-flex flex-column justify-content-center h-100" style="max-width: 500px;">
                 <h1 class="text-uppercase fw-bold text-slate-50">Welcome to Holiday Homes</h1>
                 <p class="fw-semibold my-3 text-slate-50">Simplify community living with powerful tools for homeowners and associations.</p>
@@ -11,117 +11,109 @@
     </div>
 </section>
 
-<!--    FEATURED PROJECT    -->
+<!-- FEATURED PROJECT -->
 <% if(locals.featuredProject) { %>
-<section class="py-4 py-xl-5">
+<section id="featuredProjectSection" class="py-4 py-xl-5">
     <div class="container">
-        <div class="border rounded border-0 overflow-hidden bg-green-600">
-            <div class="row g-0">
-                <div class="col-lg-6">
-                    <div class="text-white p-3 p-md-5">
-                        <span class="badge bg-yellow-300 text-slate-600 mb-2 fw-semibold px-3 py-2 align-self-start">Featured Project</span>
-                        <h2 class="fw-bold mb-3 text-slate-50"><%= featuredProject.name %></h2>
-                        <p class="mb-4 text-slate-200">
-                            <%= featuredProject.richDescription.slice(0, 200) %>
-                            <%= featuredProject.richDescription.length > 200 ? '...' : '' %>
-                        </p>
-                        <div class="my-3">
-                            <a class="btn me-2 bg-yellow-300 text-slate-600 fw-semibold" role="button" href="/projects/<%= featuredProject.slug %>" title="<%= featuredProject.slug %>">Read More</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 order-first order-lg-last">
-                    <img class="w-100 h-100 object-fit-cover" src="<%= featuredProject.imageCover.signedUrl %>" alt="<%= featuredProject.name %>" />
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<% } %>
-
-<!--    FEATURED EVENT  -->
-<% if(locals.featuredEvent) { %>
-<section class="featured-event py-4 py-xl-5">
-    <div class="container">
-        <div class="border rounded border-0 overflow-hidden bg-green-600">
-            <div class="row g-0 flex-row-reverse">
-                <div class="col-md-6">
-                    <div class="text-white p-4 p-md-5">
-                        <span class="badge bg-yellow-300 text-slate-600 mb-2 fw-semibold px-3 py-2 align-self-start">Featured Event</span>
-                        <h2 class="fw-bold mb-3 text-slate-50"><%= featuredEvent.name %></h2>
-                        <p class="mb-4 text-slate-50">
-                            <%= featuredEvent.richDescription.slice(0, 200) %>
-                            <%= featuredEvent.richDescription.length > 200 ? '...' : '' %>
-                        </p>
-                        <div class="my-3">
-                            <a class="btn me-2 border border-yellow-300 text-yellow-300 text-button fw-semibold transition" role="button" href="/events/<%= featuredEvent.slug %>">Read More</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-6 order-first order-md-last">
-                    <div style="height: 300px; overflow: hidden;">
-                        <img class="w-100 h-100 object-fit-cover" src="<%= featuredEvent.imageCover.signedUrl %>" alt="<%= featuredEvent.slug %>" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<% } %>
-
-<!--    GARBAGE COLLECTION  -->
-<% if(locals.garbages) { %>
-<section>
-    <div class="container py-4 py-xl-5">
-        <h1 class="text-center fw-bold mb-3 text-slate-900">GARBAGE COLLECTION</h1>
+        <div class="card-minimal reverse">
+          <img src="<%= featuredProject.imageCover.signedUrl%>" alt="<%= featuredProject.slug %>">
+          <div class="card-minimal-body">
+            <h3><%= featuredProject.name %></h3>
+             <p>
+                <%= featuredProject.richDescription.slice(0, 200) %>
+                <%= featuredProject.richDescription.length > 200 ? '...' : '' %>
+            </p>
             <div>
-              <div class="table-responsive">
-                  <% garbages.map(garbage => { %>
-                    <h2 class="fs-5 text-slate-600 fw-semibold">Phase <%= garbage.phase %></h2>
-                    <table class="table">
-                      <thead>
-                        <tr>
-                          <% garbage.schedule.forEach(sched => { %>
-                          <th class="text-slate-900 fw-semibold"><%= sched.day %></th>
-                          <% }); %>
-                        </tr>
-                      </thead>
-                        <tbody>
-                       <%
-                       // Find the maximum number of time slots across all days
-                       let maxSlots = 0;
-                       garbage.schedule.forEach(sched => {
-                           if (sched.timeLocation.length > maxSlots) {
-                               maxSlots = sched.timeLocation.length;
-                           }
-                       });
-
-                       // Create rows for each time slot
-                       for (let i = 0; i < maxSlots; i++) { %>
-                       <tr class="text-slate-900 fw-semibold">
-                           <% garbage.schedule.forEach(sched => { %>
-                               <td>
-                                   <% if (sched.timeLocation[i]) { %>
-                                       <%= sched.timeLocation[i].time %>
-                                       ( <%= sched.timeLocation[i].street.join(', ') %> )
-                                   <% } %>
-                               </td>
-                           <% }); %>
-                       </tr>
-                       <% } %>
-                      </tbody>
-                    </table>
-                  <% }); %>
-              </div>
+                <a href="/events/<%= featuredProject.slug %>">Read More</a>
             </div>
           </div>
         </div>
     </div>
 </section>
+<% } %>
+
+<!-- FEATURED EVENT -->
+<% if(locals.featuredEvent) { %>
+<section id="featuredEventSection" class="py-4 py-xl-5">
+    <div class="container">
+        <div class="card-minimal">
+          <img src="<%= featuredEvent.imageCover.signedUrl%>" alt="<%= featuredEvent.slug %>">
+          <div class="card-minimal-body">
+            <h3><%= featuredEvent.name %></h3>
+             <p>
+                <%= featuredEvent.richDescription.slice(0, 200) %>
+                <%= featuredEvent.richDescription.length > 200 ? '...' : '' %>
+            </p>
+            <div>
+                <a href="/events/<%= featuredEvent.slug %>">Read More</a>
+            </div>
+          </div>
+        </div>
+    </div>
+</section>
+<% } %>
+
+<!-- GARBAGE COLLECTION -->
+<% if(locals.garbages) { %>
+<section id="garbageCollectionSection" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="fw-bold">Garbage Collection Schedule</h1>
+            <p class="text-muted">Weekly pickup schedule for all phases</p>
+        </div>
+
+        <% garbages.map(garbage => { %>
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-green-700 text-slate-100">
+                <h2 class="h5 mb-0">Phase <%= garbage.phase %></h2>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <% garbage.schedule.forEach(sched => { %>
+                                <th><%= sched.day %></th>
+                                <% }); %>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%
+                            let maxSlots = 0;
+                            garbage.schedule.forEach(sched => {
+                                if (sched.timeLocation.length > maxSlots) {
+                                    maxSlots = sched.timeLocation.length;
+                                }
+                            });
+
+                            for (let i = 0; i < maxSlots; i++) { %>
+                            <tr>
+                                <% garbage.schedule.forEach(sched => { %>
+                                    <td>
+                                        <% if (sched.timeLocation[i]) { %>
+                                            <span class="fw-bold"><%= sched.timeLocation[i].time %></span>
+                                            <small class="text-muted d-block"><%= sched.timeLocation[i].street.join(', ') %></small>
+                                        <% } %>
+                                    </td>
+                                <% }); %>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <% }); %>
+    </div>
+</section>
 <% } else { %>
-<section>
+<section id="garbageCollectionSection" class="py-5">
     <div class="container text-center">
-        <p class="text-mute">There's no garbage collection schedule😟</p>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="text-muted mb-0">There's no garbage collection schedule available at this time.</p>
+            </div>
+        </div>
     </div>
 </section>
 <% } %>
