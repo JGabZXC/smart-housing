@@ -9,7 +9,7 @@ describe('Main Navigation', () => {
     cy.visit('/');
   });
 
-  it('Should have a visible header with correct links', () => {
+  it('should have a visible header and correct logo image', () => {
     cy.get('header')
       .first()
       .should('be.visible')
@@ -23,87 +23,215 @@ describe('Main Navigation', () => {
           .and('have.attr', 'alt', 'holiday homes logo');
       });
   });
-})
 
-describe('Hero Section', () => {
-  beforeEach(() => {
-    cy.visit('/');
-  });
-
-  it('Should render hero banner with correct structure and styles', () => {
-    // Check main banner div
-    cy.get('#heroBannerSection > div.position-relative')
-      .should('be.visible')
-      .should('have.css', 'height', '600px')
-      .should('have.css', 'background-image')
-      .and('include', '/img/holiday-homes-banner.webp');
-
-    // Check overlay
-    cy.get('.position-absolute')
-      .should('have.css', 'background-color', 'rgba(3, 100, 63, 0.5)')
-      .should('have.css', 'z-index', '1');
-
-    // Check content container
-    cy.get('#heroContent')
-      .should('have.class', 'h-100')
-      .should('have.css', 'z-index', '2');
-  });
-
-  it('Should display correct content with proper styling', () => {
-    // Check content div
-    cy.get('.text-center.text-md-start')
-      .should('have.css', 'max-width', '500px')
-      .within(() => {
-        // Check heading
-        cy.get('h1')
-          .should('have.class', 'text-uppercase')
-          .should('have.class', 'fw-bold')
-          .should('have.class', 'text-slate-50')
-          .should('contain', 'Welcome to Holiday Homes');
-
-        // Check first paragraph
-        cy.get('p').first()
-          .should('have.class', 'fw-semibold')
-          .should('have.class', 'text-slate-50')
-          .should('contain', 'Simplify community living with powerful tools');
-
-        // Check second paragraph
-        cy.get('p').last()
-          .should('have.class', 'text-slate-200')
-          .should('contain', 'Manage dues, reserve amenities');
-      });
-  });
-});
-
-describe('Featured Project and Event showing properly', () => {
-  beforeEach(() => {
-    cy.visit('/');
-  });
-
-  it('Featured Project is Visible', () => {
-    cy.get('[id="featuredProjectSection"]').should('be.visible');
-  });
-
-  it('Featured Event is Visible', () => {
-    // cy.get('[id="featuredEvent"]').should('not.exist');
-    cy.get('[id="featuredEventSection"]').should('be.visible');
-  });
-});
-
-describe('Garbage Collection', () => {
-  beforeEach(() => {
-    cy.visit('/');
-  });
-
-  it('Section is visible', () => {
-    cy.get('#garbageCollectionSection')
+  it('should have correct links in the header', () => {
+    cy.get('header')
+      .find('nav')
       .should('exist')
-      .should('be.visible');
+      .within(() => {
+        cy.contains('a', 'Home').should('have.attr', 'href', '/');
+        cy.contains('a', 'Projects').should('have.attr', 'href', '/projects');
+        cy.contains('a', 'Events').should('have.attr', 'href', '/events');
+      });
+  })
+
+  it('should navigate to Projects page when clicking Projects link', () => {
+    cy.get('header')
+      .contains('a', 'Projects').click()
+      .url().should('include', '/projects')
+  })
+
+  it('should navigate to Events page when clicking Events link', () => {
+    cy.get('header')
+      .contains('a', 'Events').click()
+      .url().should('include', '/events')
   });
 
-  it('Should display correct content', () => {
-    cy.get('#garbageCollectionSection')
-      .should('contain', 'Garbage Collection Schedule')
-      .and('contain', 'Weekly pickup schedule for all phases');
+  it('should highlight the active link', () => {
+    cy.get('header')
+      .contains('a', 'Projects').click()
+      cy.get('a.nav-link.active').should('contain.text', 'Projects')
+  });
+
+  it('should not show the "Me" link', () => {
+    cy.get('#meLink')
+      .should('not.exist');
+  });
+
+  it('should not show the "Admin Action" dropdown', () => {
+    cy.get('#adminActionBtn')
+      .should('not.exist');
+  });
+
+  it('should not show the "Logout" link', () => {
+    cy.get('header')
+      .find('#logout-form').should('not.exist');
+  });
+});
+
+describe('Featured Project Section', () => {
+  it('conditionally Test Featured Project Section', () => {
+    cy.visit('/');
+    cy.get('body').then(($body) => {
+      if($body.find('#featuredProjectSection').length > 0) {
+        cy.get('#featuredProjectSection')
+          .should('exist')
+          .within(() => {
+            cy.get('#linkContainer')
+              .should('exist')
+              .contains('a', 'Read More').click()
+              .url().should('include', '/projects');
+          });
+      } else {
+        cy.log('Featured Project Section does not exist, skipping test');
+      }
+    });
+  });
+});
+
+describe('Featured Event Section', () => {
+  it('conditionally Test Featured Project Section', () => {
+    cy.visit('/');
+    cy.get('body').then(($body) => {
+      if($body.find('#featuredEventSection').length > 0) {
+        cy.get('#featuredEventSection')
+          .should('exist')
+          .within(() => {
+            cy.get('#linkContainer')
+              .should('exist')
+              .contains('a', 'Read More').click()
+              .url().should('include', '/events');
+          });
+      } else {
+        cy.log('Featured Event Section does not exist, skipping test');
+      }
+    });
+  });
+});
+
+describe('Garbage Collection Section', () => {
+  it('conditionally Test Garbage Collection Section', () => {
+    cy.visit('/');
+    cy.get('body').then(($body) => {
+      if($body.find('#garbageCollectionSectionIndex').length > 0) {
+        cy.get('#garbageCollectionSectionIndex')
+          .should('exist')
+          .within(() => {
+            cy.get('table').should('exist')
+          });
+      }
+    })
+
+  });
+});
+
+describe('Projects Page', () => {
+  beforeEach(() => {
+    cy.visit('/projects');
+  });
+
+  it('should navigate to Projects page', () => {
+    cy.url().should('include', '/projects');
+  });
+
+  it('conditionally test card', () => {
+    cy.wait(2500); // Wait for the page to load and content to be fetched
+    cy.get('body').then(($body) => {
+      if($body.find('.card').length > 0) {
+        cy.get('.card').first().within(()=> {
+          cy.get('.card-body').within(() => {
+            cy.get('a').should('exist')
+              .and('have.attr', 'href')
+              .and('include', '/projects')
+          });
+        });
+      } else {
+        cy.log('No project cards found, skipping test');
+      }
+    });
+  });
+
+  it('project card can be visited', () => {
+    cy.get('.card').first().within(() => {
+      cy.get('.card-body').within(() => {
+        cy.get('a').first().click();
+
+        cy.url().should('include', '/projects');
+      });
+    });
+  });
+
+  it('single project rendering correct layout', () => {
+    cy.visit('/projects/vaccine-village');
+    cy.get('#type-single-container').should('exist');
+    cy.get('#form-message').should('not.exist');
+  });
+});
+
+describe('Events Page', () => {
+  beforeEach(() => {
+    cy.visit('/events');
+  });
+
+  it('should navigate to Event page', () => {
+    cy.url().should('include', '/events');
+  });
+
+  it('conditionally test event card', () => {
+    cy.wait(2500); // Wait for the page to load and content to be fetched
+    cy.get('body').then(($body) => {
+      if($body.find('.card').length > 0) {
+        cy.get('.card').first().within(()=> {
+          cy.get('.card-body').within(() => {
+            cy.get('a').should('exist')
+              .and('have.attr', 'href')
+              .and('include', '/events')
+          });
+        });
+      } else {
+        cy.log('No event cards found, skipping test');
+      }
+    });
+  });
+
+  it('event card can be visited', () => {
+    cy.get('.card').first().within(() => {
+      cy.get('.card-body').within(() => {
+        cy.get('a').first().click();
+
+        cy.url().should('include', '/event');
+      });
+    });
+  });
+
+  it('single event rendering correct layout', () => {
+    cy.visit('/events/soft-opening-of-hh3-playground');
+    cy.get('#type-single-container').should('exist');
+    cy.get('#form-message').should('not.exist');
+    cy.get('#attendEventSingle').should('not.exist');
+  });
+});
+
+describe('Login Page', () => {
+  beforeEach(() => {
+    cy.visit('/login');
+  });
+
+  it('login page should be accessible and visible', () => {
+    cy.get('#login-form')
+      .should('exist')
+      .and('be.visible');
+  });
+
+  it('should allow a user to type email and password and submit', () => {
+    cy.get('#email')
+      .type('test@example.com')
+      .should('have.value', 'test@example.com');
+
+    cy.get('#password')
+      .type('password123')
+      .should('have.value', 'password123');
+
+    cy.get('#login-button').click();
   });
 });

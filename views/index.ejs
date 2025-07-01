@@ -23,8 +23,8 @@
                 <%= featuredProject.richDescription.slice(0, 200) %>
                 <%= featuredProject.richDescription.length > 200 ? '...' : '' %>
             </p>
-            <div>
-                <a href="/events/<%= featuredProject.slug %>">Read More</a>
+            <div id="linkContainer">
+                <a href="/projects/<%= featuredProject.slug %>">Read More</a>
             </div>
           </div>
         </div>
@@ -44,7 +44,7 @@
                 <%= featuredEvent.richDescription.slice(0, 200) %>
                 <%= featuredEvent.richDescription.length > 200 ? '...' : '' %>
             </p>
-            <div>
+            <div id="linkContainer">
                 <a href="/events/<%= featuredEvent.slug %>">Read More</a>
             </div>
           </div>
@@ -55,7 +55,7 @@
 
 <!-- GARBAGE COLLECTION -->
 <% if(locals.garbages) { %>
-<section id="garbageCollectionSection" class="py-5">
+<section id="garbageCollectionSectionIndex" class="py-5">
     <div class="container">
         <div class="text-center mb-5">
             <h1 class="fw-bold">Garbage Collection Schedule</h1>
@@ -107,7 +107,7 @@
     </div>
 </section>
 <% } else { %>
-<section id="garbageCollectionSection" class="py-5">
+<section id="garbageCollectionSectionIndex" class="py-5">
     <div class="container text-center">
         <div class="card shadow-sm">
             <div class="card-body">
