@@ -212,7 +212,7 @@ describe('Events Page', () => {
   });
 });
 
-describe('Login Page', () => {
+describe.only('Login Page', () => {
   beforeEach(() => {
     cy.visit('/login');
   });
@@ -233,5 +233,35 @@ describe('Login Page', () => {
       .should('have.value', 'password123');
 
     cy.get('#login-button').click();
+  });
+
+  it('invalid login alert working properly', () => {
+    cy.get('#email')
+      .type('test@example.com')
+      .should('have.value', 'test@example.com');
+
+    cy.get('#password')
+      .type('password123')
+      .should('have.value', 'password123');
+
+    cy.get('#login-button').click();
+    cy.get('.alert-con').should('exist').and('be.visible');
+    cy.get('.alert-danger').should('exist');
+    cy.wait(5000); // Wait for the alert to disappear
+    cy.get('.alert-con').should('not.exist');
+  });
+
+  it('should successfully login with valid credentials', () => {
+    cy.get('#email')
+      .type('admin@gmail.com')
+      .should('have.value', 'admin@gmail.com');
+
+    cy.get('#password')
+      .type('test1234')
+      .should('have.value', 'test1234');
+
+    cy.get('#login-button').click();
+    cy.wait(2000); // Wait for the login to process
+    cy.url().should('include', '/');
   });
 });
