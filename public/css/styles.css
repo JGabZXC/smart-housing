@@ -728,6 +728,90 @@
     min-width: 200px !important;
 }
 
+#search-user-input {
+    width: 100% !important;
+}
+
+.card-minimal {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    width: 100%;
+    overflow: hidden;
+    margin: 20px auto;
+    background: #fff;
+    display: flex;
+}
+
+.card-minimal.reverse {
+    flex-direction: row-reverse;
+}
+
+.card-minimal img {
+    width: 50%;
+    height: 350px;
+    object-fit: cover;
+}
+
+.card-minimal-body {
+    padding: 25px;
+    width: 50%;
+    background: var(--color-green-600);
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.card-minimal-body h3 {
+    margin-bottom: 1.75rem;
+    color: var(--color-slate-50);
+    font-weight: bold;
+}
+
+.card-minimal-body p {
+    font-size: 0.95rem;
+    color: var(--color-slate-50);
+    margin-bottom: 1.75rem;
+}
+
+.card-minimal-body a {
+    color: var(--color-slate-600);
+    font-weight: 600;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: .25rem;
+    background: var(--color-yellow-300);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.card-minimal-body a:hover {
+    background: var(--color-yellow-500);
+    color: var(--color-slate-50);
+}
+
+#president-card {
+    border-radius: 32px !important;
+    height: 220px;
+    width: 170px;
+}
+
+@media (width <= 768px) {
+    .card-minimal {
+        flex-direction: column;
+    }
+
+    .card-minimal.reverse {
+        flex-direction: column;
+    }
+
+    .card-minimal img {
+        width: 100%;
+    }
+
+    .card-minimal-body {
+        width: 100%;
+    }
+}
+
 @media (min-width: 768px) {
     .pay-dues-container {
         width: 30% !important;
@@ -737,34 +821,29 @@
         box-shadow: var(--bs-box-shadow-lg) !important;
         border-radius: 16px !important;
     }
-}
 
-@media (min-width: 768px) {
     .account_details_container {
         width: 50% !important;
     }
-}
-
-@media (min-width: 768px) {
     .account_actions_container {
         width: 100% !important;
     }
-}
-
-@media (min-width: 768px) {
     .paid-dues-height {
         max-height: 20rem !important;
     }
-}
-
-@media (min-width: 768px) {
     .shadow-md-up {
         box-shadow: var(--bs-box-shadow-lg) !important;
     }
-}
-
-@media (min-width: 768px) {
     .bg-white-md {
         background-color: #ffffff !important;
+    }
+
+    #search-user-input {
+        width: 50% !important;
+    }
+
+    #president-card {
+        height: 375px;
+        width: 290px;
     }
 }
