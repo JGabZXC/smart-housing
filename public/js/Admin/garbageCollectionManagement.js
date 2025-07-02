@@ -5,6 +5,8 @@ import { showAlert } from '../utils/alerts.js';
 import { deleteData, fetchData, patchData, postData } from '../utils/http.js';
 import collectionTemplate from './GarbageHandler/collectionTemplate.js';
 import handleEditTimeLocation from './GarbageHandler/handleEdit.js';
+import { buttonSpinner, spinner } from '../utils/spinner.js';
+import { deleteModalFunc } from './GarbageHandler/deleteModal.js';
 
 const garbageCollectionSection = document.querySelector('#garbageCollectionSection');
 
@@ -72,10 +74,12 @@ class GarbageCollectionManager {
   }
 
   async loadCollections() {
+    spinner(this.garbageList, "Fetching collections");
     try {
       const data = await fetchData('/api/v1/garbages');
       this.renderCollections(data.data.doc);
     } catch (err) {
+      this.garbageList.innerHTML = "<div class='text-center text-slate-600 p-2'><h2>Something went wrong.</h2></div>";
       showAlert('error', err.message);
     }
   }
@@ -86,6 +90,7 @@ class GarbageCollectionManager {
 
   async handleFormSubmit() {
     const formData = this.getFormData();
+    const saveBtnCollection = document.querySelector("#saveBtnCollection");
 
     const body = {
       phase: formData.phase,
@@ -100,6 +105,7 @@ class GarbageCollectionManager {
     console.log(body);
 
     try {
+      buttonSpinner(saveBtnCollection, "Save", "Saving");
       if(body.phase && body.schedule.day === '') {
         await patchData(`/api/v1/garbages/${formData.garbageId}`, {
           phase: body.phase
@@ -123,6 +129,8 @@ class GarbageCollectionManager {
       showAlert('success', 'Collection updated successfully');
     } catch (err) {
       showAlert('error', err?.response?.data?.message || "Something went wrong with the request.");
+    } finally {
+      buttonSpinner(saveBtnCollection, "Save", "Saving");
     }
   }
 
@@ -217,59 +225,7 @@ class GarbageCollectionManager {
   }
 
   async handleDelete({ garbageId, scheduleId, timeLocationId }) {
-    // Create and show confirmation modal
-    const confirmModal = `
-    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-danger text-white">
-            <h5 class="modal-title">Delete Confirmation</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <p>Are you sure you want to delete this time location?</p>
-            <p>This action cannot be undone.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-
-    document.body.insertAdjacentHTML('beforeend', confirmModal);
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-
-    // Add reset form behavior before modal closes
-    document.getElementById('deleteConfirmModal').addEventListener('hide.bs.modal', () => {
-      this.resetForm();
-      document.getElementById('deleteConfirmModal').remove();
-    });
-
-    deleteModal.show();
-
-    // Handle delete confirmation
-    document.getElementById('confirmDelete').addEventListener('click', async () => {
-      try {
-        const deletedItem = await deleteData(`/api/v1/garbages/schedule/${garbageId}/${scheduleId}/${timeLocationId}`);
-        console.log(deletedItem);
-
-        if(deletedItem.status === 'success') {
-          deleteModal.hide();
-          // Remove modal cleanup as it's now handled in hide.bs.modal event
-
-          // Show success notification modal
-          this.showNotificationModal('Success', 'Time location deleted successfully', 'success');
-          this.loadCollections();
-        }
-      } catch (err) {
-        deleteModal.hide();
-        // Remove modal cleanup as it's now handled in hide.bs.modal event
-        this.showNotificationModal('Error', 'Error deleting time location', 'danger');
-      }
-    });
+    deleteModalFunc.call(this, "Time Location", `/api/v1/garbages/schedule/${garbageId}/${scheduleId}/${timeLocationId}`);
   }
 
   async handleEdit({ garbageId, scheduleId, timeLocationId }, type) {
@@ -338,55 +294,7 @@ class GarbageCollectionManager {
   }
 
   async handleDeletePhase(garbageId) {
-    const confirmModal = `
-    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-danger text-white">
-            <h5 class="modal-title">Delete Confirmation</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <p>Are you sure you want to delete this Phase?</p>
-            <p>This action cannot be undone.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-
-    document.body.insertAdjacentHTML('beforeend', confirmModal);
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-
-    // Add reset form behavior before modal closes
-    document.getElementById('deleteConfirmModal').addEventListener('hide.bs.modal', () => {
-      this.resetForm();
-      document.getElementById('deleteConfirmModal').remove();
-    });
-
-    deleteModal.show();
-
-    // Handle delete confirmation
-    document.getElementById('confirmDelete').addEventListener('click', async () => {
-      try {
-        await deleteData(`/api/v1/garbages/${garbageId}`);
-
-        deleteModal.hide();
-        // Remove modal cleanup as it's now handled in hide.bs.modal event
-
-        // Show success notification modal
-        this.showNotificationModal('Success', 'Time location deleted successfully', 'success');
-        this.loadCollections();
-      } catch (err) {
-        deleteModal.hide();
-        // Remove modal cleanup as it's now handled in hide.bs.modal event
-        this.showNotificationModal('Error', 'Error deleting time location', 'danger');
-      }
-    });
+    deleteModalFunc.call(this, "Phase", `/api/v1/garbages/${garbageId}`);
   }
 
 // Add this helper method to your class

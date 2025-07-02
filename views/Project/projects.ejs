@@ -1,27 +1,18 @@
-
 <% if(locals.featuredProject) { %>
-<section class="py-4 py-xl-5">
+<section id="featuredProjectSection" class="py-4 py-xl-5">
     <div class="container">
-        <div class="border rounded border-0 overflow-hidden bg-green-600">
-            <div class="row g-0">
-                <div class="col-lg-6">
-                    <div class="text-white p-3 p-md-5">
-                        <h2 class="fw-bold mb-3 text-slate-50"><%= featuredProject.name %></h2>
-                        <p class="mb-4 text-slate-50">
-                            <%= featuredProject.richDescription.slice(0, 400) %>
-                            <%= featuredProject.richDescription.length > 400 ? '...' : '' %>
-                        </p>
-                        <div class="my-3">
-                            <a class="btn me-2 bg-yellow-300 text-slate-600 fw-semibold" role="button" href="/projects/<%= featuredProject.slug %>">Read More</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 order-first order-lg-last">
-                    <% if (featuredProject.imageCover?.signedUrl) { %>
-                        <img class="w-100 h-100 object-fit-cover" src="<%= featuredProject.imageCover.signedUrl %>" alt="<%= featuredProject.name %>" />
-                    <% } %>
-                </div>
+        <div class="card-minimal">
+          <img src="<%= featuredProject.imageCover.signedUrl%>" alt="<%= featuredProject.slug %>">
+          <div class="card-minimal-body">
+            <h3><%= featuredProject.name %></h3>
+             <p>
+                <%= featuredProject.richDescription.slice(0, 200) %>
+                <%= featuredProject.richDescription.length > 200 ? '...' : '' %>
+            </p>
+            <div>
+                <a href="/projects/<%= featuredProject.slug %>">Read More</a>
             </div>
+          </div>
         </div>
     </div>
 </section>

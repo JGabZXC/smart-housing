@@ -2,7 +2,7 @@
     <div class="container">
         <nav class="navbar navbar-expand-md bg-body py-3">
                 <div class="d-flex align-items-center">
-                    <img src="/img/logo_holiday.webp" width="60" height="60" alt="holiday homes logo" />
+                    <img id="holidayLogoImg" src="/img/logo_holiday.webp" width="60" height="60" alt="holiday homes logo" />
                 </div>
 
                 <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-3">
@@ -22,15 +22,15 @@
                         </li>
                         <% if(locals.user) { %>
                             <li class="nav-item">
-                                <a class="nav-link fw-semibold text-slate-900 link transition <%= title === user.name ? 'active' : '' %>" href="/me">Me</a>
+                                <a id="meLink" class="nav-link fw-semibold text-slate-900 link transition <%= title === user.name ? 'active' : '' %>" href="/me">Me</a>
                             </li>
                             <% if(locals.user?.role !== 'user') { %>
                             <li class="nav-item d-flex align-items-center">
                                  <div class="dropdown mb-2 mb-md-0">
-                                   <button class="btn bg-green-600 text-slate-100 fw-semibold dropdown-toggle px-2 px-lg-4 py-1 py-lg-2" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                   <button class="btn bg-green-600 text-slate-100 fw-semibold dropdown-toggle px-2 px-lg-4 py-1 py-lg-2" type="button" id="adminActionBtn" data-bs-toggle="dropdown" aria-expanded="false">
                                        Admin Action
                                      </button>
-                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                     <ul class="dropdown-menu" aria-labelledby="adminActionBtn">
                                         <li>
                                            <h6 class="dropdown-header fw-semibold text-slate-400">User Action</h6>
                                          </li>
