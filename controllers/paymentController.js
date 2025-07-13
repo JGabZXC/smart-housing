@@ -4,6 +4,7 @@ const Payment = require('../models/paymentModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const User = require('../models/userModel');
+const House = require('../models/houseModel');
 const APIFeatures = require('../utils/apiFeatures');
 const PaymentManager = require('../utils/paymentManager');
 
@@ -29,6 +30,30 @@ const insertPayment = async function (session) {
 exports.getAllPayments = catchAsync(async (req, res, next) => {
   let filter = {};
   let user;
+  const { phase, block, lot, street } = req.query;
+
+  if (phase && block && lot && street) {
+    const newStreet = street[0].toUpperCase() + street.slice(1).toLowerCase();
+    const house = await House.findOne({
+      phase: +phase,
+      block: +block,
+      lot: +lot,
+      street: newStreet,
+    });
+
+    if (!house)
+      return next(new AppError('No house found with that address', 404));
+    filter = { address: house._id };
+    if (req.query.fromDate && req.query.toDate) {
+      const fromDate = new Date(req.query.fromDate);
+      const toDate = new Date(req.query.toDate);
+      filter = {
+        ...filter,
+        'dateRange.from': { $gte: fromDate },
+        'dateRange.to': { $lte: toDate },
+      };
+    }
+  }
 
   if (req.query.email) {
     user = await User.findOne({ email: req.query.email });
