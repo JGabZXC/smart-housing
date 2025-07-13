@@ -788,6 +788,11 @@
     color: var(--color-slate-50);
 }
 
+.message-card {
+    width: 100%;
+    background: var(--color-slate-200);
+}
+
 @media (width <= 768px) {
     .card-minimal {
         flex-direction: column;
@@ -834,5 +839,11 @@
 
     #search-user-input {
         width: 50% !important;
+    }
+}
+
+@media (width >= 400px) {
+    .message-card {
+        max-width: 300px;
     }
 }
