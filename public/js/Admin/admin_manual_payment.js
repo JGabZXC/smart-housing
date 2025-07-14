@@ -60,6 +60,44 @@ function updateManualPaymentAmount() {
   manualPaymentAmount.value = getNumberOfMonths(fromDate, toDate) * 100; // Assuming 100 is monthly fee
 }
 
+function parseAddressSearch(searchQuery) {
+  // Remove extra spaces and convert to lowercase for easier parsing
+  const query = searchQuery.trim().toLowerCase();
+
+  // Try to match address format: phase X, block Y, lot Z, street
+  const addressPattern = /phase\s*(\d+)\s*,\s*block\s*(\d+)\s*,\s*lot\s*(\d+)\s*,\s*(.+)/i;
+  const match = query.match(addressPattern);
+
+  if (match) {
+    return {
+      phase: parseInt(match[1]),
+      block: parseInt(match[2]),
+      lot: parseInt(match[3]),
+      street: match[4].trim()
+    };
+  }
+
+  return null;
+}
+
+function buildSearchEndpoint(searchQuery) {
+  const addressData = parseAddressSearch(searchQuery);
+
+  if (addressData) {
+    // Search by address components
+    const params = new URLSearchParams({
+      'phase': addressData.phase,
+      'block': addressData.block,
+      'lot': addressData.lot,
+      'street': addressData.street
+    });
+    return `/api/v1/payments?${params.toString()}`;
+  } else {
+    // Fallback to email search
+    return `/api/v1/payments?email=${searchQuery}`;
+  }
+}
+
 if(manualPaymentSection) {
   if(!manualPaymentList) {
     manualPaymentList = new PaginatedAdminPaymentList({
@@ -67,7 +105,7 @@ if(manualPaymentSection) {
       paginationContainer,
       endpoint: '/api/v1/payments',
       type: 'payments',
-      itemsPerPage: 1,
+      itemsPerPage: 10,
       sort: 'paymentDate',
       fromDate: undefined,
       toDate: undefined,
@@ -76,7 +114,7 @@ if(manualPaymentSection) {
     searchUserForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
-      const search =  formData.get('search-input').trim();
+      const search = formData.get('search-input').trim();
 
       if(!search) {
         manualPaymentDetailsElement.classList.add('visually-hidden');
@@ -86,7 +124,7 @@ if(manualPaymentSection) {
       try {
         buttonSpinner(searchUserButton, 'Search', 'Searching');
 
-        manualPaymentList.endpoint = `/api/v1/payments?email=${search}`;
+        manualPaymentList.endpoint = buildSearchEndpoint(search);
         await manualPaymentList.render();
         manualPaymentDetailsElement.classList.remove('visually-hidden');
       } catch (err) {
@@ -117,7 +155,7 @@ if(manualPaymentSection) {
           manualPaymentTableBody.innerHTML = `
           <tr>
             <td colspan="100%">
-               <p class="text-red-600 m-0">Previous request was cancelled.</p>
+               <p class="text-red-600 m-0">A previous request was canceled.</p>
             </td>
           </tr>
           `;

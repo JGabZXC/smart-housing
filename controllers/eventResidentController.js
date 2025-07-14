@@ -65,6 +65,10 @@ exports.getMyEvent = catchAsync(async (req, res, next) => {
 exports.createEvent = catchAsync(async (req, res, next) => {
   req.body.user = req.user._id;
 
+  const checkDate = new Date(req.body.date);
+  if (checkDate < new Date())
+    return next(new AppError('Event date cannot be in the past', 400));
+
   const event = await EventResident.create(req.body);
 
   res.status(201).json({

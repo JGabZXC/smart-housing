@@ -28,11 +28,36 @@ router
   );
 
 router
-  .route('/:garbageId/timeLocation/:timeLocationId')
+  .route('/schedule/:garbageId')
+  .post(
+    authController.protect,
+    authController.protectTo('admin'),
+    garbageController.insertGarbageSchedule,
+  );
+
+router
+  .route('/schedule/:garbageId/:scheduleId')
   .patch(
     authController.protect,
     authController.protectTo('admin'),
-    garbageController.updateTimeLocation,
+    garbageController.updateGarbageSchedule,
+  )
+  .post(
+    authController.protect,
+    authController.protectTo('admin'),
+    garbageController.insertGarbageScheduleTimeLocation,
+  );
+router
+  .route('/schedule/:garbageId/:scheduleId/:timelocationId')
+  .patch(
+    authController.protect,
+    authController.protectTo('admin'),
+    garbageController.updateGarbageScheduleTimeLocation,
+  )
+  .delete(
+    authController.protect,
+    authController.protectTo('admin'),
+    garbageController.deleteGarbageScheduleTimeLocation,
   );
 
 module.exports = router;

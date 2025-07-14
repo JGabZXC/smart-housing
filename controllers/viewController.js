@@ -3,7 +3,6 @@ const Project = require('../models/projectModel');
 const Event = require('../models/eventModel');
 const Garbage = require('../models/garbageModel');
 const Payment = require('../models/paymentModel');
-const EventResident = require('../models/eventResidentModel');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
@@ -59,7 +58,10 @@ exports.getAllEvent = catchAsync(async (req, res, next) => {
 });
 
 exports.getEvent = catchAsync(async (req, res, next) => {
-  const event = await Event.findOne({ slug: req.params.slug });
+  const event = await Event.findOne({ slug: req.params.slug }).populate({
+    path: 'attendees',
+    select: 'name email contactNumber',
+  });
   if (!event) return next(new AppError('No event found was found', 404));
 
   res.status(200).render('Event/event-single', {
@@ -150,5 +152,11 @@ exports.editProjEvePage = catchAsync(async (req, res, next) => {
 exports.acceptEventBookings = catchAsync(async (req, res, next) => {
   res.status(200).render('Admin/acceptEventBookings', {
     title: 'Event Bookings',
+  });
+});
+
+exports.getGarbageCollection = catchAsync(async (req, res, next) => {
+  res.status(200).render('Admin/garbageCollection', {
+    title: 'Garbage Collection',
   });
 });

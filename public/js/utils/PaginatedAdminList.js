@@ -146,7 +146,15 @@ export class PaginatedAdminPaymentList extends PaginatedAdminList {
     spinner(this.container);
     try {
       this.abortController = new AbortController();
-      const url = this.fromDate && this.toDate ? `${this.endpoint}${this.endpoint.includes('email') ? '&' : '?'}page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}&fromDate=${this.fromDate}&toDate=${this.toDate}` : `${this.endpoint}${this.endpoint.includes('email') ? '&' : '?'}page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}`;
+      let url = `${this.endpoint}`;
+
+      if(this.endpoint.includes('email') || this.endpoint.includes('phase')) {
+        url += `&page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}`
+      }
+
+      if(this.fromDate && this.toDate) {
+        url += `&fromDate=${this.fromDate}&toDate=${this.toDate}`;
+      }
 
       const data = await fetchData(url, { signal: this.abortController.signal });
       this.container.innerHTML = '';
@@ -249,6 +257,105 @@ export class PaginatedAdminBookingEvent extends PaginatedAdminList {
         //   </td>
         // </tr>
         // `;
+        throw error;
+      }
+    }
+  }
+}
+
+export class GarbageCollectionManagement {
+  constructor({ container, endpoint, type, sort = 'phase' }) {
+    this.container = container;
+    this.endpoint = endpoint;
+    this.type = type;
+    this.sort = sort;
+    this.abortController = null;
+  }
+
+  timeToDate(str) {
+    const [hours, minutes] = str.split(":");
+    const now = new Date(); // This is for storing only the time!
+    now.setHours(hours, minutes, 0, 0);
+    return now;
+  };
+
+  createCard(item, container) {
+    // const [from, to] = item.time.split("-");
+    // const fromTime = this.timeToDate(from).toLocaleString("en-PH", {
+    //   hour12: true,
+    //   hour: "2-digit",
+    //   minute: "2-digit",
+    // });
+    // const toTime = this.timeToDate(to).toLocaleString("en-PH", {
+    //   hour12: true,
+    //   hour: "2-digit",
+    //   minute: "2-digit",
+    // });
+    const markup = `
+            <tr>
+                <td>${item.day}</td>
+                <td>${item.timeLocation.time}</td>
+                <td>${item.timeLocation.street}</td>
+                <td>Update, Delete</td>
+            </tr>
+        `;
+    container.innerHTML += markup;
+  }
+
+  createDiv(phase) {
+    const markup = `
+        <div id="collection${phase}">
+          <h3 class="fs-6">Phase ${phase}</h3>
+          <table id="collectionTable${phase}" class="table">
+            <thead class="fw-bold">
+              <td>Day</td>
+              <td>Time</td>
+              <td>Street</td>
+              <td>Action</td>
+            </thead>
+            <tbody id="collectionBody${phase}"></tbody>
+          </table>
+        </div>
+    `;
+
+    this.container.insertAdjacentHTML("afterbegin", markup);
+  }
+
+  async render() {
+    if (this.abortController) this.abortController.abort();
+    spinner(this.container);
+    try {
+      this.abortController = new AbortController();
+      const url = `${this.endpoint}?sort=${this.sort}`;
+
+      const data = await fetchData(url, { signal: this.abortController.signal });
+      this.container.innerHTML = '';
+
+      const items = data.data.doc;
+
+      if (!items.length) {
+        this.container.innerHTML = `<p class="fs-6 text-slate-400">No ${this.type} available.</p>`;
+        return;
+      }
+
+      const uniquePhases = [...new Set(items.map(item => item.phase))];
+
+      uniquePhases.forEach(phase => {
+        this.createDiv(phase);
+        const phaseItems = items.filter(item => item.phase === phase);
+        const tbody = document.querySelector(`#collectionBody${phase}`);
+        phaseItems.forEach(item => this.createCard(item, tbody));
+      })
+    } catch (error) {
+      if(error.name === 'CanceledError') {
+        this.container.innerHTML = `
+        <tr>
+          <td colspan="100%">
+             Previous request was canceled.
+          </td>
+        </tr>
+      `;
+      } else {
         throw error;
       }
     }

@@ -77,7 +77,7 @@ const messageOptions = {
 };
 
 const limiter = rateLimit({
-  max: process.env.NODE_ENV === 'development' ? 1000 : 100, // Limit each IP to 100 requests per hour
+  max: process.env.NODE_ENV === 'development' ? 1000 : 200, // Limit each IP to 200 requests per hour
   windowMs: 60 * 60 * 1000, // 1 hour,
   message: messageOptions,
 });

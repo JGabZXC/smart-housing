@@ -58,9 +58,14 @@ function modalFormBuilder(doc) {
                   <label for="street" class="form-label fw-semibold">Street</label>
                   <input type="text" class="form-control" id="street" name="street" value=${doc?.street || ''}>
                 </div>
-                <div class="mb-3">
-                  <label for="status" class="form-label fw-semibold">Status</label>
-                  <input type="text" class="form-control border border-warning text-warning" id="status" name="status" value=${doc?.status || ''}>
+                <div id="dayContainer" class="mb-3">
+                    <label for="status" class="form-label fw-semibold">Status</label>
+                    <select class="form-select" id="status" name="status">
+                      <option value="">Select Type</option>
+                      <option value="unoccupied">Unoccupied</option>
+                      <option value="occupied">Occupied</option>
+                      <option value="maintenance">Maintenance</option>
+                    </select>
                 </div>
             </div>
             <div class="modal-footer">
