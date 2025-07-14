@@ -8,6 +8,30 @@ const eventListContainer = document.querySelector('#event-list-container');
 const eventListPagination = document.querySelector('#event-list-pagination');
 const attendEventSingle = document.querySelector('#attendEventSingle');
 const attendEventIndex = document.querySelector('#attendEventIndex');
+const viewAttendeesBtn = document.querySelector('#viewAttendeesBtn');
+const viewAttendeesBtnSpan = document.querySelector('#viewAttendeesBtn span');
+const attendeesModal = document.querySelector('#attendeesModal');
+const attendeesList = document.querySelector('#attendees-list');
+
+function createAttendeeElement(attendee) {
+  return `
+    <div class="list-group-item d-flex justify-content-between align-items-center">
+      <div>
+        <h6 class="mb-1">${attendee.name} <br/> ${attendee.email}</h6>
+        <small class="text-muted">${attendee.contactNumber || 'No contact number'}</small>
+      </div>
+    </div>
+  `;
+}
+
+if (viewAttendeesBtn) {
+  viewAttendeesBtn.addEventListener('click', async () => {
+
+    // Show modal
+    const modal = new bootstrap.Modal(attendeesModal);
+    modal.show();
+  });
+}
 
 let eventList = null;
 
@@ -32,14 +56,20 @@ if(attendEventSingle || attendEventIndex) {
       buttonSpinner(eventButton, status ? "Leave Event" : "Attend Event", 'Submitting');
       const response = await postData(`/api/v1/events/${eventid}/attend?type=${status ? 'leave' : 'attend'}`);
 
+      console.log(response);
+
       if(response.status === 'success') {
         status = !status;
         eventButton.dataset.attended = status;
-        // Show correct alert message
         showAlert('success', status
           ? 'You have successfully attended the event.'
           : 'You have successfully left the event.'
         );
+        attendeesList.innerHTML = '';
+        viewAttendeesBtnSpan.innerHTML = response.data.updatedEvent.attendees.length;
+        response.data.updatedEvent.attendees.forEach(attendee => {
+          attendeesList.insertAdjacentHTML('beforeend', createAttendeeElement(attendee));
+        });
       }
     } catch(err) {
       showAlert('error', err.response?.data?.message || 'Failed to attend the event. Please try again later.');

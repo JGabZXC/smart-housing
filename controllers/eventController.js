@@ -205,7 +205,6 @@ exports.deleteEvent = catchAsync(async (req, res, next) => {
 exports.attendEvent = catchAsync(async (req, res, next) => {
   const event = await Event.findById(req.params.id);
   const { type } = req.query;
-  console.log(type);
 
   if (type && type !== 'attend' && type !== 'leave')
     return next(
@@ -216,16 +215,25 @@ exports.attendEvent = catchAsync(async (req, res, next) => {
 
   const update = {};
   if (type === 'leave') {
+    if (event.date < new Date(Date.now()))
+      return next(
+        new AppError(`You can't leave the event that is already finished!`),
+      );
     update.$pull = { attendees: req.user._id };
   } else {
     if (event.attendees.includes(req.user._id))
       return next(new AppError('You are already attending this event!'));
+    if (event.date < new Date(Date.now()))
+      return next(new AppError('Event already finished!'));
     update.$push = { attendees: req.user._id };
   }
 
   const updatedEvent = await Event.findByIdAndUpdate(req.params.id, update, {
     new: true,
     runValidators: true,
+  }).populate({
+    path: 'attendees',
+    select: 'name email contactNumber',
   });
 
   res.status(200).json({
