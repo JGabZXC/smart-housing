@@ -205,7 +205,6 @@ exports.deleteEvent = catchAsync(async (req, res, next) => {
 exports.attendEvent = catchAsync(async (req, res, next) => {
   const event = await Event.findById(req.params.id);
   const { type } = req.query;
-  console.log(type);
 
   if (type && type !== 'attend' && type !== 'leave')
     return next(
@@ -232,6 +231,9 @@ exports.attendEvent = catchAsync(async (req, res, next) => {
   const updatedEvent = await Event.findByIdAndUpdate(req.params.id, update, {
     new: true,
     runValidators: true,
+  }).populate({
+    path: 'attendees',
+    select: 'name email contactNumber',
   });
 
   res.status(200).json({
