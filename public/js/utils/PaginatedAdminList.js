@@ -146,7 +146,15 @@ export class PaginatedAdminPaymentList extends PaginatedAdminList {
     spinner(this.container);
     try {
       this.abortController = new AbortController();
-      const url = this.fromDate && this.toDate ? `${this.endpoint}${this.endpoint.includes('email') ? '&' : '?'}page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}&fromDate=${this.fromDate}&toDate=${this.toDate}` : `${this.endpoint}${this.endpoint.includes('email') ? '&' : '?'}page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}`;
+      let url = `${this.endpoint}`;
+
+      if(this.endpoint.includes('email') || this.endpoint.includes('phase')) {
+        url += `&page=${this.currentPage}&limit=${this.itemsPerPage}&sort=${this.sort}`
+      }
+
+      if(this.fromDate && this.toDate) {
+        url += `&fromDate=${this.fromDate}&toDate=${this.toDate}`;
+      }
 
       const data = await fetchData(url, { signal: this.abortController.signal });
       this.container.innerHTML = '';

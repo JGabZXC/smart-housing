@@ -58,7 +58,10 @@ exports.getAllEvent = catchAsync(async (req, res, next) => {
 });
 
 exports.getEvent = catchAsync(async (req, res, next) => {
-  const event = await Event.findOne({ slug: req.params.slug });
+  const event = await Event.findOne({ slug: req.params.slug }).populate({
+    path: 'attendees',
+    select: 'name email contactNumber',
+  });
   if (!event) return next(new AppError('No event found was found', 404));
 
   res.status(200).render('Event/event-single', {

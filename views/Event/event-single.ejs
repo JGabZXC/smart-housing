@@ -1,5 +1,29 @@
 <% const monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]; %>
 
+<!-- Attendees Modal -->
+<div class="modal fade" id="attendeesModal" tabindex="-1" aria-labelledby="attendeesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="attendeesModalLabel">Event Attendees</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="attendees-list" class="list-group" style="max-height: 400px; overflow-y: auto;">
+                    <% event.attendees.forEach(attendee => { %>
+                      <div class="list-group-item d-flex justify-content-between align-items-center">
+                          <div>
+                            <h6 class="mb-1"><%= attendee.name %> <br/> <%= attendee.email %></h6>
+                            <small class="text-muted"><%= attendee.contactNumber || 'No contact number' %></small>
+                          </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container" id="type-single-container" data-slug="<%= event.slug %>" data-typeid="<%= event._id %>" data-userid="<%= locals.user ? locals.user._id : ''%>" data-type="events">
     <section>
         <% const date = event.date.toLocaleString('en-US', {
@@ -20,8 +44,11 @@
                       <h1 class="mb-3 fw-semibold"><%= event.name %></h1>
                       <h4 class="mb-3"><%= event.place %> <br/> <small><%= date %></small></h4>
                       <% if(locals.user) { %>
-                            <% const isAttending = event.attendees.some(attendee => attendee.toString() === user._id.toString()); %>
-                          <button id="attendEventSingle" class="btn me-2 border border-yellow-300 text-yellow-300 text-button fw-semibold transition attend-button" data-eventid=<%= event._id %> data-attended=<%= isAttending %>><%= isAttending ? "Leave Event" : "Attend Event" %></button>
+                         <% const isAttending = event.attendees.some(attendee => attendee._id.toString() === user._id.toString()); %>
+                            <button id="attendEventSingle" class="btn me-2 border border-yellow-300 text-yellow-300 text-button fw-semibold transition attend-button" data-eventid=<%= event._id %> data-attended=<%= isAttending %>><%= isAttending ? "Leave Event" : "Attend Event" %></button>
+                            <button id="viewAttendeesBtn" class="btn bg-green-700 text-slate-100" data-eventid="<%= event._id %>">
+                                View Attendees (<span><%= event.attendees.length %></span>)
+                            </button>
                       <% } %>
                   </div>
               </div>
@@ -66,7 +93,7 @@
         </div>
     </div>
     <section style="padding-bottom: 20px;padding-top: 20px;">
-      <h2 class="text-slate-900 fs-4 fw-semibold">Forum</h2>
+      <h2 class="text-slate-900 fs-4 fw-semibold">Forum Message</h2>
       <div id="forum-messages">
         <div>
             <div class="d-flex flex-column justify-content-between flex-sm-column flex-md-row flex-lg-row flex-xl-row flex-xxl-row">
