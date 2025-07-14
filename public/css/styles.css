@@ -794,6 +794,11 @@
     width: 170px;
 }
 
+.message-card {
+    width: 100%;
+    background: var(--color-slate-200);
+}
+
 @media (width <= 768px) {
     .card-minimal {
         flex-direction: column;
@@ -845,5 +850,11 @@
     #president-card {
         height: 375px;
         width: 290px;
+    }
+}
+
+@media (width >= 400px) {
+    .message-card {
+        max-width: 300px;
     }
 }
