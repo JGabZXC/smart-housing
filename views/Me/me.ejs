@@ -181,3 +181,100 @@
         </div>
     </div>
 </section>
+<section id="forgotPassword" class="container mt-3">
+    <h2 class="fs-4 fw-semibold text-slate-900"><i class="bi bi-shield-lock-fill"></i> Security Settings</h2>
+    <div class="d-flex flex-column flex-lg-row gap-2 gap-lg-5">
+        <!-- Security Question Setup -->
+        <form id="security-question-form" class="d-flex flex-column account_actions_container gap-3">
+            <h4 class="fs-5 fw-semibold text-slate-700">Security Question</h4>
+
+            <!-- Current Secret Question Display (if exists) -->
+            <% if(user.secretQuestion) { %>
+                <div class="alert alert-info">
+                    <strong>Current Question:</strong> <%= user.secretQuestion %>
+                </div>
+
+                <!-- Verification Step (shown first if question exists) -->
+                <div id="verify-step" class="verification-step d-flex flex-column gap-3">
+                    <div>
+                        <label class="form-label fw-semibold m-0 text-slate-500" for="current-security-answer">Current Security Answer</label>
+                        <input id="current-security-answer" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="currentSecurityAnswer" placeholder="Enter your current security answer" required />
+                    </div>
+                    <button id="verify-security-button" class="btn bg-green-600 text-slate-50 fw-semibold w-100" type="button">Verify Answer</button>
+                </div>
+
+                <!-- Update Step (shown after verification) -->
+                <div id="update-step" class="update-step flex-column gap-3 d-none">
+            <% } else { %>
+                <!-- Setup Step (shown if no question exists) -->
+                <div id="update-step" class="update-step d-flex flex-column gap-3">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Setup Required:</strong> Please set up a security question for password recovery.
+                    </div>
+            <% } %>
+                    <div>
+                        <label class="form-label fw-semibold m-0 text-slate-500" for="security-question">Security Question</label>
+                        <select id="security-question" class="form-select w-100 border-slate-500 py-2 px-3 border rounded-3" name="securityQuestion" required>
+                            <option value="">Select a security question</option>
+                            <option value="Custom Question">Custom Question</option>
+                            <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                            <option value="What city were you born in?">What city were you born in?</option>
+                            <option value="What was your mother's maiden name?">What was your mother's maiden name?</option>
+                            <option value="What was the name of your elementary school?">What was the name of your elementary school?</option>
+                            <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                            <option value="What street did you live on in third grade?">What street did you live on in third grade?</option>
+                            <option value="What was the make of your first car?">What was the make of your first car?</option>
+                            <option value="What was your favorite food as a child?">What was your favorite food as a child?</option>
+                        </select>
+                    </div>
+                    <div id="custom-question-container" style="display: none;">
+                        <label class="form-label fw-semibold m-0 text-slate-500" for="custom-question">Your Custom Question</label>
+                        <input id="custom-question" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="customQuestion" placeholder="Enter your custom security question" />
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold m-0 text-slate-500" for="security-answer">Security Answer</label>
+                        <input id="security-answer" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="securityAnswer" placeholder="Enter your answer" required />
+                        <small class="text-muted">Your answer is case-sensitive</small>
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold m-0 text-slate-500" for="confirm-security-answer">Confirm Security Answer</label>
+                        <input id="confirm-security-answer" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="confirmSecurityAnswer" placeholder="Confirm your answer" required />
+                    </div>
+                    <button id="security-question-button" class="btn bg-green-600 text-slate-50 fw-semibold" type="submit">
+                        <% if(user.secretQuestion) { %>
+                            Update Secret Question
+                        <% } else { %>
+                            Setup Secret Question
+                        <% } %>
+                    </button>
+                </div>
+        </form>
+
+        <!-- Security Actions -->
+        <div class="d-flex flex-column account_actions_container gap-3">
+            <h4 class="fs-5 fw-semibold text-slate-700">Password Recovery</h4>
+            <div class="alert alert-light border">
+                <i class="bi bi-info-circle-fill text-primary"></i>
+                <strong>How it works:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Set up a security question and answer</li>
+                    <li>Use it to recover your password if you forget it</li>
+                    <li>Only you know the answer to your security question</li>
+                </ul>
+            </div>
+
+            <% if(user.secretQuestion) { %>
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Secret question is configured
+                </div>
+            <% } else { %>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Secret question not configured
+                </div>
+            <% } %>
+        </div>
+    </div>
+</section>

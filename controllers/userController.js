@@ -50,3 +50,68 @@ exports.changeDetails = catchAsync(async (req, res, next) => {
 
   authController.sendToken(updatedUser, 200, res);
 });
+
+exports.securityAnswer = catchAsync(async (req, res, next) => {
+  const { secretQuestion, secretAnswer, currentAnswer } = req.body;
+
+  if (!secretQuestion || !secretAnswer)
+    return next(new AppError('Please provide all required fields', 400));
+
+  const user = await User.findById(req.user._id);
+
+  console.log(user.secretQuestion);
+
+  if (user.secretQuestion) {
+    if (!secretAnswer || !currentAnswer)
+      return next(new AppError('Please provide all required fields', 400));
+    if (!user.isCorrectSecretAnswer(user.secretAnswer, currentAnswer))
+      return next(new AppError('Incorrect secret answer', 401));
+  }
+
+  if (
+    user.secretAnswer &&
+    (await user.isCorrectSecretAnswer(user.secretAnswer, secretAnswer))
+  )
+    return next(
+      new AppError(
+        'New secret answer must be different from current answer',
+        400,
+      ),
+    );
+
+  const hashedSecretAnswer = await user.hashSecretAnswer(secretAnswer);
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      secretQuestion,
+      secretAnswer: hashedSecretAnswer,
+    },
+    {
+      new: true,
+      validateModifiedOnly: true,
+    },
+  );
+
+  authController.sendToken(updatedUser, 200, res);
+});
+
+exports.checkSecurityAnswer = catchAsync(async (req, res, next) => {
+  const { secretAnswer } = req.body;
+
+  if (!secretAnswer)
+    return next(new AppError('Please provide the secret answer', 400));
+
+  const user = await User.findById(req.user._id);
+
+  if (!user.secretQuestion)
+    return next(new AppError('No security question set', 400));
+
+  if (!(await user.isCorrectSecretAnswer(secretAnswer, user.secretAnswer)))
+    return next(new AppError('Incorrect secret answer', 401));
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Secret answer is correct',
+  });
+});

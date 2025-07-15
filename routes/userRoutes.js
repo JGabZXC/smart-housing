@@ -11,6 +11,8 @@ router.use(authController.protect);
 
 router.route('/me/changePassword').patch(userController.changePassword);
 router.route('/me/changeDetails').patch(userController.changeDetails);
+router.route('/me/securityAnswer').patch(userController.securityAnswer);
+router.route('/me/verifySecretAnswer').post(userController.checkSecurityAnswer);
 
 router
   .route('/signup')

@@ -48,6 +48,8 @@ const userSchema = new mongoose.Schema(
       default: new Date(),
     },
     passwordChangedAt: Date,
+    secretQuestion: String,
+    secretAnswer: String,
   },
   {
     toJSON: { virtuals: true },
@@ -90,6 +92,17 @@ userSchema.methods.checkPassword = async function (
   userPassword,
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.hashSecretAnswer = async function (answer) {
+  return await bcrypt.hash(answer, 12);
+};
+
+userSchema.methods.isCorrectSecretAnswer = async function (
+  candidateAnswer,
+  userAnswer,
+) {
+  return await bcrypt.compare(candidateAnswer, userAnswer);
 };
 
 // Password Change Checker
