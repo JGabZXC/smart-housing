@@ -217,12 +217,15 @@ exports.attendEvent = catchAsync(async (req, res, next) => {
   if (type === 'leave') {
     if (event.date < new Date(Date.now()))
       return next(
-        new AppError(`You can't leave the event that is already finished!`),
+        new AppError(
+          `You can't leave the event that is already finished!`,
+          400,
+        ),
       );
     update.$pull = { attendees: req.user._id };
   } else {
     if (event.attendees.includes(req.user._id))
-      return next(new AppError('You are already attending this event!'));
+      return next(new AppError('You are already attending this event!', 400));
     if (event.date < new Date(Date.now()))
       return next(new AppError('Event already finished!'));
     update.$push = { attendees: req.user._id };
