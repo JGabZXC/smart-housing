@@ -12,6 +12,12 @@ router.post(
   paymentController.createCheckoutSession,
 );
 
+router.get(
+  '/statement/:year',
+  authController.protect,
+  paymentController.getPaymentStatement,
+);
+
 router.use(authController.protectTo('admin'));
 router
   .route('/')

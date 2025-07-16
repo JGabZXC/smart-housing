@@ -133,10 +133,114 @@ async function validatePaymentPeriod(paymentManager) {
     throw new Error('Payment period overlaps with existing period');
 }
 
+function generateMonthlyStatement(payments, year) {
+  const monthlyDues = 100; // Monthly dues in pesos
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  
+  // Initialize monthly statement
+  const monthlyBreakdown = months.map((month, index) => ({
+    month,
+    monthNumber: index + 1,
+    status: 'unpaid',
+    amountDue: monthlyDues,
+    amountPaid: 0,
+    remainingBalance: monthlyDues,
+    paymentDate: null,
+    paymentId: null
+  }));
+
+  // Sort payments by payment date to process them chronologically
+  const sortedPayments = payments.sort((a, b) => new Date(a.paymentDate) - new Date(b.paymentDate));
+  
+  for (const payment of sortedPayments) {
+    // Get the months covered by this payment's date range
+    const fromMonth = payment.dateRange.from.getMonth();
+    const toMonth = payment.dateRange.to.getMonth();
+    const fromYear = payment.dateRange.from.getFullYear();
+    const toYear = payment.dateRange.to.getFullYear();
+    
+    // Calculate how many months this payment should cover
+    let monthsCovered = 0;
+    if (fromYear === toYear) {
+      monthsCovered = toMonth - fromMonth;
+    } else {
+      // Payment spans multiple years
+      monthsCovered = (12 - fromMonth) + (toYear - fromYear - 1) * 12 + toMonth;
+    }
+    
+    // If payment spans across years, only process months within the requested year
+    if (fromYear <= year && toYear >= year) {
+      const startMonth = fromYear < year ? 0 : fromMonth;
+      const endMonth = toYear > year ? 11 : toMonth - 1; // -1 because toMonth is exclusive in payment logic
+      
+      let remainingPaymentAmount = payment.amount;
+      
+      // Apply payment to the months in the date range
+      for (let monthIndex = startMonth; monthIndex <= endMonth && remainingPaymentAmount > 0; monthIndex++) {
+        const monthData = monthlyBreakdown[monthIndex];
+        const amountNeeded = monthData.remainingBalance;
+        
+        if (remainingPaymentAmount >= amountNeeded) {
+          // Full payment for this month
+          monthData.amountPaid += amountNeeded;
+          monthData.remainingBalance = 0;
+          monthData.status = 'paid';
+          monthData.paymentDate = payment.paymentDate;
+          monthData.paymentId = payment._id;
+          remainingPaymentAmount -= amountNeeded;
+        } else {
+          // Partial payment for this month
+          monthData.amountPaid += remainingPaymentAmount;
+          monthData.remainingBalance -= remainingPaymentAmount;
+          monthData.status = 'partial';
+          monthData.paymentDate = payment.paymentDate;
+          monthData.paymentId = payment._id;
+          remainingPaymentAmount = 0;
+        }
+      }
+    }
+  }
+  
+  // Calculate totals
+  const totalPaid = monthlyBreakdown.reduce((sum, month) => sum + month.amountPaid, 0);
+  const totalDue = months.length * monthlyDues;
+  const totalRemaining = monthlyBreakdown.reduce((sum, month) => sum + month.remainingBalance, 0);
+  
+  return {
+    year,
+    monthlyBreakdown,
+    summary: {
+      totalDue,
+      totalPaid,
+      totalRemaining,
+      monthsFullyPaid: monthlyBreakdown.filter(m => m.status === 'paid').length,
+      monthsPartiallyPaid: monthlyBreakdown.filter(m => m.status === 'partial').length,
+      monthsUnpaid: monthlyBreakdown.filter(m => m.status === 'unpaid').length
+    }
+  };
+}
+
+function getAvailableYears() {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  
+  // Include current year and next 5 years
+  for (let i = 0; i < 6; i++) {
+    years.push(currentYear + i);
+  }
+  
+  return years;
+}
+
 module.exports = {
   CreatePayment,
   getMonthName,
   normalizeDates,
   getNumberOfMonths,
   validatePaymentPeriod,
+  generateMonthlyStatement,
+  getAvailableYears,
 };

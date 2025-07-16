@@ -219,6 +219,80 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
     session,
   });
 });
+exports.getPaymentStatement = catchAsync(async (req, res, next) => {
+  const year = parseInt(req.params.year);
+  
+  // Validate year parameter
+  if (!year || year < 2020 || year > 2050) {
+    return next(new AppError('Please provide a valid year (2020-2050)', 400));
+  }
+  
+  let targetUser = req.user;
+  
+  // If admin, allow querying other users via query parameters
+  if (req.user.role === 'admin') {
+    if (req.query.userId) {
+      targetUser = await User.findById(req.query.userId);
+      if (!targetUser) {
+        return next(new AppError('No user found with that ID', 404));
+      }
+    } else if (req.query.email) {
+      targetUser = await User.findOne({ email: req.query.email });
+      if (!targetUser) {
+        return next(new AppError('No user found with that email', 404));
+      }
+    }
+  }
+  
+  // Get all payments for the user in the specified year
+  const yearStart = new Date(year, 0, 1); // January 1st
+  const yearEnd = new Date(year + 1, 0, 1); // January 1st of next year
+  
+  const payments = await Payment.find({
+    user: targetUser._id,
+    $or: [
+      {
+        // Payments that start in this year
+        'dateRange.from': {
+          $gte: yearStart,
+          $lt: yearEnd
+        }
+      },
+      {
+        // Payments that end in this year
+        'dateRange.to': {
+          $gte: yearStart,
+          $lt: yearEnd
+        }
+      },
+      {
+        // Payments that span across this year
+        'dateRange.from': { $lt: yearStart },
+        'dateRange.to': { $gte: yearEnd }
+      }
+    ]
+  }).sort({ paymentDate: 1 });
+  
+  // Generate monthly statement
+  const statement = PaymentManager.generateMonthlyStatement(payments, year);
+  
+  // Get available years
+  const availableYears = PaymentManager.getAvailableYears();
+  
+  res.status(200).json({
+    status: 'success',
+    data: {
+      statement,
+      availableYears,
+      user: {
+        id: targetUser._id,
+        name: targetUser.name,
+        email: targetUser.email
+      }
+    }
+  });
+});
+
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
   const endpointSecret =
