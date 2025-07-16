@@ -1,6 +1,5 @@
 /* eslint-disable */
 
-import axios from 'axios';
 import { showAlert } from '../utils/alerts.js';
 import { buttonSpinner } from '../utils/spinner.js';
 
@@ -42,6 +41,7 @@ if(paymentStripeForm) {
       buttonSpinner(payDuesButton, "Pay with Stripe <i class=\"bi bi-stripe\"></i>", "Processing payment");
       await payWithStripe(fromDate, toDate);
     } catch (err) {
+      console.log(err.response);
       showAlert('error', err.response.data.message);
     } finally {
       buttonSpinner(payDuesButton, "Pay with Stripe <i class=\"bi bi-stripe\"></i>", "Processing payment");

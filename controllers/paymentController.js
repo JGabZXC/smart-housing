@@ -147,33 +147,41 @@ exports.deletePayment = handler.deleteOne(Payment);
 exports.createCheckoutSession = catchAsync(async (req, res, next) => {
   const { fromDate, toDate } = req.body;
 
-  if (!fromDate || !toDate)
-    return next(new AppError('Please provide date', 400));
+  const convertedFromDate = new Date(fromDate);
+  const convertedToDate = new Date(toDate);
 
-  const { start: newFromDate, end: newToDate } = PaymentManager.normalizeDates(
-    fromDate,
-    toDate,
-  );
-
-  if (Number.isNaN(newFromDate) || Number.isNaN(newToDate))
+  if (Number.isNaN(convertedFromDate) || Number.isNaN(convertedToDate))
     return next(new AppError('Invalid date format', 400));
 
-  const convertedFromDate = new Intl.DateTimeFormat('en-US', {
+  const calcMonths = PaymentManager.calculateFullMonths(
+    convertedFromDate,
+    convertedToDate,
+  );
+
+  if (!calcMonths.isValid)
+    return next(
+      new AppError(
+        'Only full months are allowed (1 month, 2 months, 3 months, etc.). No partial months permitted.',
+        400,
+      ),
+    );
+
+  const convertedFromDateFormat = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: '2-digit',
-  }).format(newFromDate);
-  const convertedToDate = new Intl.DateTimeFormat('en-US', {
+  }).format(convertedFromDate);
+  const convertedToDateFormat = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: '2-digit',
-  }).format(newToDate);
+  }).format(convertedToDate);
 
   const paymentManager = new PaymentManager.CreatePayment({
     modelInstance: Payment,
     user: req.user,
-    fromDate: newFromDate,
-    toDate: newToDate,
+    fromDate: convertedFromDate,
+    toDate: convertedToDate,
     type: 'stripe',
   });
 
@@ -183,7 +191,7 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError(err.message, 400));
   }
 
-  const dateRange = `${convertedFromDate}TO${convertedToDate}`;
+  const dateRange = `${convertedFromDateFormat}TO${convertedToDateFormat}`;
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -198,10 +206,10 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
           currency: 'php',
           product_data: {
             name: 'Payment for dues',
-            description: `Payment for ${convertedFromDate} to ${convertedToDate}. Do not forget to screenshot the payment confirmation.`,
+            description: `Payment for ${convertedFromDateFormat} to ${convertedToDateFormat}. Do not forget to screenshot the payment confirmation.`,
           },
           unit_amount:
-            PaymentManager.getNumberOfMonths(newFromDate, newToDate) *
+            calcMonths.months *
             100 * // Assuming 100 PHP per month
             100, // Convert to pesos (PHP)
         },
@@ -220,15 +228,15 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 exports.getPaymentStatement = catchAsync(async (req, res, next) => {
-  const year = parseInt(req.params.year);
-  
+  const year = parseInt(req.params.year, 10);
+
   // Validate year parameter
   if (!year || year < 2020 || year > 2050) {
     return next(new AppError('Please provide a valid year (2020-2050)', 400));
   }
-  
+
   let targetUser = req.user;
-  
+
   // If admin, allow querying other users via query parameters
   if (req.user.role === 'admin') {
     if (req.query.userId) {
@@ -243,11 +251,11 @@ exports.getPaymentStatement = catchAsync(async (req, res, next) => {
       }
     }
   }
-  
+
   // Get all payments for the user in the specified year
   const yearStart = new Date(year, 0, 1); // January 1st
   const yearEnd = new Date(year + 1, 0, 1); // January 1st of next year
-  
+
   const payments = await Payment.find({
     user: targetUser._id,
     $or: [
@@ -255,30 +263,30 @@ exports.getPaymentStatement = catchAsync(async (req, res, next) => {
         // Payments that start in this year
         'dateRange.from': {
           $gte: yearStart,
-          $lt: yearEnd
-        }
+          $lt: yearEnd,
+        },
       },
       {
         // Payments that end in this year
         'dateRange.to': {
           $gte: yearStart,
-          $lt: yearEnd
-        }
+          $lt: yearEnd,
+        },
       },
       {
         // Payments that span across this year
         'dateRange.from': { $lt: yearStart },
-        'dateRange.to': { $gte: yearEnd }
-      }
-    ]
+        'dateRange.to': { $gte: yearEnd },
+      },
+    ],
   }).sort({ paymentDate: 1 });
-  
+
   // Generate monthly statement
   const statement = PaymentManager.generateMonthlyStatement(payments, year);
-  
+
   // Get available years
   const availableYears = PaymentManager.getAvailableYears();
-  
+
   res.status(200).json({
     status: 'success',
     data: {
@@ -287,9 +295,9 @@ exports.getPaymentStatement = catchAsync(async (req, res, next) => {
       user: {
         id: targetUser._id,
         name: targetUser.name,
-        email: targetUser.email
-      }
-    }
+        email: targetUser.email,
+      },
+    },
   });
 });
 
@@ -311,6 +319,7 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
+    console.log(session);
     // Insert the payment into the database
     insertPayment(session);
   }

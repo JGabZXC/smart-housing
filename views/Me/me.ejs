@@ -268,26 +268,26 @@
 document.addEventListener('DOMContentLoaded', function() {
     const yearSelect = document.getElementById('year-select');
     const currentYear = new Date().getFullYear();
-    
+
     // Set current year as default
     yearSelect.value = currentYear;
-    
+
     // Load initial payment statement
     loadPaymentStatement(currentYear);
-    
+
     // Handle year selection change
     yearSelect.addEventListener('change', function() {
         const selectedYear = parseInt(this.value);
         loadPaymentStatement(selectedYear);
     });
-    
+
     async function loadPaymentStatement(year) {
         const tableBody = document.getElementById('payment-statement-body');
         const totalDue = document.getElementById('total-due');
         const totalPaid = document.getElementById('total-paid');
         const totalRemaining = document.getElementById('total-remaining');
         const monthsPaid = document.getElementById('months-paid');
-        
+
         try {
             // Show loading state
             tableBody.innerHTML = `
@@ -298,26 +298,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                 </tr>
             `;
-            
+
             const response = await fetch(`/api/v1/payments/statement/${year}`);
             const data = await response.json();
-            
+
             if (data.status === 'success') {
                 const statement = data.data.statement;
                 const summary = statement.summary;
-                
+
                 // Update summary cards
                 totalDue.textContent = `₱${summary.totalDue}`;
                 totalPaid.textContent = `₱${summary.totalPaid}`;
                 totalRemaining.textContent = `₱${summary.totalRemaining}`;
                 monthsPaid.textContent = `${summary.monthsFullyPaid}/12`;
-                
+
                 // Clear table and populate with monthly data
                 tableBody.innerHTML = '';
-                
+
                 statement.monthlyBreakdown.forEach(month => {
                     const row = document.createElement('tr');
-                    
+
                     // Determine status badge
                     let statusBadge = '';
                     if (month.status === 'paid') {
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         statusBadge = '<span class="badge bg-danger">Unpaid</span>';
                     }
-                    
+
                     // Format payment date
                     let paymentDate = '-';
                     if (month.paymentDate) {
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             timeZone: 'Asia/Manila'
                         }).format(new Date(month.paymentDate));
                     }
-                    
+
                     row.innerHTML = `
                         <td>${month.month}</td>
                         <td>${statusBadge}</td>
@@ -347,19 +347,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td>₱${month.remainingBalance}</td>
                         <td>${paymentDate}</td>
                     `;
-                    
+
                     tableBody.appendChild(row);
                 });
-                
+
                 // Populate year dropdown if availableYears is provided
                 if (data.data.availableYears) {
                     updateYearOptions(data.data.availableYears);
                 }
-                
+
             } else {
                 throw new Error(data.message || 'Failed to load payment statement');
             }
-            
+
         } catch (error) {
             console.error('Error loading payment statement:', error);
             tableBody.innerHTML = `
@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                 </tr>
             `;
-            
+
             // Reset summary
             totalDue.textContent = '₱0';
             totalPaid.textContent = '₱0';
@@ -378,11 +378,11 @@ document.addEventListener('DOMContentLoaded', function() {
             monthsPaid.textContent = '0/12';
         }
     }
-    
+
     function updateYearOptions(availableYears) {
         const currentSelection = yearSelect.value;
         yearSelect.innerHTML = '';
-        
+
         availableYears.forEach(year => {
             const option = document.createElement('option');
             option.value = year;

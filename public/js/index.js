@@ -1,6 +1,5 @@
 /* eslint-disable */
 
-import "@babel/polyfill"
 import "./Project/projects.js"
 import "./Admin/admin_dashboard.js"
 import "./Admin/admin_edit-project-event.js"

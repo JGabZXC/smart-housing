@@ -59,8 +59,6 @@ exports.securityAnswer = catchAsync(async (req, res, next) => {
 
   const user = await User.findById(req.user._id);
 
-  console.log(user.secretQuestion);
-
   if (user.secretQuestion) {
     if (!secretAnswer || !currentAnswer)
       return next(new AppError('Please provide all required fields', 400));
