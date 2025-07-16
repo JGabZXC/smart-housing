@@ -14,51 +14,133 @@
                 <button id="pay-dues-button" class="btn bg-indigo-600 text-slate-50 border-0 fw-semibold" type="submit">Pay with Stripe <i class="bi bi-stripe"></i></button>
             </form>
         </div>
-        <div class="paid-dues-height overflow-hidden">
-            <h2 class="fs-5 fw-semibold text-slate-900"><i class="bi bi-check-circle-fill"></i> Paid Dues</h2>
+        
+        <!-- Updated Payment Statement Section -->
+        <div class="payment-statement-container flex-grow-1">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="fs-5 fw-semibold text-slate-900 m-0"><i class="bi bi-file-earmark-text-fill"></i> Payment Statement</h2>
+                <div class="d-flex gap-2 align-items-center">
+                    <label class="form-label fw-semibold m-0 text-slate-600" for="year-select">Year:</label>
+                    <select id="year-select" class="form-select form-select-sm" style="width: auto;">
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Payment Summary -->
+            <div id="payment-summary" class="row mb-3">
+                <div class="col-md-3">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body p-2 text-center">
+                            <h6 class="card-title text-muted m-0">Total Due</h6>
+                            <p class="card-text fw-bold text-dark m-0" id="total-due">₱0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-success text-white">
+                        <div class="card-body p-2 text-center">
+                            <h6 class="card-title m-0">Total Paid</h6>
+                            <p class="card-text fw-bold m-0" id="total-paid">₱0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-warning text-white">
+                        <div class="card-body p-2 text-center">
+                            <h6 class="card-title m-0">Remaining</h6>
+                            <p class="card-text fw-bold m-0" id="total-remaining">₱0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-info text-white">
+                        <div class="card-body p-2 text-center">
+                            <h6 class="card-title m-0">Paid Months</h6>
+                            <p class="card-text fw-bold m-0" id="months-paid">0/12</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Monthly Breakdown Table -->
             <div class="table-wrapper">
                 <div class="table-responsive h-100">
-                    <table id="paid-dues-table" class="table">
-                        <% if(payment.length > 0) { %>
-                            <thead>
-                                <tr>
-                                    <th class="month-range-width">Month Range</th>
-                                    <th>Amount</th>
-                                    <th class="date-paid-width">Date Paid</th>
-                                    <th>Reference</th>
-                                    <th>Method</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <% payment.forEach((due) => { %>
-                                <tr>
-                                    <td><%= due.formattedDateRange %></td>
-                                    <td>₱<%= due.amount %></td>
-                                    <td><%= new Intl.DateTimeFormat("en-us", {
-                                            year: "numeric",
-                                            month: "long",
-                                            day: "2-digit",
-                                            timeZone: 'Asia/Manila'
-                                        }).format(due.paymentDate) %></td>
-                                    <td><%= due.stripeSessionId %></td>
-                                    <td><%= due.paymentMethod %></td>
-                                </tr>
-                                <% }); %>
-                            </tbody>
-                        <% } else { %>
-                            <tbody>
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted">No dues paid yet.</td>
-                                </tr>
-                            </tbody>
-                        <% } %>
+                    <table id="payment-statement-table" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Status</th>
+                                <th>Amount Due</th>
+                                <th>Amount Paid</th>
+                                <th>Balance</th>
+                                <th>Payment Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payment-statement-body">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <div class="spinner-border spinner-border-sm me-2"></div>
+                                    Loading payment statement...
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
-            <%if(payment.length > 0) {%>
-                <p class="text-slate-400 fs-6 m-0 mt-2">You can only see 50 of your transactions.</p>
-            <% } %>
         </div>
+    </div>
+</section>
+
+<!-- Keep existing paid dues section for reference -->
+<section class="container mt-3">
+    <div class="paid-dues-height overflow-hidden">
+        <h2 class="fs-5 fw-semibold text-slate-900"><i class="bi bi-check-circle-fill"></i> Recent Transactions</h2>
+        <div class="table-wrapper">
+            <div class="table-responsive h-100">
+                <table id="paid-dues-table" class="table">
+                    <% if(payment.length > 0) { %>
+                        <thead>
+                            <tr>
+                                <th class="month-range-width">Month Range</th>
+                                <th>Amount</th>
+                                <th class="date-paid-width">Date Paid</th>
+                                <th>Reference</th>
+                                <th>Method</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% payment.forEach((due) => { %>
+                            <tr>
+                                <td><%= due.formattedDateRange %></td>
+                                <td>₱<%= due.amount %></td>
+                                <td><%= new Intl.DateTimeFormat("en-us", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "2-digit",
+                                        timeZone: 'Asia/Manila'
+                                    }).format(due.paymentDate) %></td>
+                                <td><%= due.stripeSessionId %></td>
+                                <td><%= due.paymentMethod %></td>
+                            </tr>
+                            <% }); %>
+                        </tbody>
+                    <% } else { %>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No recent transactions.</td>
+                            </tr>
+                        </tbody>
+                    <% } %>
+                </table>
+            </div>
+        </div>
+        <%if(payment.length > 0) {%>
+            <p class="text-slate-400 fs-6 m-0 mt-2">Showing recent transactions only.</p>
+        <% } %>
     </div>
 </section>
 <section class="container mt-3">
@@ -181,3 +263,135 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const yearSelect = document.getElementById('year-select');
+    const currentYear = new Date().getFullYear();
+    
+    // Set current year as default
+    yearSelect.value = currentYear;
+    
+    // Load initial payment statement
+    loadPaymentStatement(currentYear);
+    
+    // Handle year selection change
+    yearSelect.addEventListener('change', function() {
+        const selectedYear = parseInt(this.value);
+        loadPaymentStatement(selectedYear);
+    });
+    
+    async function loadPaymentStatement(year) {
+        const tableBody = document.getElementById('payment-statement-body');
+        const totalDue = document.getElementById('total-due');
+        const totalPaid = document.getElementById('total-paid');
+        const totalRemaining = document.getElementById('total-remaining');
+        const monthsPaid = document.getElementById('months-paid');
+        
+        try {
+            // Show loading state
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-muted">
+                        <div class="spinner-border spinner-border-sm me-2"></div>
+                        Loading payment statement...
+                    </td>
+                </tr>
+            `;
+            
+            const response = await fetch(`/api/v1/payments/statement/${year}`);
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                const statement = data.data.statement;
+                const summary = statement.summary;
+                
+                // Update summary cards
+                totalDue.textContent = `₱${summary.totalDue}`;
+                totalPaid.textContent = `₱${summary.totalPaid}`;
+                totalRemaining.textContent = `₱${summary.totalRemaining}`;
+                monthsPaid.textContent = `${summary.monthsFullyPaid}/12`;
+                
+                // Clear table and populate with monthly data
+                tableBody.innerHTML = '';
+                
+                statement.monthlyBreakdown.forEach(month => {
+                    const row = document.createElement('tr');
+                    
+                    // Determine status badge
+                    let statusBadge = '';
+                    if (month.status === 'paid') {
+                        statusBadge = '<span class="badge bg-success">Paid</span>';
+                    } else if (month.status === 'partial') {
+                        statusBadge = '<span class="badge bg-warning">Partial</span>';
+                    } else {
+                        statusBadge = '<span class="badge bg-danger">Unpaid</span>';
+                    }
+                    
+                    // Format payment date
+                    let paymentDate = '-';
+                    if (month.paymentDate) {
+                        paymentDate = new Intl.DateTimeFormat('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: '2-digit',
+                            timeZone: 'Asia/Manila'
+                        }).format(new Date(month.paymentDate));
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${month.month}</td>
+                        <td>${statusBadge}</td>
+                        <td>₱${month.amountDue}</td>
+                        <td>₱${month.amountPaid}</td>
+                        <td>₱${month.remainingBalance}</td>
+                        <td>${paymentDate}</td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // Populate year dropdown if availableYears is provided
+                if (data.data.availableYears) {
+                    updateYearOptions(data.data.availableYears);
+                }
+                
+            } else {
+                throw new Error(data.message || 'Failed to load payment statement');
+            }
+            
+        } catch (error) {
+            console.error('Error loading payment statement:', error);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Error loading payment statement. Please try again.
+                    </td>
+                </tr>
+            `;
+            
+            // Reset summary
+            totalDue.textContent = '₱0';
+            totalPaid.textContent = '₱0';
+            totalRemaining.textContent = '₱0';
+            monthsPaid.textContent = '0/12';
+        }
+    }
+    
+    function updateYearOptions(availableYears) {
+        const currentSelection = yearSelect.value;
+        yearSelect.innerHTML = '';
+        
+        availableYears.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            if (year.toString() === currentSelection) {
+                option.selected = true;
+            }
+            yearSelect.appendChild(option);
+        });
+    }
+});
+</script>
