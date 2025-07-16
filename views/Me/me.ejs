@@ -263,135 +263,100 @@
         </div>
     </div>
 </section>
+<section id="forgotPassword" class="container mt-3">
+    <h2 class="fs-4 fw-semibold text-slate-900"><i class="bi bi-shield-lock-fill"></i> Security Settings</h2>
+    <div class="d-flex flex-column flex-lg-row gap-2 gap-lg-5">
+        <!-- Security Question Setup -->
+        <form id="security-question-form" class="d-flex flex-column account_actions_container gap-3">
+            <h4 class="fs-5 fw-semibold text-slate-700">Security Question</h4>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const yearSelect = document.getElementById('year-select');
-    const currentYear = new Date().getFullYear();
+            <!-- Current Secret Question Display (if exists) -->
+            <% if(user.secretQuestion) { %>
+                <div class="alert alert-info">
+                    <strong>Current Question:</strong> <%= user.secretQuestion %>
+                </div>
 
-    // Set current year as default
-    yearSelect.value = currentYear;
+                <!-- Verification Step (shown first if question exists) -->
+                <div id="verify-step" class="verification-step d-flex flex-column gap-3">
+                    <div>
+                        <label class="form-label fw-semibold m-0 text-slate-500" for="current-security-answer">Current Security Answer</label>
+                        <input id="current-security-answer" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="currentSecurityAnswer" placeholder="Enter your current security answer" required />
+                    </div>
+                    <button id="verify-security-button" class="btn bg-green-600 text-slate-50 fw-semibold w-100" type="button">Verify Answer</button>
+                </div>
 
-    // Load initial payment statement
-    loadPaymentStatement(currentYear);
+                <!-- Update Step (shown after verification) -->
+                <div id="update-step" class="update-step flex-column gap-3 d-none">
+            <% } else { %>
+                <!-- Setup Step (shown if no question exists) -->
+                <div id="update-step" class="update-step d-flex flex-column gap-3">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Setup Required:</strong> Please set up a security question for password recovery.
+                    </div>
+            <% } %>
+                    <div>
+                        <label class="form-label fw-semibold m-0 text-slate-500" for="security-question">Security Question</label>
+                        <select id="security-question" class="form-select w-100 border-slate-500 py-2 px-3 border rounded-3" name="securityQuestion" required>
+                            <option value="">Select a security question</option>
+                            <option value="Custom Question">Custom Question</option>
+                            <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                            <option value="What city were you born in?">What city were you born in?</option>
+                            <option value="What was your mother's maiden name?">What was your mother's maiden name?</option>
+                            <option value="What was the name of your elementary school?">What was the name of your elementary school?</option>
+                            <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                            <option value="What street did you live on in third grade?">What street did you live on in third grade?</option>
+                            <option value="What was the make of your first car?">What was the make of your first car?</option>
+                            <option value="What was your favorite food as a child?">What was your favorite food as a child?</option>
+                        </select>
+                    </div>
+                    <div id="custom-question-container" style="display: none;">
+                        <label class="form-label fw-semibold m-0 text-slate-500" for="custom-question">Your Custom Question</label>
+                        <input id="custom-question" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="customQuestion" placeholder="Enter your custom security question" />
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold m-0 text-slate-500" for="security-answer">Security Answer</label>
+                        <input id="security-answer" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="securityAnswer" placeholder="Enter your answer" required />
+                        <small class="text-muted">Your answer is case-sensitive</small>
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold m-0 text-slate-500" for="confirm-security-answer">Confirm Security Answer</label>
+                        <input id="confirm-security-answer" class="form-control w-100 border-slate-500 py-2 px-3 border rounded-3" type="text" name="confirmSecurityAnswer" placeholder="Confirm your answer" required />
+                    </div>
+                    <button id="security-question-button" class="btn bg-green-600 text-slate-50 fw-semibold" type="submit">
+                        <% if(user.secretQuestion) { %>
+                            Update Secret Question
+                        <% } else { %>
+                            Setup Secret Question
+                        <% } %>
+                    </button>
+                </div>
+        </form>
 
-    // Handle year selection change
-    yearSelect.addEventListener('change', function() {
-        const selectedYear = parseInt(this.value);
-        loadPaymentStatement(selectedYear);
-    });
+        <!-- Security Actions -->
+        <div class="d-flex flex-column account_actions_container gap-3">
+            <h4 class="fs-5 fw-semibold text-slate-700">Password Recovery</h4>
+            <div class="alert alert-light border">
+                <i class="bi bi-info-circle-fill text-primary"></i>
+                <strong>How it works:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Set up a security question and answer</li>
+                    <li>Use it to recover your password if you forget it</li>
+                    <li>Only you know the answer to your security question</li>
+                </ul>
+            </div>
 
-    async function loadPaymentStatement(year) {
-        const tableBody = document.getElementById('payment-statement-body');
-        const totalDue = document.getElementById('total-due');
-        const totalPaid = document.getElementById('total-paid');
-        const totalRemaining = document.getElementById('total-remaining');
-        const monthsPaid = document.getElementById('months-paid');
-
-        try {
-            // Show loading state
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center text-muted">
-                        <div class="spinner-border spinner-border-sm me-2"></div>
-                        Loading payment statement...
-                    </td>
-                </tr>
-            `;
-
-            const response = await fetch(`/api/v1/payments/statement/${year}`);
-            const data = await response.json();
-
-            if (data.status === 'success') {
-                const statement = data.data.statement;
-                const summary = statement.summary;
-
-                // Update summary cards
-                totalDue.textContent = `₱${summary.totalDue}`;
-                totalPaid.textContent = `₱${summary.totalPaid}`;
-                totalRemaining.textContent = `₱${summary.totalRemaining}`;
-                monthsPaid.textContent = `${summary.monthsFullyPaid}/12`;
-
-                // Clear table and populate with monthly data
-                tableBody.innerHTML = '';
-
-                statement.monthlyBreakdown.forEach(month => {
-                    const row = document.createElement('tr');
-
-                    // Determine status badge
-                    let statusBadge = '';
-                    if (month.status === 'paid') {
-                        statusBadge = '<span class="badge bg-success">Paid</span>';
-                    } else if (month.status === 'partial') {
-                        statusBadge = '<span class="badge bg-warning">Partial</span>';
-                    } else {
-                        statusBadge = '<span class="badge bg-danger">Unpaid</span>';
-                    }
-
-                    // Format payment date
-                    let paymentDate = '-';
-                    if (month.paymentDate) {
-                        paymentDate = new Intl.DateTimeFormat('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: '2-digit',
-                            timeZone: 'Asia/Manila'
-                        }).format(new Date(month.paymentDate));
-                    }
-
-                    row.innerHTML = `
-                        <td>${month.month}</td>
-                        <td>${statusBadge}</td>
-                        <td>₱${month.amountDue}</td>
-                        <td>₱${month.amountPaid}</td>
-                        <td>₱${month.remainingBalance}</td>
-                        <td>${paymentDate}</td>
-                    `;
-
-                    tableBody.appendChild(row);
-                });
-
-                // Populate year dropdown if availableYears is provided
-                if (data.data.availableYears) {
-                    updateYearOptions(data.data.availableYears);
-                }
-
-            } else {
-                throw new Error(data.message || 'Failed to load payment statement');
-            }
-
-        } catch (error) {
-            console.error('Error loading payment statement:', error);
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center text-danger">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        Error loading payment statement. Please try again.
-                    </td>
-                </tr>
-            `;
-
-            // Reset summary
-            totalDue.textContent = '₱0';
-            totalPaid.textContent = '₱0';
-            totalRemaining.textContent = '₱0';
-            monthsPaid.textContent = '0/12';
-        }
-    }
-
-    function updateYearOptions(availableYears) {
-        const currentSelection = yearSelect.value;
-        yearSelect.innerHTML = '';
-
-        availableYears.forEach(year => {
-            const option = document.createElement('option');
-            option.value = year;
-            option.textContent = year;
-            if (year.toString() === currentSelection) {
-                option.selected = true;
-            }
-            yearSelect.appendChild(option);
-        });
-    }
-});
-</script>
+            <% if(user.secretQuestion) { %>
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Secret question is configured
+                </div>
+            <% } else { %>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Secret question not configured
+                </div>
+            <% } %>
+        </div>
+    </div>
+</section>

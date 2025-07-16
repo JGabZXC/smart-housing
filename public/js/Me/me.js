@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { buttonSpinner} from '../utils/spinner.js';
-import { patchData, postData } from '../utils/http.js';
+import { patchData, postData, fetchData } from '../utils/http.js';
 import { showAlert } from '../utils/alerts.js';
 
 const changePasswordForm = document.querySelector('#change-password-form');
@@ -19,6 +19,137 @@ const currentSecurityAnswer = document.querySelector('#current-security-answer')
 const verifySecurityButton = document.querySelector('#verify-security-button');
 const updateStepEl = document.querySelector('#update-step');
 let answer = '';
+
+const yearSelect = document.getElementById('year-select');
+const meContainer = document.querySelector('#me-container');
+
+async function loadPaymentStatement(year) {
+  const tableBody = document.getElementById('payment-statement-body');
+  const totalDue = document.getElementById('total-due');
+  const totalPaid = document.getElementById('total-paid');
+  const totalRemaining = document.getElementById('total-remaining');
+  const monthsPaid = document.getElementById('months-paid');
+
+  try {
+    // Show loading state
+    tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-muted">
+                        <div class="spinner-border spinner-border-sm me-2"></div>
+                        Loading payment statement...
+                    </td>
+                </tr>
+            `;
+
+    const response = await fetchData(`/api/v1/payments/statement/${year}`);
+
+    if (response.status === 'success') {
+      const statement = response.data.statement;
+      const summary = statement.summary;
+
+      // Update summary cards
+      totalDue.textContent = `₱${summary.totalDue}`;
+      totalPaid.textContent = `₱${summary.totalPaid}`;
+      totalRemaining.textContent = `₱${summary.totalRemaining}`;
+      monthsPaid.textContent = `${summary.monthsFullyPaid}/12`;
+
+      // Clear table and populate with monthly data
+      tableBody.innerHTML = '';
+
+      statement.monthlyBreakdown.forEach(month => {
+        const row = document.createElement('tr');
+
+        // Determine status badge
+        let statusBadge = '';
+        if (month.status === 'paid') {
+          statusBadge = '<span class="badge bg-success">Paid</span>';
+        } else if (month.status === 'partial') {
+          statusBadge = '<span class="badge bg-warning">Partial</span>';
+        } else {
+          statusBadge = '<span class="badge bg-danger">Unpaid</span>';
+        }
+
+        // Format payment date
+        let paymentDate = '-';
+        if (month.paymentDate) {
+          paymentDate = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            timeZone: 'Asia/Manila'
+          }).format(new Date(month.paymentDate));
+        }
+
+        row.innerHTML = `
+                        <td>${month.month}</td>
+                        <td>${statusBadge}</td>
+                        <td>₱${month.amountDue}</td>
+                        <td>₱${month.amountPaid}</td>
+                        <td>₱${month.remainingBalance}</td>
+                        <td>${paymentDate}</td>
+                    `;
+
+        tableBody.appendChild(row);
+      });
+
+      // Populate year dropdown if availableYears is provided
+      if (response.data.availableYears) {
+        updateYearOptions(response.data.availableYears);
+      }
+
+    } else {
+      throw new Error('Failed to load payment statement');
+    }
+
+  } catch (error) {
+    console.error('Error loading payment statement:', error);
+    tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Error loading payment statement. Please try again.
+                    </td>
+                </tr>
+            `;
+
+    // Reset summary
+    totalDue.textContent = '₱0';
+    totalPaid.textContent = '₱0';
+    totalRemaining.textContent = '₱0';
+    monthsPaid.textContent = '0/12';
+  }
+}
+
+function updateYearOptions(availableYears) {
+  const currentSelection = yearSelect.value;
+  yearSelect.innerHTML = '';
+
+  availableYears.forEach(year => {
+    const option = document.createElement('option');
+    option.value = year;
+    option.textContent = year;
+    if (year.toString() === currentSelection) {
+      option.selected = true;
+    }
+    yearSelect.appendChild(option);
+  });
+}
+
+if(meContainer) {
+  const currentYear = new Date().getFullYear();
+
+  // Set current year as default
+  yearSelect.value = currentYear;
+
+// Load initial payment statement
+  loadPaymentStatement(currentYear);
+
+// Handle year selection change
+  yearSelect.addEventListener('change', function() {
+    const selectedYear = parseInt(this.value);
+    loadPaymentStatement(selectedYear);
+  });
+}
 
 if(changePasswordForm) {
   changePasswordForm.addEventListener('submit', async (e) => {
