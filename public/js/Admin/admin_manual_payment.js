@@ -241,6 +241,7 @@ if(manualPaymentSection) {
       const formData = new FormData(e.target);
       const fromDate = formData.get('from-manual-payment');
       const toDate = formData.get('to-manual-payment');
+      const or = formData.get('or-statement')
 
       try {
         buttonSpinner(manualPaymentFormButton, 'Submit', 'Creating Payment');
@@ -249,6 +250,7 @@ if(manualPaymentSection) {
           toDate,
           amount: manualPaymentAmount.value, // If disabled it will be null, so bypassing it
           email: searchUserInput.value.trim(),
+          or,
         });
 
         if(response.status === 'success') {

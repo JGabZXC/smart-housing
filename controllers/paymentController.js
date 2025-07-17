@@ -97,7 +97,7 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
 });
 exports.getPayment = handler.getOne(Payment);
 exports.createPayment = catchAsync(async (req, res, next) => {
-  const { email, amount, fromDate, toDate } = req.body;
+  const { email, amount, fromDate, toDate, or } = req.body;
 
   const convertedFromDate = new Date(fromDate);
   const convertedToDate = new Date(toDate);
@@ -138,6 +138,7 @@ exports.createPayment = catchAsync(async (req, res, next) => {
     fromDate: convertedFromDateFormat,
     toDate: convertedToDateFormat,
     type: 'manual',
+    or
   });
 
   try {

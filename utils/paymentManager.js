@@ -55,6 +55,7 @@ class CreatePayment {
     stripeSessionId = null,
     paymentIntentId = null,
     type = 'manual',
+    or = 'unset',
   }) {
     this.modelInstance = modelInstance;
     this.user = user;
@@ -63,12 +64,14 @@ class CreatePayment {
     this.stripeSessionId = stripeSessionId;
     this.paymentIntentId = paymentIntentId;
     this.type = type;
+    this.or = or;
   }
 
   async addPaymentDate(amount = 100) {
     // For manual payments, intelligently adjust the date range and amount
     if (this.type === 'manual') {
       const adjustedPayment = await this.calculateOptimalPaymentRange(amount);
+      this.stripeSessionId = this.or;
 
       // If no amount can be applied, throw an error
       if (adjustedPayment.amount === 0) {
