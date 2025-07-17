@@ -30,16 +30,16 @@ const insertPayment = async function (session) {
 exports.getAllPayments = catchAsync(async (req, res, next) => {
   let filter = {};
   let user;
-  const { phase, block, lot, street } = req.query;
+  const { phase, block, lot } = req.query;
 
-  if (phase && block && lot && street) {
-    const newStreet = street[0].toUpperCase() + street.slice(1).toLowerCase();
+  if (phase && block && lot) {
     const house = await House.findOne({
       phase: +phase,
       block: +block,
       lot: +lot,
-      street: newStreet,
     });
+
+    console.log(house);
 
     if (!house)
       return next(new AppError('No house found with that address', 404));

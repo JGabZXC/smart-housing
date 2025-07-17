@@ -29,14 +29,13 @@ const filterDateFormButton = document.querySelector('#filter-date-form-button');
 
 let manualPaymentList = null;
 let userId = '';
+let userEmail = ''; // Continue here, fetch email from the getIds function URLParams there
 
 const statementAdminManual = document.querySelector('#statement-admin-manual');
 
 if(statementAdminManual) {
   // Set current year as default
   yearSelect.value = currentYear;
-
-
 
   // Handle year selection change
   yearSelect.addEventListener('change', function() {
@@ -152,6 +151,8 @@ async function getIds(searchQuery) {
       message: `No email found with that search`,
     });
 
+    userEmail = searchQuery;
+
     return { user: response.data.doc[0], url: `/api/v1/payments?email=${searchQuery}` };
   }
 }
@@ -186,6 +187,12 @@ if(manualPaymentSection) {
         const { user, url } = await getIds(search);
         userId = user._id;
         manualPaymentList.endpoint = url;
+
+        // inefficient solution but works for now
+        const testData = await fetchData(url);
+        console.log(testData);
+        userEmail = testData.data.doc.length > 0 && testData.data.doc[0].user.email;
+
         await manualPaymentList.render();
 
         loadPaymentStatement(
@@ -249,7 +256,7 @@ if(manualPaymentSection) {
           fromDate,
           toDate,
           amount: manualPaymentAmount.value, // If disabled it will be null, so bypassing it
-          email: searchUserInput.value.trim(),
+          email: userEmail,
           or,
         });
 
