@@ -39,8 +39,6 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
       lot: +lot,
     });
 
-    console.log(house);
-
     if (!house)
       return next(new AppError('No house found with that address', 404));
     filter = { address: house._id };
@@ -138,7 +136,7 @@ exports.createPayment = catchAsync(async (req, res, next) => {
     fromDate: convertedFromDateFormat,
     toDate: convertedToDateFormat,
     type: 'manual',
-    or
+    or,
   });
 
   try {
@@ -246,9 +244,13 @@ exports.getPaymentStatement = catchAsync(async (req, res, next) => {
   const year = parseInt(req.params.year, 10);
   const { id } = req.query;
 
+  const futureYear = new Date().getFullYear() + 5;
+
   // Validate year parameter
-  if (!year || year < 2020 || year > 2050) {
-    return next(new AppError('Please provide a valid year (2020-2050)', 400));
+  if (!year || year < 2025 || year > futureYear) {
+    return next(
+      new AppError(`Please provide a valid year (2025-${futureYear})`, 400),
+    );
   }
 
   let targetUser = req.user;
@@ -259,11 +261,6 @@ exports.getPaymentStatement = catchAsync(async (req, res, next) => {
       targetUser = await User.findOne({ $or: [{ _id: id }, { address: id }] });
       if (!targetUser) {
         return next(new AppError('No user found with that ID', 404));
-      }
-    } else if (req.query.email) {
-      targetUser = await User.findOne({ email: req.query.email });
-      if (!targetUser) {
-        return next(new AppError('No user found with that email', 404));
       }
     }
   }

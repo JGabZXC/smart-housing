@@ -30,16 +30,18 @@ const filterDateFormButton = document.querySelector('#filter-date-form-button');
 let manualPaymentList = null;
 let userId = '';
 let userEmail = ''; // Continue here, fetch email from the getIds function URLParams there
+let selectedYear = currentYear;
 
 const statementAdminManual = document.querySelector('#statement-admin-manual');
 
 if(statementAdminManual) {
   // Set current year as default
-  yearSelect.value = currentYear;
+  yearSelect.value = selectedYear;
 
   // Handle year selection change
   yearSelect.addEventListener('change', function() {
-    const selectedYear = parseInt(this.value);
+    selectedYear = parseInt(this.value);
+    yearSelect.value = selectedYear;
     loadPaymentStatement(selectedYear, `/api/v1/payments/statement/${yearSelect.value}?id=${userId}`);
   });
 }
@@ -196,8 +198,8 @@ if(manualPaymentSection) {
         await manualPaymentList.render();
 
         loadPaymentStatement(
-          currentYear,
-          `/api/v1/payments/statement/${currentYear}?id=${user._id}`,
+          selectedYear,
+          `/api/v1/payments/statement/${selectedYear}?id=${user._id}`,
         );
         manualPaymentDetailsElement.classList.remove('visually-hidden');
 
@@ -266,11 +268,12 @@ if(manualPaymentSection) {
           manualPaymentAmount.setAttribute('disabled', 'true');
           await manualPaymentList.render();
           loadPaymentStatement(
-            currentYear,
-            `/api/v1/payments/statement/${currentYear}?id=${user._id}`,
+            selectedYear,
+            `/api/v1/payments/statement/${selectedYear}?id=${userId}`,
           );
         }
       } catch (err) {
+        console.log(err);
         showAlert('error', err.response?.data?.message || 'An error occurred while creating payment.');
       } finally {
         buttonSpinner(manualPaymentFormButton, 'Submit', 'Creating Payment');
