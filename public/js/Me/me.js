@@ -43,8 +43,6 @@ export async function loadPaymentStatement(year, url) {
             `;
 
     const response = await fetchData(url ? url : `/api/v1/payments/statement/${year}`);
-    console.log(response);
-    console.log(url);
 
     if (response.status === 'success') {
       const statement = response.data.statement;

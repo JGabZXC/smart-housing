@@ -8,6 +8,7 @@ import { fetchData, postData } from '../utils/http.js';
 const manualPaymentSection = document.querySelector('#manual-payment-section');
 const manualPaymentDetailsElement = document.querySelector('#manual-payment-details');
 const paginationContainer = document.querySelector('#manual-payment-pagination');
+import { yearSelect, loadPaymentStatement, currentYear } from '../Me/me.js';
 
 const searchUserForm = document.querySelector('#search-user-form');
 const searchUserInput = document.querySelector('#search-user-input');
@@ -27,8 +28,7 @@ const filterDateForm = document.querySelector('#filter-date-form');
 const filterDateFormButton = document.querySelector('#filter-date-form-button');
 
 let manualPaymentList = null;
-
-import { yearSelect, loadPaymentStatement, updateYearOptions, currentYear } from '../Me/me.js';
+let userId = '';
 
 const statementAdminManual = document.querySelector('#statement-admin-manual');
 
@@ -36,10 +36,12 @@ if(statementAdminManual) {
   // Set current year as default
   yearSelect.value = currentYear;
 
+
+
   // Handle year selection change
   yearSelect.addEventListener('change', function() {
     const selectedYear = parseInt(this.value);
-    loadPaymentStatement(selectedYear);
+    loadPaymentStatement(selectedYear, `/api/v1/payments/statement/${yearSelect.value}?id=${userId}`);
   });
 }
 
@@ -47,21 +49,46 @@ function isCheckboxChecked(checkbox) {
   return checkbox.checked;
 }
 
-function getNumberOfMonths(startDate, endDate) {
-  const startYear = startDate.getFullYear();
-  const startMonth = startDate.getMonth();
-  const endYear = endDate.getFullYear();
-  const endMonth = endDate.getMonth();
-
-  // Calculate the total number of months
-  let months = (endYear - startYear) * 12 + (endMonth - startMonth);
-
-  // Adjust for partial months
-  if (endDate.getDate() < startDate.getDate()) {
-    months -= 1;
+function calculateFullMonths(fromDateStr, toDateStr) {
+  let fromDate;
+  let toDate;
+  if (!(fromDateStr instanceof Date) || !(toDateStr instanceof Date)) {
+    fromDate = new Date(fromDateStr);
+    toDate = new Date(toDateStr);
+  } else {
+    fromDate = fromDateStr;
+    toDate = toDateStr;
   }
 
-  return months;
+  // Check if fromDate is before toDate
+  if (fromDate >= toDate) {
+    return { isValid: false, months: 0 };
+  }
+
+  // Check if fromDate is the first day of the month
+  if (fromDate.getDate() !== 1) {
+    return { isValid: false, months: 0 };
+  }
+
+  // Check if toDate is the last day of the month
+  const lastDayOfToMonth = new Date(
+    toDate.getFullYear(),
+    toDate.getMonth() + 1,
+    0,
+  );
+  if (toDate.getDate() !== lastDayOfToMonth.getDate()) {
+    return { isValid: false, months: 0 };
+  }
+
+  // Calculate the number of months properly across years
+  const fromYear = fromDate.getFullYear();
+  const fromMonth = fromDate.getMonth();
+  const toYear = toDate.getFullYear();
+  const toMonth = toDate.getMonth();
+
+  const months = (toYear - fromYear) * 12 + (toMonth - fromMonth) + 1;
+
+  return { isValid: true, months: months };
 }
 
 function updateManualPaymentAmount() {
@@ -72,7 +99,13 @@ function updateManualPaymentAmount() {
     manualPaymentForm.reset();
     return;
   }
-  manualPaymentAmount.value = getNumberOfMonths(fromDate, toDate) * 100; // Assuming 100 is monthly fee
+
+  // Only calculate full months if checkbox is NOT checked (automatic calculation)
+  if (!isCheckboxChecked(checkboxManualPayment)) {
+    const calcMonth = calculateFullMonths(fromDate, toDate);
+    manualPaymentAmount.value = calcMonth.months * 100; // Full payment for all months
+  }
+  // If checkbox is checked, don't auto-calculate - let user enter manual amount
 }
 
 function parseAddressSearch(searchQuery) {
@@ -104,13 +137,14 @@ async function getIds(searchQuery) {
       'block': addressData.block,
       'lot': addressData.lot,
     };
+    const paramsUrl = new URLSearchParams(params);
     const response = await postData(`/api/v1/getIds`, {
       type: 'house',
       object: params,
       message: `No address found with that search`,
     });
 
-    return response.data.doc[0];
+    return { user: response.data.doc[0], url: `/api/v1/payments?${paramsUrl.toString()}` };
   } else {
     const response = await postData(`/api/v1/getIds`, {
       type: 'user',
@@ -118,7 +152,7 @@ async function getIds(searchQuery) {
       message: `No email found with that search`,
     });
 
-    return response.data.doc[0];
+    return { user: response.data.doc[0], url: `/api/v1/payments?email=${searchQuery}` };
   }
 }
 
@@ -149,16 +183,16 @@ if(manualPaymentSection) {
       try {
         buttonSpinner(searchUserButton, 'Search', 'Searching');
 
-        getIds(search).then(async (user) => {
-          await manualPaymentList.render();
-          loadPaymentStatement(
-            currentYear,
-            `/api/v1/payments/statement/${currentYear}?id=${user._id}`,
-          );
-          manualPaymentDetailsElement.classList.remove('visually-hidden');
-        });
+        const { user, url } = await getIds(search);
+        userId = user._id;
+        manualPaymentList.endpoint = url;
+        await manualPaymentList.render();
 
-        // manualPaymentList.endpoint = buildSearchEndpoint(search);
+        loadPaymentStatement(
+          currentYear,
+          `/api/v1/payments/statement/${currentYear}?id=${user._id}`,
+        );
+        manualPaymentDetailsElement.classList.remove('visually-hidden');
 
       } catch (err) {
         console.error('Error searching for user:', err);
@@ -166,7 +200,7 @@ if(manualPaymentSection) {
         showAlert(
           'error',
           err.response?.data?.message ||
-            'An error occurred while searching for user.',
+          'An error occurred while searching for user.',
         );
       } finally {
         buttonSpinner(searchUserButton, 'Search', 'Searching');
@@ -222,6 +256,10 @@ if(manualPaymentSection) {
           manualPaymentForm.reset();
           manualPaymentAmount.setAttribute('disabled', 'true');
           await manualPaymentList.render();
+          loadPaymentStatement(
+            currentYear,
+            `/api/v1/payments/statement/${currentYear}?id=${user._id}`,
+          );
         }
       } catch (err) {
         showAlert('error', err.response?.data?.message || 'An error occurred while creating payment.');
@@ -241,8 +279,11 @@ if(manualPaymentSection) {
     checkboxManualPayment.addEventListener('change', () => {
       if(isCheckboxChecked(checkboxManualPayment)) {
         manualPaymentAmount.removeAttribute('disabled');
+        // Clear the auto-calculated amount to let user enter manual amount
+        manualPaymentAmount.value = '';
       } else {
         manualPaymentAmount.setAttribute('disabled', 'true');
+        // Recalculate full payment when switching back to automatic
         updateManualPaymentAmount();
       }
     });

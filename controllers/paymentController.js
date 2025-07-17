@@ -99,21 +99,35 @@ exports.getPayment = handler.getOne(Payment);
 exports.createPayment = catchAsync(async (req, res, next) => {
   const { email, amount, fromDate, toDate } = req.body;
 
-  if (!email) return next(new AppError('Please provide an email address', 400));
+  const convertedFromDate = new Date(fromDate);
+  const convertedToDate = new Date(toDate);
 
-  if (!+amount || +amount === 0)
-    return next(new AppError('Please provide an amount', 400));
+  if (Number.isNaN(convertedFromDate) || Number.isNaN(convertedToDate))
+    return next(new AppError('Invalid date format', 400));
 
-  if (!fromDate || !toDate)
-    return next(new AppError('Please provide date', 400));
-
-  const { start: newFromDate, end: newToDate } = PaymentManager.normalizeDates(
-    fromDate,
-    toDate,
+  const calcMonths = PaymentManager.calculateFullMonths(
+    convertedFromDate,
+    convertedToDate,
   );
 
-  if (Number.isNaN(newFromDate) || Number.isNaN(newToDate))
-    return next(new AppError('Invalid date format', 400));
+  if (!calcMonths.isValid)
+    return next(
+      new AppError(
+        'Only full months are allowed (1 month, 2 months, 3 months, etc.). No partial months permitted.',
+        400,
+      ),
+    );
+
+  const convertedFromDateFormat = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: '2-digit',
+  }).format(convertedFromDate);
+  const convertedToDateFormat = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: '2-digit',
+  }).format(convertedToDate);
 
   const user = await User.findOne({ email });
   if (!user)
@@ -121,13 +135,13 @@ exports.createPayment = catchAsync(async (req, res, next) => {
   const paymentManager = new PaymentManager.CreatePayment({
     modelInstance: Payment,
     user,
-    fromDate: newFromDate,
-    toDate: newToDate,
+    fromDate: convertedFromDateFormat,
+    toDate: convertedToDateFormat,
     type: 'manual',
   });
 
   try {
-    await PaymentManager.validatePaymentPeriod(paymentManager);
+    await PaymentManager.validatePaymentPeriod(paymentManager, amount);
   } catch (err) {
     return next(new AppError(err.message, 400));
   }
