@@ -1,3 +1,51 @@
+// Move this function to the top of the file, before the CreatePayment class
+function calculateSequentialPaymentForMonth(payment, monthKey) {
+  const [targetYear, targetMonth] = monthKey.split('-').map(Number);
+
+  const paymentStart = new Date(
+    payment.dateRange.from.getFullYear(),
+    payment.dateRange.from.getMonth(),
+    1,
+  );
+  const paymentEnd = new Date(
+    payment.dateRange.to.getFullYear(),
+    payment.dateRange.to.getMonth(),
+    1,
+  );
+  const targetDate = new Date(targetYear, targetMonth, 1);
+
+  // Check if payment covers this month
+  if (targetDate < paymentStart || targetDate > paymentEnd) {
+    return 0;
+  }
+
+  // Apply payment sequentially month by month
+  let remainingAmount = payment.amount;
+  const currentDate = new Date(
+    paymentStart.getFullYear(),
+    paymentStart.getMonth(),
+    1,
+  );
+
+  while (currentDate <= paymentEnd && remainingAmount > 0) {
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+
+    const isTargetMonth =
+      currentYear === targetYear && currentMonth === targetMonth;
+    const amountUsedThisMonth = Math.min(remainingAmount, 100);
+
+    if (isTargetMonth) {
+      return amountUsedThisMonth;
+    }
+
+    remainingAmount -= amountUsedThisMonth;
+    currentDate.setMonth(currentDate.getMonth() + 1);
+  }
+
+  return 0;
+}
+
 class CreatePayment {
   constructor({
     modelInstance,
@@ -18,6 +66,38 @@ class CreatePayment {
   }
 
   async addPaymentDate(amount = 100) {
+    // For manual payments, intelligently adjust the date range and amount
+    if (this.type === 'manual') {
+      const adjustedPayment = await this.calculateOptimalPaymentRange(amount);
+
+      // If no amount can be applied, throw an error
+      if (adjustedPayment.amount === 0) {
+        throw new Error(
+          'No available months to apply payment. All months are already fully paid.',
+        );
+      }
+
+      const payment = await this.modelInstance.create({
+        user: this.user._id,
+        address: this.user.address,
+        amount: adjustedPayment.amount,
+        dateRange: {
+          from: adjustedPayment.fromDate,
+          to: adjustedPayment.toDate,
+        },
+        stripeSessionId: this.stripeSessionId,
+        paymentIntentId: this.paymentIntentId,
+        paymentMethod: this.type,
+      });
+
+      // Return payment info including unused amount
+      return {
+        payment,
+        unusedAmount: adjustedPayment.unusedAmount,
+        appliedAmount: adjustedPayment.amount,
+      };
+    }
+
     return await this.modelInstance.create({
       user: this.user._id,
       address: this.user.address,
@@ -32,14 +112,92 @@ class CreatePayment {
     });
   }
 
-  isValidMonthPeriod(startDate, endDate) {
-    // Create a date that's exactly 1 month after startDate
-    const oneMonthLater = new Date(startDate);
-    oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+  async calculateOptimalPaymentRange(requestedAmount) {
+    // Get existing payments to understand what's already paid
+    const existingPayments = await this.modelInstance.find({
+      user: this.user._id,
+    });
 
-    // Period is valid if it's exactly 1 month (June 1 - July 1)
-    // or spans multiple months (June 1 - August 1)
-    return endDate >= oneMonthLater;
+    // Start from the requested start date
+    const currentDate = new Date(this.fromDate);
+    let remainingAmount = requestedAmount;
+    let actualStartDate = null;
+    let actualEndDate = null;
+
+    // Find months that need payment
+    const processedMonths = new Map(); // Track payments per month
+
+    while (remainingAmount > 0) {
+      const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+
+      // Calculate total paid for this month from existing payments
+      let totalPaidForMonth = 0;
+      existingPayments.forEach((payment) => {
+        totalPaidForMonth += calculateSequentialPaymentForMonth(payment, monthKey);
+      });
+
+      // Add any amount we've processed in this run
+      totalPaidForMonth += processedMonths.get(monthKey) || 0;
+
+      // Calculate available space in this month (max 100 pesos per month)
+      const availableSpace = Math.max(0, 100 - totalPaidForMonth);
+
+      if (availableSpace > 0) {
+        // Set start date if this is the first month we're paying
+        if (actualStartDate === null) {
+          actualStartDate = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            1,
+          );
+        }
+
+        // Calculate how much we can pay for this month
+        const paymentForMonth = Math.min(remainingAmount, availableSpace);
+
+        // Track what we're paying for this month
+        processedMonths.set(monthKey, (processedMonths.get(monthKey) || 0) + paymentForMonth);
+
+        remainingAmount -= paymentForMonth;
+
+        // Update end date to this month
+        const lastDayOfMonth = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() + 1,
+          0,
+        );
+        actualEndDate = lastDayOfMonth;
+
+        // If this month isn't fully paid (100), don't move to next month yet
+        if (totalPaidForMonth + paymentForMonth < 100 && remainingAmount > 0) {
+          continue;
+        }
+      }
+
+      // Move to next month
+      currentDate.setMonth(currentDate.getMonth() + 1);
+
+      // Safety check to avoid infinite loop
+      if (currentDate.getFullYear() > new Date(this.fromDate).getFullYear() + 5) {
+        break;
+      }
+    }
+
+    // If we couldn't place any payment, use original dates
+    if (actualStartDate === null) {
+      actualStartDate = this.fromDate;
+      actualEndDate = this.toDate;
+    }
+
+    // Calculate the actual amount that will be used
+    const actualAmount = requestedAmount - remainingAmount;
+
+    return {
+      fromDate: actualStartDate,
+      toDate: actualEndDate,
+      amount: actualAmount,
+      unusedAmount: remainingAmount,
+    };
   }
 
   async hasPaymentPeriod(fromDate, toDate, currentAmount = 0) {
@@ -55,12 +213,12 @@ class CreatePayment {
     const monthKeys = this.getMonthKeys(fromDate, toDate);
     let remainingCurrentAmount = currentAmount;
 
-    for (const monthKey of monthKeys) {
+    monthKeys.forEach((monthKey) => {
       let totalForMonth = 0;
 
       // Calculate existing payments for this specific month using sequential logic
       payments.forEach((payment) => {
-        const paymentAmount = this.calculateSequentialPaymentForMonth(
+        const paymentAmount = calculateSequentialPaymentForMonth(
           payment,
           monthKey,
         );
@@ -91,67 +249,12 @@ class CreatePayment {
       remainingCurrentAmount -= currentPaymentForMonth;
 
       // If no more payment amount left, we're good
-      if (remainingCurrentAmount <= 0) break;
-    }
+      if (remainingCurrentAmount <= 0) return false;
+    });
 
     return false; // Allow payment
   }
 
-  // New method to calculate payment amount for a specific month using sequential logic
-  calculateSequentialPaymentForMonth(payment, monthKey) {
-    const [targetYear, targetMonth] = monthKey.split('-').map(Number);
-
-    const paymentStart = new Date(
-      payment.dateRange.from.getFullYear(),
-      payment.dateRange.from.getMonth(),
-      1,
-    );
-    const paymentEnd = new Date(
-      payment.dateRange.to.getFullYear(),
-      payment.dateRange.to.getMonth(),
-      1,
-    );
-    const targetDate = new Date(targetYear, targetMonth, 1);
-
-    // Check if payment covers this month
-    if (targetDate < paymentStart || targetDate > paymentEnd) {
-      return 0;
-    }
-
-    // Apply payment sequentially month by month, handling year boundaries correctly
-    let remainingAmount = payment.amount;
-    const currentDate = new Date(
-      paymentStart.getFullYear(),
-      paymentStart.getMonth(),
-      1,
-    );
-
-    while (currentDate <= paymentEnd && remainingAmount > 0) {
-      const currentYear = currentDate.getFullYear();
-      const currentMonth = currentDate.getMonth();
-
-      const isTargetMonth =
-        currentYear === targetYear && currentMonth === targetMonth;
-
-      // Calculate amount used for current month (up to 100 pesos)
-      const amountUsedThisMonth = Math.min(remainingAmount, 100);
-
-      if (isTargetMonth) {
-        // Return the amount applied to this month
-        return amountUsedThisMonth;
-      }
-
-      // Move to next month, reducing remaining amount by what was used
-      remainingAmount -= amountUsedThisMonth;
-
-      // Properly increment month, handling year boundary
-      currentDate.setMonth(currentDate.getMonth() + 1);
-    }
-
-    return 0;
-  }
-
-  // Helper method to get number of months between dates
   getMonthsBetweenDates(fromDate, toDate) {
     const startYear = new Date(fromDate).getFullYear();
     const startMonth = new Date(fromDate).getMonth();
@@ -160,7 +263,6 @@ class CreatePayment {
     return (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
   }
 
-  // Helper method to get month keys for a date range
   getMonthKeys(fromDate, toDate) {
     const keys = [];
     const current = new Date(
@@ -179,14 +281,12 @@ class CreatePayment {
       const month = current.getMonth();
       keys.push(`${year}-${month}`);
 
-      // Properly increment month, handling year boundary
       current.setMonth(current.getMonth() + 1);
     }
 
     return keys;
   }
 
-  // Helper method to check if a payment covers a specific month
   paymentCoversMonth(paymentFrom, paymentTo, monthKey) {
     const [year, month] = monthKey.split('-').map(Number);
     const monthDate = new Date(year, month, 1);
@@ -324,20 +424,10 @@ async function validatePaymentPeriod(paymentManager, paymentAmount) {
 }
 
 function generateMonthlyStatement(payments, year) {
-  const monthlyDues = 100; // Monthly dues in pesos
+  const monthlyDues = 100;
   const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
   ];
 
   // Initialize monthly statement
@@ -352,43 +442,67 @@ function generateMonthlyStatement(payments, year) {
     paymentId: null,
   }));
 
-  // Sort payments by payment date to process them chronologically
+  // Sort payments by payment date
   const sortedPayments = payments.sort(
     (a, b) => new Date(a.paymentDate) - new Date(b.paymentDate),
   );
 
+  // Track total payments per month across all years
+  const globalMonthlyPayments = new Map();
+
+  // First pass: calculate how much is paid for each month globally
   sortedPayments.forEach((payment) => {
-    // Apply sequential payment logic for each month in the requested year
-    for (let monthIndex = 0; monthIndex < 12; monthIndex += 1) {
-      const monthKey = `${year}-${monthIndex}`;
+    let remainingAmount = payment.amount;
+    const startDate = new Date(payment.dateRange.from);
+    const endDate = new Date(payment.dateRange.to);
+    const currentDate = new Date(startDate);
 
-      // Use the same sequential logic as calculateSequentialPaymentForMonth
-      const paymentAmountForMonth = calculateSequentialPaymentForMonth(
-        payment,
-        monthKey,
-      );
+    while (currentDate <= endDate && remainingAmount > 0) {
+      const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+      const existingAmount = globalMonthlyPayments.get(monthKey) || 0;
+      const amountToApply = Math.min(remainingAmount, 100 - existingAmount);
 
-      if (paymentAmountForMonth > 0) {
-        const monthData = monthlyBreakdown[monthIndex];
-        const amountToApply = Math.min(
-          paymentAmountForMonth,
-          monthData.remainingBalance,
+      if (amountToApply > 0) {
+        globalMonthlyPayments.set(
+          monthKey,
+          existingAmount + amountToApply,
         );
-
-        monthData.amountPaid += amountToApply;
-        monthData.remainingBalance -= amountToApply;
-
-        if (monthData.remainingBalance === 0) {
-          monthData.status = 'paid';
-        } else if (monthData.amountPaid > 0) {
-          monthData.status = 'partial';
-        }
-
-        monthData.paymentDate = payment.paymentDate;
-        monthData.paymentId = payment._id;
+        remainingAmount -= amountToApply;
       }
+
+      currentDate.setMonth(currentDate.getMonth() + 1);
     }
   });
+
+  // Second pass: apply payments to the requested year's statement
+  for (const [monthKey, totalPaid] of globalMonthlyPayments) {
+    const [monthYear, monthIndex] = monthKey.split('-').map(Number);
+
+    if (monthYear === year) {
+      const monthData = monthlyBreakdown[monthIndex];
+      monthData.amountPaid = totalPaid;
+      monthData.remainingBalance = monthlyDues - totalPaid;
+
+      // Set payment details from the most recent payment for this month
+      const lastPayment = sortedPayments.findLast(
+        (payment) =>
+          payment.dateRange.from <= new Date(year, monthIndex + 1, 0) &&
+          payment.dateRange.to >= new Date(year, monthIndex, 1),
+      );
+
+      if (lastPayment) {
+        monthData.paymentDate = lastPayment.paymentDate;
+        monthData.paymentId = lastPayment._id;
+      }
+
+      // Update status
+      if (totalPaid >= monthlyDues) {
+        monthData.status = 'paid';
+      } else if (totalPaid > 0) {
+        monthData.status = 'partial';
+      }
+    }
+  }
 
   // Calculate totals
   const totalPaid = monthlyBreakdown.reduce(
@@ -408,63 +522,13 @@ function generateMonthlyStatement(payments, year) {
       totalDue,
       totalPaid,
       totalRemaining,
-      monthsFullyPaid: monthlyBreakdown.filter((m) => m.status === 'paid')
-        .length,
+      monthsFullyPaid: monthlyBreakdown.filter((m) => m.status === 'paid').length,
       monthsPartiallyPaid: monthlyBreakdown.filter(
         (m) => m.status === 'partial',
       ).length,
-      monthsUnpaid: monthlyBreakdown.filter((m) => m.status === 'unpaid')
-        .length,
+      monthsUnpaid: monthlyBreakdown.filter((m) => m.status === 'unpaid').length,
     },
   };
-}
-
-// Helper function to use the same sequential logic
-function calculateSequentialPaymentForMonth(payment, monthKey) {
-  const [targetYear, targetMonth] = monthKey.split('-').map(Number);
-
-  const paymentStart = new Date(
-    payment.dateRange.from.getFullYear(),
-    payment.dateRange.from.getMonth(),
-    1,
-  );
-  const paymentEnd = new Date(
-    payment.dateRange.to.getFullYear(),
-    payment.dateRange.to.getMonth(),
-    1,
-  );
-  const targetDate = new Date(targetYear, targetMonth, 1);
-
-  // Check if payment covers this month
-  if (targetDate < paymentStart || targetDate > paymentEnd) {
-    return 0;
-  }
-
-  // Apply payment sequentially month by month
-  let remainingAmount = payment.amount;
-  const currentDate = new Date(
-    paymentStart.getFullYear(),
-    paymentStart.getMonth(),
-    1,
-  );
-
-  while (currentDate <= paymentEnd && remainingAmount > 0) {
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth();
-
-    const isTargetMonth =
-      currentYear === targetYear && currentMonth === targetMonth;
-    const amountUsedThisMonth = Math.min(remainingAmount, 100);
-
-    if (isTargetMonth) {
-      return amountUsedThisMonth;
-    }
-
-    remainingAmount -= amountUsedThisMonth;
-    currentDate.setMonth(currentDate.getMonth() + 1);
-  }
-
-  return 0;
 }
 
 function getAvailableYears() {
