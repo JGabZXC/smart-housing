@@ -3,7 +3,7 @@ import { PaginatedAdminPaymentList } from '../utils/PaginatedAdminList.js';
 import { buttonSpinner } from '../utils/spinner.js';
 import { showAlert } from '../utils/alerts.js';
 import { setupShowHandler } from './admin_dashboard.js';
-import { postData } from '../utils/http.js';
+import { fetchData, postData } from '../utils/http.js';
 
 const manualPaymentSection = document.querySelector('#manual-payment-section');
 const manualPaymentDetailsElement = document.querySelector('#manual-payment-details');
@@ -27,6 +27,21 @@ const filterDateForm = document.querySelector('#filter-date-form');
 const filterDateFormButton = document.querySelector('#filter-date-form-button');
 
 let manualPaymentList = null;
+
+import { yearSelect, loadPaymentStatement, updateYearOptions, currentYear } from '../Me/me.js';
+
+const statementAdminManual = document.querySelector('#statement-admin-manual');
+
+if(statementAdminManual) {
+  // Set current year as default
+  yearSelect.value = currentYear;
+
+  // Handle year selection change
+  yearSelect.addEventListener('change', function() {
+    const selectedYear = parseInt(this.value);
+    loadPaymentStatement(selectedYear);
+  });
+}
 
 function isCheckboxChecked(checkbox) {
   return checkbox.checked;
@@ -64,8 +79,8 @@ function parseAddressSearch(searchQuery) {
   // Remove extra spaces and convert to lowercase for easier parsing
   const query = searchQuery.trim().toLowerCase();
 
-  // Try to match address format: phase X, block Y, lot Z, street
-  const addressPattern = /phase\s*(\d+)\s*,\s*block\s*(\d+)\s*,\s*lot\s*(\d+)\s*,\s*(.+)/i;
+  // Try to match address format: phase X, block Y, lot Z
+  const addressPattern = /phase\s*(\d+)\s*,\s*block\s*(\d+)\s*,\s*lot\s*(\d+)/i;
   const match = query.match(addressPattern);
 
   if (match) {
@@ -73,32 +88,42 @@ function parseAddressSearch(searchQuery) {
       phase: parseInt(match[1]),
       block: parseInt(match[2]),
       lot: parseInt(match[3]),
-      street: match[4].trim()
     };
   }
 
   return null;
 }
 
-function buildSearchEndpoint(searchQuery) {
+async function getIds(searchQuery) {
   const addressData = parseAddressSearch(searchQuery);
 
   if (addressData) {
     // Search by address components
-    const params = new URLSearchParams({
+    const params = {
       'phase': addressData.phase,
       'block': addressData.block,
       'lot': addressData.lot,
-      'street': addressData.street
+    };
+    const response = await postData(`/api/v1/getIds`, {
+      type: 'house',
+      object: params,
+      message: `No address found with that search`,
     });
-    return `/api/v1/payments?${params.toString()}`;
+
+    return response.data.doc[0];
   } else {
-    // Fallback to email search
-    return `/api/v1/payments?email=${searchQuery}`;
+    const response = await postData(`/api/v1/getIds`, {
+      type: 'user',
+      object: {email: searchQuery},
+      message: `No email found with that search`,
+    });
+
+    return response.data.doc[0];
   }
 }
 
 if(manualPaymentSection) {
+  const currentYear = new Date().getFullYear();
   if(!manualPaymentList) {
     manualPaymentList = new PaginatedAdminPaymentList({
       container: manualPaymentTableBody,
@@ -116,20 +141,33 @@ if(manualPaymentSection) {
       const formData = new FormData(e.target);
       const search = formData.get('search-input').trim();
 
-      if(!search) {
+      if (!search) {
         manualPaymentDetailsElement.classList.add('visually-hidden');
         return;
-      };
+      }
 
       try {
         buttonSpinner(searchUserButton, 'Search', 'Searching');
 
-        manualPaymentList.endpoint = buildSearchEndpoint(search);
-        await manualPaymentList.render();
-        manualPaymentDetailsElement.classList.remove('visually-hidden');
+        getIds(search).then(async (user) => {
+          await manualPaymentList.render();
+          loadPaymentStatement(
+            currentYear,
+            `/api/v1/payments/statement/${currentYear}?id=${user._id}`,
+          );
+          manualPaymentDetailsElement.classList.remove('visually-hidden');
+        });
+
+        // manualPaymentList.endpoint = buildSearchEndpoint(search);
+
       } catch (err) {
+        console.error('Error searching for user:', err);
         manualPaymentDetailsElement.classList.add('visually-hidden');
-        showAlert('error', err.response?.data?.message || 'An error occurred while searching for user.');
+        showAlert(
+          'error',
+          err.response?.data?.message ||
+            'An error occurred while searching for user.',
+        );
       } finally {
         buttonSpinner(searchUserButton, 'Search', 'Searching');
       }

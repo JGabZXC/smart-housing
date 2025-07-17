@@ -20,10 +20,11 @@ const verifySecurityButton = document.querySelector('#verify-security-button');
 const updateStepEl = document.querySelector('#update-step');
 let answer = '';
 
-const yearSelect = document.getElementById('year-select');
+export const yearSelect = document.getElementById('year-select');
+export const currentYear = new Date().getFullYear();
 const meContainer = document.querySelector('#me-container');
 
-async function loadPaymentStatement(year) {
+export async function loadPaymentStatement(year, url) {
   const tableBody = document.getElementById('payment-statement-body');
   const totalDue = document.getElementById('total-due');
   const totalPaid = document.getElementById('total-paid');
@@ -41,7 +42,9 @@ async function loadPaymentStatement(year) {
                 </tr>
             `;
 
-    const response = await fetchData(`/api/v1/payments/statement/${year}`);
+    const response = await fetchData(url ? url : `/api/v1/payments/statement/${year}`);
+    console.log(response);
+    console.log(url);
 
     if (response.status === 'success') {
       const statement = response.data.statement;
@@ -120,7 +123,7 @@ async function loadPaymentStatement(year) {
   }
 }
 
-function updateYearOptions(availableYears) {
+export function updateYearOptions(availableYears) {
   const currentSelection = yearSelect.value;
   yearSelect.innerHTML = '';
 
@@ -136,8 +139,6 @@ function updateYearOptions(availableYears) {
 }
 
 if(meContainer) {
-  const currentYear = new Date().getFullYear();
-
   // Set current year as default
   yearSelect.value = currentYear;
 

@@ -229,6 +229,7 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
 });
 exports.getPaymentStatement = catchAsync(async (req, res, next) => {
   const year = parseInt(req.params.year, 10);
+  const { id } = req.query;
 
   // Validate year parameter
   if (!year || year < 2020 || year > 2050) {
@@ -239,8 +240,8 @@ exports.getPaymentStatement = catchAsync(async (req, res, next) => {
 
   // If admin, allow querying other users via query parameters
   if (req.user.role === 'admin') {
-    if (req.query.userId) {
-      targetUser = await User.findById(req.query.userId);
+    if (id) {
+      targetUser = await User.findOne({ $or: [{ _id: id }, { address: id }] });
       if (!targetUser) {
         return next(new AppError('No user found with that ID', 404));
       }
