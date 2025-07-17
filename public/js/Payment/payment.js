@@ -2,6 +2,7 @@
 
 import { showAlert } from '../utils/alerts.js';
 import { buttonSpinner } from '../utils/spinner.js';
+import axios from 'axios';
 
 const paymentStripeForm = document.querySelector('#payment-stripe-form');
 const payDuesButton = document.querySelector('#pay-dues-button');
