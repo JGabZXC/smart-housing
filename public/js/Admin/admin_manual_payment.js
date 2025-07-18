@@ -29,7 +29,6 @@ const filterDateFormButton = document.querySelector('#filter-date-form-button');
 
 let manualPaymentList = null;
 let userId = '';
-let userEmail = ''; // Continue here, fetch email from the getIds function URLParams there
 let selectedYear = currentYear;
 
 const statementAdminManual = document.querySelector('#statement-admin-manual');
@@ -50,17 +49,7 @@ function isCheckboxChecked(checkbox) {
   return checkbox.checked;
 }
 
-function calculateFullMonths(fromDateStr, toDateStr) {
-  let fromDate;
-  let toDate;
-  if (!(fromDateStr instanceof Date) || !(toDateStr instanceof Date)) {
-    fromDate = new Date(fromDateStr);
-    toDate = new Date(toDateStr);
-  } else {
-    fromDate = fromDateStr;
-    toDate = toDateStr;
-  }
-
+function calculateFullMonths(fromDate, toDate) {
   // Check if fromDate is before toDate
   if (fromDate >= toDate) {
     return { isValid: false, months: 0 };
@@ -153,14 +142,11 @@ async function getIds(searchQuery) {
       message: `No email found with that search`,
     });
 
-    userEmail = searchQuery;
-
     return { user: response.data.doc[0], url: `/api/v1/payments?email=${searchQuery}` };
   }
 }
 
 if(manualPaymentSection) {
-  const currentYear = new Date().getFullYear();
   if(!manualPaymentList) {
     manualPaymentList = new PaginatedAdminPaymentList({
       container: manualPaymentTableBody,
@@ -180,6 +166,7 @@ if(manualPaymentSection) {
 
       if (!search) {
         manualPaymentDetailsElement.classList.add('visually-hidden');
+        delete manualPaymentTableBody.dataset.userEmail;
         return;
       }
 
@@ -189,11 +176,6 @@ if(manualPaymentSection) {
         const { user, url } = await getIds(search);
         userId = user._id;
         manualPaymentList.endpoint = url;
-
-        // inefficient solution but works for now
-        const testData = await fetchData(url);
-        console.log(testData);
-        userEmail = testData.data.doc.length > 0 && testData.data.doc[0].user.email;
 
         await manualPaymentList.render();
 
@@ -250,7 +232,7 @@ if(manualPaymentSection) {
       const formData = new FormData(e.target);
       const fromDate = formData.get('from-manual-payment');
       const toDate = formData.get('to-manual-payment');
-      const or = formData.get('or-statement')
+      const or = formData.get('or-statement');
 
       try {
         buttonSpinner(manualPaymentFormButton, 'Submit', 'Creating Payment');
@@ -258,7 +240,7 @@ if(manualPaymentSection) {
           fromDate,
           toDate,
           amount: manualPaymentAmount.value, // If disabled it will be null, so bypassing it
-          email: userEmail,
+          email: manualPaymentTableBody.dataset.userEmail,
           or,
         });
 
