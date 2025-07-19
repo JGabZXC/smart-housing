@@ -25,6 +25,24 @@ class YearlyStatementManager {
         this.loadStatement(parseInt(selectedYear));
       }
     });
+
+    // Event delegation for month card clicks
+    document.getElementById('monthlyBreakdown').addEventListener('click', (e) => {
+      const monthCard = e.target.closest('.month-card');
+      if (monthCard && !monthCard.classList.contains('no-payments')) {
+        const monthName = monthCard.dataset.month;
+        const transactionsData = monthCard.dataset.transactions;
+
+        if (monthName && transactionsData) {
+          try {
+            const transactions = JSON.parse(transactionsData);
+            this.showTransactions(monthName, transactions);
+          } catch (error) {
+            console.error('Error parsing transaction data:', error);
+          }
+        }
+      }
+    });
   }
 
   populateYearSelect() {
@@ -110,18 +128,20 @@ class YearlyStatementManager {
       monthCard.className = 'col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3';
 
       monthCard.innerHTML = `
-                <div class="card ${cardClass} h-100 ${hasPayments ? 'cursor-pointer' : ''}" style="cursor: ${hasPayments ? 'pointer' : 'default'}"
-                     ${hasPayments ? `onclick="yearlyManager.showTransactions('${month.month}', ${JSON.stringify(month.transactions).replace(/"/g, '&quot;')})"` : ''}>
-                    <div class="card-body text-center">
-                        <h6 class="card-title text-primary mb-2">${month.month}</h6>
-                        <h4 class="text-dark mb-1">₱${Math.round(month.monthlyTotal).toLocaleString()}</h4>
-                        <small class="text-muted">
-                            ${month.transactionCount} transaction${month.transactionCount !== 1 ? 's' : ''}
-                        </small>
-                        ${hasPayments ? '<div class="mt-2"><i class="bi bi-eye text-primary"></i></div>' : ''}
-                    </div>
-                </div>
-            `;
+        <div class="card ${cardClass} h-100" 
+             style="cursor: ${hasPayments ? 'pointer' : 'default'}"
+             data-month="${month.month}"
+             data-transactions='${hasPayments ? JSON.stringify(month.transactions) : '[]'}'>
+          <div class="card-body text-center">
+            <h6 class="card-title text-primary mb-2">${month.month}</h6>
+            <h4 class="text-dark mb-1">₱${Math.round(month.monthlyTotal).toLocaleString()}</h4>
+            <small class="text-muted">
+              ${month.transactionCount} transaction${month.transactionCount !== 1 ? 's' : ''}
+            </small>
+            ${hasPayments ? '<div class="mt-2"><i class="bi bi-eye text-primary"></i></div>' : ''}
+          </div>
+        </div>
+      `;
 
       container.appendChild(monthCard);
     });
@@ -147,35 +167,35 @@ class YearlyStatementManager {
         '<span class="badge bg-success">Manual</span>';
 
       transactionCard.innerHTML = `
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <h6 class="card-title mb-2">
-                                ${transaction.user.name}
-                                ${paymentMethod}
-                            </h6>
-                            <p class="card-text small text-muted mb-1">
-                                <i class="bi bi-envelope me-1"></i>${transaction.user.email}
-                            </p>
-                            <p class="card-text small text-muted mb-1">
-                                <i class="bi bi-calendar me-1"></i>
-                                Coverage: ${new Date(transaction.fromDate).toLocaleDateString()} -
-                                ${new Date(transaction.toDate).toLocaleDateString()}
-                            </p>
-                            ${transaction.or ? `<p class="card-text small text-muted mb-1">
-                                <i class="bi bi-receipt me-1"></i>OR: ${transaction.or}
-                            </p>` : ''}
-                        </div>
-                        <div class="col-md-4 text-md-end">
-                            <h5 class="text-primary mb-1">₱${Math.round(transaction.originalAmount).toLocaleString()}</h5>
-                            <small class="text-muted">Payment Amount</small>
-                            <p class="small text-muted mb-0">
-                                Paid: ${new Date(transaction.paymentDate).toLocaleDateString()}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            `;
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+              <h6 class="card-title mb-2">
+                ${transaction.user.name}
+                ${paymentMethod}
+              </h6>
+              <p class="card-text small text-muted mb-1">
+                <i class="bi bi-envelope me-1"></i>${transaction.user.email}
+              </p>
+              <p class="card-text small text-muted mb-1">
+                <i class="bi bi-calendar me-1"></i>
+                Coverage: ${new Date(transaction.fromDate).toLocaleDateString()} -
+                ${new Date(transaction.toDate).toLocaleDateString()}
+              </p>
+              ${transaction.or ? `<p class="card-text small text-muted mb-1">
+                <i class="bi bi-receipt me-1"></i>OR: ${transaction.or}
+              </p>` : ''}
+            </div>
+            <div class="col-md-4 text-md-end">
+              <h5 class="text-primary mb-1">₱${Math.round(transaction.originalAmount).toLocaleString()}</h5>
+              <small class="text-muted">Payment Amount</small>
+              <p class="small text-muted mb-0">
+                Paid: ${new Date(transaction.paymentDate).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
 
       transactionsList.appendChild(transactionCard);
     });
