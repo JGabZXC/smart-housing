@@ -157,6 +157,7 @@ if(manualPaymentSection) {
       sort: 'paymentDate',
       fromDate: undefined,
       toDate: undefined,
+      paymentMethod: undefined,
     });
     setupShowHandler(showPayment, manualPaymentList);
     searchUserForm.addEventListener('submit', async (e) => {
@@ -202,13 +203,18 @@ if(manualPaymentSection) {
       const formData = new FormData(e.target);
       const fromDate = formData.get('from-date-filter');
       const toDate = formData.get('to-date-filter');
+      const paymentMethodFilter = formData.get('payment-method-filter');
 
-      if(!fromDate && !toDate) {
+      console.log(paymentMethodFilter);
+
+      if(!fromDate && !toDate && !paymentMethodFilter) {
         manualPaymentList.fromDate = undefined;
         manualPaymentList.toDate = undefined;
+        manualPaymentList.paymentMethod = undefined;
       } else {
         manualPaymentList.fromDate = fromDate;
         manualPaymentList.toDate = toDate;
+        manualPaymentList.paymentMethod = paymentMethodFilter;
       }
 
       try {

@@ -52,14 +52,23 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
       );
     }
 
-    if (req.query.fromDate && req.query.toDate) {
-      const fromDate = new Date(req.query.fromDate);
-      const toDate = new Date(req.query.toDate);
-      filter = {
-        ...filter,
-        'dateRange.from': { $gte: fromDate },
-        'dateRange.to': { $lte: toDate },
-      };
+    if (req.query.fromDate || req.query.toDate) {
+      const fromDate = req.query.fromDate
+        ? new Date(req.query.fromDate)
+        : undefined;
+      const toDate = req.query.toDate ? new Date(req.query.toDate) : undefined;
+      if (fromDate && toDate) {
+        filter['dateRange.from'] = { $lte: toDate };
+        filter['dateRange.to'] = { $gte: fromDate };
+      } else if (fromDate) {
+        filter['dateRange.to'] = { $gte: fromDate };
+      } else if (toDate) {
+        filter['dateRange.from'] = { $lte: toDate };
+      }
+    }
+
+    if (req.query.method && req.query.method !== 'all') {
+      filter.paymentMethod = req.query.method; // 'manual' or 'stripe'
     }
   }
 

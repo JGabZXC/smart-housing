@@ -117,15 +117,25 @@
         <div class="border-1 p-3 border-slate-700 rounded-3 border">
              <div class="d-flex flex-column flex-md-row gap-2 w-100 gap-lg-4">
                <form id="filter-date-form" class="d-flex flex-column flex-md-row gap-2">
+                   <!-- Existing date filters -->
                    <div class="d-flex gap-1 align-items-center">
                        <label for="from-date-filter">From:</label>
-                       <input id="from-date-filter" class="form-control border- border-slate-400 text-slate-600" name="from-date-filter" type="date" />
+                       <input id="from-date-filter" name="from-date-filter" type="date" class="form-control" />
                    </div>
-                    <div class="d-flex gap-1 align-items-center">
+                   <div class="d-flex gap-1 align-items-center">
                        <label for="to-date-filter">To:</label>
-                       <input id="to-date-filter" class="form-control border- border-slate-400 text-slate-600" name="to-date-filter" type="date" />
+                       <input id="to-date-filter" name="to-date-filter" type="date" class="form-control" />
                    </div>
-                    <button id="filter-date-form-button" class="btn bg-green-700 text-slate-100" type="submit">Filter</button>
+                   <!-- Payment method filter -->
+                   <div class="d-flex gap-1 align-items-center">
+                       <label for="payment-method-filter">Method:</label>
+                       <select id="payment-method-filter" name="payment-method-filter" class="form-select">
+                           <option value="all">All</option>
+                           <option value="manual">Manual</option>
+                           <option value="stripe">Stripe</option>
+                       </select>
+                   </div>
+                   <button id="filter-date-form-button" class="btn bg-green-700 text-slate-100" type="submit">Filter</button>
                </form>
                 <label class="form-label d-flex align-items-center gap-1 gap-lg-2 m-0" for="show-payment">Show Item:
                     <select id="show-payment" class="rounded-2 border-slate-400">

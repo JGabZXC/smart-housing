@@ -114,10 +114,11 @@ export class PaginatedAdminAddressList extends PaginatedAdminList {
 }
 
 export class PaginatedAdminPaymentList extends PaginatedAdminList {
-  constructor({ container, paginationContainer, endpoint, type, itemsPerPage = 1, sort = '_id', fromDate, toDate }) {
+  constructor({ container, paginationContainer, endpoint, type, itemsPerPage = 1, sort = '_id', fromDate, toDate, paymentMethod }) {
     super({ container, paginationContainer, endpoint, type, itemsPerPage, sort })
     this.fromDate = fromDate;
     this.toDate = toDate;
+    this.paymentMethod = paymentMethod;
     this.abortController = null;
   }
 
@@ -154,6 +155,10 @@ export class PaginatedAdminPaymentList extends PaginatedAdminList {
 
       if(this.fromDate && this.toDate) {
         url += `&fromDate=${this.fromDate}&toDate=${this.toDate}`;
+      }
+
+      if(this.paymentMethod) {
+        url += `&method=${this.paymentMethod}`;
       }
 
       const data = await fetchData(url, { signal: this.abortController.signal });
