@@ -110,6 +110,12 @@ exports.getPayment = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.getYearlyStatement = catchAsync(async (req, res, next) => {
+  res.status(200).render('Admin/yearlyStatement', {
+    title: 'Yearly Statement',
+  });
+});
+
 exports.getAddress = catchAsync(async (req, res, next) => {
   res.status(200).render('Admin/address', {
     title: 'Address',

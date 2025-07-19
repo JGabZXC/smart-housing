@@ -45,6 +45,14 @@ router
   );
 
 router
+  .route('/admin/yearly-statement')
+  .get(
+    authController.protect,
+    authController.protectTo('admin'),
+    viewController.getYearlyStatement,
+  );
+
+router
   .route('/admin/address')
   .get(
     authController.protect,

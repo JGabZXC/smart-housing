@@ -319,6 +319,165 @@ exports.getPaymentStatement = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.getYearlyStatement = catchAsync(async (req, res, next) => {
+  const year = parseInt(req.params.year, 10);
+  const currentYear = new Date().getFullYear();
+  const futureYear = currentYear + 5;
+
+  // Validate year parameter
+  if (!year || year < 2025 || year > futureYear) {
+    return next(
+      new AppError(`Please provide a valid year (2025-${futureYear})`, 400),
+    );
+  }
+
+  // Simplified pipeline - group by payment date month, not coverage period
+  const pipeline = [
+    {
+      $match: {
+        paymentDate: {
+          $gte: new Date(year, 0, 1),
+          $lt: new Date(year + 1, 0, 1),
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'user',
+        foreignField: '_id',
+        as: 'userDetails',
+      },
+    },
+    {
+      $unwind: '$userDetails',
+    },
+    {
+      $addFields: {
+        paymentMonth: { $month: '$paymentDate' },
+      },
+    },
+    {
+      $group: {
+        _id: '$paymentMonth',
+        monthlyTotal: { $sum: '$amount' },
+        transactionCount: { $sum: 1 },
+        transactions: {
+          $push: {
+            id: '$_id',
+            originalAmount: '$amount',
+            monthlyAmount: '$amount', // Full amount goes to payment month
+            paymentDate: '$paymentDate',
+            paymentMethod: '$paymentMethod',
+            fromDate: '$dateRange.from',
+            toDate: '$dateRange.to',
+            user: {
+              name: '$userDetails.name',
+              email: '$userDetails.email',
+            },
+            or: '$or',
+          },
+        },
+      },
+    },
+    {
+      $sort: { _id: 1 },
+    },
+    {
+      $project: {
+        _id: 0,
+        month: {
+          $switch: {
+            branches: [
+              { case: { $eq: ['$_id', 1] }, then: 'January' },
+              { case: { $eq: ['$_id', 2] }, then: 'February' },
+              { case: { $eq: ['$_id', 3] }, then: 'March' },
+              { case: { $eq: ['$_id', 4] }, then: 'April' },
+              { case: { $eq: ['$_id', 5] }, then: 'May' },
+              { case: { $eq: ['$_id', 6] }, then: 'June' },
+              { case: { $eq: ['$_id', 7] }, then: 'July' },
+              { case: { $eq: ['$_id', 8] }, then: 'August' },
+              { case: { $eq: ['$_id', 9] }, then: 'September' },
+              { case: { $eq: ['$_id', 10] }, then: 'October' },
+              { case: { $eq: ['$_id', 11] }, then: 'November' },
+              { case: { $eq: ['$_id', 12] }, then: 'December' },
+            ],
+            default: 'Unknown',
+          },
+        },
+        monthNumber: '$_id',
+        monthlyTotal: '$monthlyTotal',
+        transactionCount: 1,
+        transactions: 1,
+      },
+    },
+  ];
+
+  // Execute aggregation pipeline
+  const monthlyData = await Payment.aggregate(pipeline);
+
+  // Create complete 12-month structure with empty months
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const completeYearlyData = months.map((month, index) => {
+    const monthData = monthlyData.find(data => data.monthNumber === index + 1);
+    return monthData || {
+      month,
+      monthNumber: index + 1,
+      monthlyTotal: 0,
+      transactionCount: 0,
+      transactions: [],
+    };
+  });
+
+  // Calculate yearly totals
+  const yearlyTotal = completeYearlyData.reduce(
+    (sum, month) => sum + month.monthlyTotal,
+    0
+  );
+
+  const totalTransactions = completeYearlyData.reduce(
+    (sum, month) => sum + month.transactionCount,
+    0
+  );
+
+  // Get top performing month
+  const topMonth = completeYearlyData.reduce(
+    (max, month) => (month.monthlyTotal > max.monthlyTotal ? month : max),
+    completeYearlyData[0]
+  );
+
+  // Calculate average monthly revenue (only for months with payments)
+  const monthsWithPayments = monthlyData.length;
+  const averageMonthlyRevenue = monthsWithPayments > 0 ? yearlyTotal / monthsWithPayments : 0;
+
+  // Generate summary statistics
+  const summary = {
+    year,
+    yearlyTotal: Math.round(yearlyTotal),
+    totalTransactions,
+    averageMonthlyRevenue: Math.round(averageMonthlyRevenue),
+    topPerformingMonth: {
+      month: topMonth.month,
+      amount: Math.round(topMonth.monthlyTotal),
+    },
+    monthsWithPayments,
+    activeMonthsPercentage: Math.round((monthsWithPayments / 12) * 100),
+  };
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      summary,
+      monthlyBreakdown: completeYearlyData,
+      generatedAt: new Date(),
+    },
+  });
+});
+
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
   const endpointSecret =
