@@ -32,32 +32,26 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
   let user;
   const { phase, block, lot } = req.query;
 
-  if (phase && block && lot) {
-    const house = await House.findOne({
-      phase: +phase,
-      block: +block,
-      lot: +lot,
-    });
-
-    if (!house)
-      return next(new AppError('No house found with that address', 404));
-    filter = { address: house._id };
-    if (req.query.fromDate && req.query.toDate) {
-      const fromDate = new Date(req.query.fromDate);
-      const toDate = new Date(req.query.toDate);
-      filter = {
-        ...filter,
-        'dateRange.from': { $gte: fromDate },
-        'dateRange.to': { $lte: toDate },
-      };
+  if ((phase && block && lot) || req.query.email) {
+    if (phase && block && lot) {
+      const house = await House.findOne({
+        phase: +phase,
+        block: +block,
+        lot: +lot,
+      });
+      filter = { address: house._id };
+      user = await User.findOne(filter);
+    } else if (req.query.email) {
+      user = await User.findOne({ email: req.query.email });
+      if (!user)
+        return next(new AppError('No user found with that email address', 404));
+      filter = { user: user._id };
+    } else {
+      return next(
+        new AppError('No house or user found with provided details', 404),
+      );
     }
-  }
 
-  if (req.query.email) {
-    user = await User.findOne({ email: req.query.email });
-    if (!user)
-      return next(new AppError('No user found with that email address', 404));
-    filter = { user: user._id };
     if (req.query.fromDate && req.query.toDate) {
       const fromDate = new Date(req.query.fromDate);
       const toDate = new Date(req.query.toDate);
@@ -90,6 +84,7 @@ exports.getAllPayments = catchAsync(async (req, res, next) => {
     totalPages,
     data: {
       doc,
+      email: user ? user.email : null,
     },
   });
 });
@@ -199,7 +194,8 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
   });
 
   try {
-    await PaymentManager.validatePaymentPeriod(paymentManager);
+    const paymentAmount = calcMonths.months * 100; // Assuming 100 PHP per month
+    await PaymentManager.validatePaymentPeriod(paymentManager, paymentAmount);
   } catch (err) {
     return next(new AppError(err.message, 400));
   }

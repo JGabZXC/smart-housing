@@ -164,7 +164,7 @@ export class PaginatedAdminPaymentList extends PaginatedAdminList {
       const totalPages = data.totalPages;
       const hasNextPage = this.currentPage < totalPages;
 
-      this.container.dataset.userEmail = items.length > 0 ? items[0].user.email : '';
+      this.container.dataset.userEmail = data.data.email ? data.data.email : '';
 
       // For single data
       if(items._id) {

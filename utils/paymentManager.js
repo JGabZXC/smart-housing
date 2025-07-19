@@ -173,14 +173,12 @@ class CreatePayment {
 
     if (!payments || payments.length === 0) return false;
 
-    // Check each month in the requested period
     const monthKeys = this.getMonthKeys(fromDate, toDate);
     let remainingCurrentAmount = currentAmount;
 
-    monthKeys.forEach((monthKey) => {
+    for (const monthKey of monthKeys) {
       let totalForMonth = 0;
 
-      // Calculate existing payments for this specific month using sequential logic
       payments.forEach((payment) => {
         const paymentAmount = this.calculateSequentialPaymentForMonth(
           payment,
@@ -189,6 +187,11 @@ class CreatePayment {
         totalForMonth += paymentAmount;
       });
 
+      // Block payment if month is already fully paid
+      if (totalForMonth >= 100) {
+        return true; // Invalid payment, would overlap
+      }
+
       // Calculate how much of current payment would apply to this month
       const availableSpace = Math.max(0, 100 - totalForMonth);
       const currentPaymentForMonth = Math.min(
@@ -196,29 +199,17 @@ class CreatePayment {
         availableSpace,
       );
 
-      console.log(
-        `Month ${monthKey}: existing ${totalForMonth}, adding ${currentPaymentForMonth}, remaining space ${availableSpace}`,
-      );
-
-      // If this month is already fully paid (100 pesos)
-      if (totalForMonth >= 100) {
-        // If we still have amount to pay and this month is full, it's an error
-        if (remainingCurrentAmount > 0) return true;
+      // Block payment if it would exceed allowed amount
+      if (totalForMonth + currentPaymentForMonth > 100) {
+        return true;
       }
 
-      // If adding current payment would exceed 100 for this month
-      if (totalForMonth + currentPaymentForMonth > 100) return true;
-
-      // Reduce remaining amount for next month
       remainingCurrentAmount -= currentPaymentForMonth;
+      if (remainingCurrentAmount <= 0) break;
+    }
 
-      // If no more payment amount left, we're good
-      if (remainingCurrentAmount <= 0) return false;
-    });
-
-    return false; // Allow payment
+    return false; // Valid payment
   }
-
   getMonthKeys(fromDate, toDate) {
     const keys = [];
     const current = new Date(
@@ -440,33 +431,42 @@ function generateMonthlyStatement(payments, year) {
   });
 
   // Second pass: apply payments to the requested year's statement
-  for (const [monthKey, totalPaid] of globalMonthlyPayments) {
-    const [monthYear, monthIndex] = monthKey.split('-').map(Number);
+  let paymentPointer = 0;
 
-    if (monthYear === year) {
-      const monthData = monthlyBreakdown[monthIndex];
-      monthData.amountPaid = totalPaid;
-      monthData.remainingBalance = monthlyDues - totalPaid;
+  while (paymentPointer < sortedPayments.length) {
+    const payment = sortedPayments[paymentPointer];
+    let amountLeft = payment.amount;
 
-      // Set payment details from the most recent payment for this month
-      const lastPayment = sortedPayments.findLast(
-        (payment) =>
-          payment.dateRange.from <= new Date(year, monthIndex + 1, 0) &&
-          payment.dateRange.to >= new Date(year, monthIndex, 1),
-      );
+    // Find the starting month index in the statement for this payment
+    const startMonthIndex = new Date(payment.dateRange.from).getFullYear() === year
+      ? new Date(payment.dateRange.from).getMonth()
+      : 0;
 
-      if (lastPayment) {
-        monthData.paymentDate = lastPayment.paymentDate;
-        monthData.paymentId = lastPayment._id;
-      }
+    let monthPointer = startMonthIndex;
 
-      // Update status
-      if (totalPaid >= monthlyDues) {
-        monthData.status = 'paid';
-      } else if (totalPaid > 0) {
-        monthData.status = 'partial';
+    while (amountLeft > 0 && monthPointer < monthlyBreakdown.length) {
+      const monthData = monthlyBreakdown[monthPointer];
+      const toPay = Math.min(monthlyDues - monthData.amountPaid, amountLeft);
+
+      if (toPay > 0) {
+        monthData.amountPaid += toPay;
+        monthData.remainingBalance = monthlyDues - monthData.amountPaid;
+        monthData.paymentDate = payment.paymentDate;
+        monthData.paymentId = payment._id;
+
+        if (monthData.amountPaid >= monthlyDues) {
+          monthData.status = 'paid';
+          monthPointer++;
+        } else {
+          monthData.status = 'partial';
+          break;
+        }
+        amountLeft -= toPay;
+      } else {
+        monthPointer++;
       }
     }
+    paymentPointer++;
   }
 
   // Calculate totals
