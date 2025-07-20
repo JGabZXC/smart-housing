@@ -32,6 +32,8 @@ const sendToken = (user, statusCode, res) => {
 
   user.password = undefined; // remove password from the output
 
+  console.log('Send token: ', token);
+
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -187,6 +189,8 @@ exports.protect = catchAsync(async (req, res, next) => {
   } else if (req.cookies.jwt) {
     token = req.cookies.jwt;
   }
+
+  console.log('Token:', token);
 
   if (!token)
     if (process.env.NODE_ENV === 'development')
