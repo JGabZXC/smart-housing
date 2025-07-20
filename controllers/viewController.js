@@ -110,6 +110,12 @@ exports.getPayment = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.getYearlyStatement = catchAsync(async (req, res, next) => {
+  res.status(200).render('Admin/yearlyStatement', {
+    title: 'Yearly Statement',
+  });
+});
+
 exports.getAddress = catchAsync(async (req, res, next) => {
   res.status(200).render('Admin/address', {
     title: 'Address',
@@ -158,5 +164,11 @@ exports.acceptEventBookings = catchAsync(async (req, res, next) => {
 exports.getGarbageCollection = catchAsync(async (req, res, next) => {
   res.status(200).render('Admin/garbageCollection', {
     title: 'Garbage Collection',
+  });
+});
+
+exports.getForgotPassword = catchAsync(async (req, res, next) => {
+  res.status(200).render('ForgotPassword/forgotPassword', {
+    title: 'Forgot Password',
   });
 });

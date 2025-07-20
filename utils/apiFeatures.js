@@ -47,6 +47,7 @@ class APIFeatures {
       'block',
       'lot',
       'street',
+      'method',
     ];
     excludedFields.forEach((el) => delete queryObj[el]);
 

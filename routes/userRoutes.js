@@ -6,6 +6,13 @@ const router = express.Router();
 
 router.route('/login').post(authController.login);
 
+router.route('/security-question').post(userController.getSecurityQuestion);
+router
+  .route('/check-security-answer')
+  .post(userController.forgotPasswordSecurityCheck);
+
+router.route('/reset/:resetToken').patch(userController.resetPasswordViaToken);
+
 // Below this line, all routes are protected
 router.use(authController.protect);
 

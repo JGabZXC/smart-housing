@@ -19,6 +19,8 @@ router.route('/events').get(viewController.getAllEvent);
 router.route('/events/:slug').get(viewController.getEvent);
 router.route('/events/:slug/edit').get(viewController.editProjEvePage);
 
+router.route('/forgot-password').get(authController.reRoute, viewController.getForgotPassword);
+
 // To get the Ids
 router
   .route('/api/v1/getIds')
@@ -42,6 +44,14 @@ router
     authController.protect,
     authController.protectTo('admin'),
     viewController.getPayment,
+  );
+
+router
+  .route('/admin/yearly-statement')
+  .get(
+    authController.protect,
+    authController.protectTo('admin'),
+    viewController.getYearlyStatement,
   );
 
 router
@@ -83,5 +93,4 @@ router
     authController.protectTo('admin'),
     viewController.getGarbageCollection,
   );
-
 module.exports = router;

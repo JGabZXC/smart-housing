@@ -18,6 +18,12 @@ router.get(
   paymentController.getPaymentStatement,
 );
 
+router.get(
+  '/yearly-statement/:year',
+  authController.protect,
+  paymentController.getYearlyStatement,
+);
+
 router.use(authController.protectTo('admin'));
 router
   .route('/')

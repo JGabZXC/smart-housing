@@ -114,10 +114,11 @@ export class PaginatedAdminAddressList extends PaginatedAdminList {
 }
 
 export class PaginatedAdminPaymentList extends PaginatedAdminList {
-  constructor({ container, paginationContainer, endpoint, type, itemsPerPage = 1, sort = '_id', fromDate, toDate }) {
+  constructor({ container, paginationContainer, endpoint, type, itemsPerPage = 1, sort = '_id', fromDate, toDate, paymentMethod }) {
     super({ container, paginationContainer, endpoint, type, itemsPerPage, sort })
     this.fromDate = fromDate;
     this.toDate = toDate;
+    this.paymentMethod = paymentMethod;
     this.abortController = null;
   }
 
@@ -156,6 +157,10 @@ export class PaginatedAdminPaymentList extends PaginatedAdminList {
         url += `&fromDate=${this.fromDate}&toDate=${this.toDate}`;
       }
 
+      if(this.paymentMethod) {
+        url += `&method=${this.paymentMethod}`;
+      }
+
       const data = await fetchData(url, { signal: this.abortController.signal });
       this.container.innerHTML = '';
       this.paginationContainer.innerHTML = '';
@@ -163,6 +168,8 @@ export class PaginatedAdminPaymentList extends PaginatedAdminList {
       const items = data.data.doc;
       const totalPages = data.totalPages;
       const hasNextPage = this.currentPage < totalPages;
+
+      this.container.dataset.userEmail = data.data.email ? data.data.email : '';
 
       // For single data
       if(items._id) {

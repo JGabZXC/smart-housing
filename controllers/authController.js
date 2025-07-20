@@ -51,6 +51,7 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   if (req.body.password || req.body.confirmPassword) {
     user.password = req.body.password;
     user.confirmPassword = req.body.confirmPassword;
+    user.passwordChangedAt = Date.now();
   }
 
   if (typeof req.body.address === 'object') {
