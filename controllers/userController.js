@@ -14,7 +14,6 @@ exports.changePassword = catchAsync(async (req, res, next) => {
 
   user.password = password;
   user.confirmPassword = confirmPassword;
-  user.passwordChangedAt = Date.now();
   const updatedUser = await user.save({ validateModifiedOnly: true });
 
   authController.sendToken(updatedUser, 200, res);
@@ -189,7 +188,6 @@ exports.resetPasswordViaToken = catchAsync(async (req, res, next) => {
   user.confirmPassword = confirmPassword;
   user.resetToken = undefined;
   user.resetTokenExpires = undefined;
-  user.passwordChangedAt = Date.now();
 
   const updatedUser = await user.save({ validateModifiedOnly: true });
 

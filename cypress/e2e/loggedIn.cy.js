@@ -36,7 +36,7 @@ describe('Authenticated (Regular User)', () => {
     cy.get('#meLink').should('exist').should('be.visible').and('contain.text', 'Me')
   })
 
-  it.only('can visit project and should be able to comment', () => {
+  it('can visit project and should be able to comment', () => {
     cy.visit('/projects/vaccine-village');
     cy.get('#form-message').should('exist').and('be.visible');
     cy.get('#message').type('as').should('have.value', 'as');
@@ -51,7 +51,7 @@ describe('Authenticated (Regular User)', () => {
   });
 
   // First Message Card
-  it.only('message of the user should be able to be edited and deleted', () => {
+  it('message of the user should be able to be edited and deleted', () => {
     cy.visit('/projects/vaccine-village');
     cy.get('.message-card').first().should('exist').and('be.visible');
 
@@ -97,3 +97,40 @@ describe('Authenticated (Regular User)', () => {
     cy.get('.alert-success').should('exist').and('be.visible');
   })
 });
+
+describe('Me Authenticated', () => {
+  beforeEach(() => {
+    cy.session('user-login', () => {
+      cy.visit('/login');
+      cy.get('#email')
+        .type('franz@gmail.com')
+        .should('have.value', 'franz@gmail.com');
+
+      cy.get('#password')
+        .type('test1234')
+        .should('have.value', 'test1234');
+
+      cy.get('#login-button').click();
+      cy.wait(2000); // Wait for the login to process
+    })
+  });
+
+  it('should be able to visit the me page', () => {
+    cy.visit('/me');
+    cy.get('#me-container').should('exist').and('be.visible');
+    cy.get('#payment-stripe-form').should('exist').and('be.visible');
+    cy.get('.payment-statement-container').should('exist').and('be.visible');
+    cy.get('#change-password-form').should('exist').and('be.visible');
+    cy.get('#change-details-form').should('exist').and('be.visible');
+    cy.get('#bookDetailsSection').should('exist').and('be.visible');
+    cy.get('#forgotPassword').should('exist').and('be.visible');
+  });
+
+  it('should be able to change password', () => {
+    cy.visit('/me');
+    cy.get('#current-password').should('exist').and('be.visible').type('test1234').should('have.value', 'test1234');
+    cy.get('#new-password').should('exist').and('be.visible').type('test1234').should('have.value', 'test1234');
+    cy.get('#confirm-new-password').should('exist').and('be.visible').type('test1234').should('have.value', 'test1234');
+    cy.get('#change-password-form-button').should('exist').and('be.visible').click();
+  });
+})
