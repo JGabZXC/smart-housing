@@ -162,9 +162,13 @@ if(changePasswordForm) {
     try {
       buttonSpinner(changePasswordFormButton, 'Confirm', 'Loading');
       const response = await patchData(`/api/v1/users/me/changePassword`, body);
+      console.log(response);
       if (response.status === 'success') {
         showAlert('success','Password changed successfully!');
         changePasswordForm.reset();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       }
     } catch (err) {
       showAlert('error', err.response.data.message || 'An error occurred while changing the password.');
