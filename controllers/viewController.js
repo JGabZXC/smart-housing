@@ -166,3 +166,9 @@ exports.getGarbageCollection = catchAsync(async (req, res, next) => {
     title: 'Garbage Collection',
   });
 });
+
+exports.getForgotPassword = catchAsync(async (req, res, next) => {
+  res.status(200).render('ForgotPassword/forgotPassword', {
+    title: 'Forgot Password',
+  });
+});

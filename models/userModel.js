@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const House = require('./houseModel');
 
 const userSchema = new mongoose.Schema(
@@ -50,6 +51,8 @@ const userSchema = new mongoose.Schema(
     passwordChangedAt: Date,
     secretQuestion: String,
     secretAnswer: String,
+    resetToken: String,
+    resetTokenExpires: Date,
   },
   {
     toJSON: { virtuals: true },
@@ -58,7 +61,6 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre(/^find/, function (next) {
-  this.select('-__v');
   this.populate('address');
   next();
 });
@@ -122,6 +124,17 @@ userSchema.methods.isTokenLatest = function (tokenDate) {
 
     return tokenDate < tokenTimeStamp;
   }
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.resetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  this.resetTokenExpires = Date.now() + 10 * 60 * 1000; // Token valid for 10 minutes
+
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);
