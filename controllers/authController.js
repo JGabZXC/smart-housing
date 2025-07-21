@@ -60,6 +60,9 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     if (!phase && !block && !lot && !street) req.body.address = '';
   }
 
+  if (req.body.contactNumber && req.body.contactNumber.length !== 11)
+    return next(new AppError('Invalid contact number', 400));
+
   if (req.body.address) {
     // Validate new address
     const newAddress = await validateHouse(req.body.address);

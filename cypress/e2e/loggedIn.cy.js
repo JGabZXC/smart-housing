@@ -1,6 +1,5 @@
 /* eslint-disable */
 
-
 describe('Authenticated (Regular User)', () => {
   beforeEach(() => {
     cy.session('user-login', () => {
@@ -98,13 +97,13 @@ describe('Authenticated (Regular User)', () => {
   })
 });
 
-describe.only('Me Authenticated', () => {
+describe('Me Authenticated', () => {
   beforeEach(() => {
     // Check if any previous test changed the password
-    const hasPasswordChanged = Cypress.env('passwordChanged') || false;
-    const sessionKey = hasPasswordChanged ? 'user-login-after-password-change' : 'user-login';
+    const passwordChanged = Cypress.env('passwordChanged') || false;
+    const sessionId = passwordChanged ? 'user-login-new-password' : 'user-login-original';
 
-    cy.session(sessionKey, () => {
+    cy.session(sessionId, () => {
       cy.visit('/login');
       cy.get('#email')
         .type('franz@gmail.com')
@@ -207,7 +206,6 @@ describe.only('Me Authenticated', () => {
     cy.get('#number').should('exist').and('be.visible').type('1234567890').should('have.value', '1234567890');
     cy.get('#change-details-form-button').should('exist').and('be.visible').click();
     cy.get('.alert-con').should('not.exist');
-    cy.pause();
 
     cy.get('#number').should('exist').and('be.visible').clear().type('01578935429').should('have.value', '01578935429');
     cy.get('#change-details-form-button').should('exist').and('be.visible').click();
@@ -238,9 +236,37 @@ describe.only('Me Authenticated', () => {
     cy.get('.alert-danger').should('exist').and('be.visible');
   });
 
-  it('should have security settings', () => {
+  it('should have security settings and visible', () => {
     cy.visit('/me');
     cy.get('#forgotPassword').should('exist').and('be.visible');
+  })
+
+  it('should be able to update security question and answer', () => {
+    cy.visit('/me');
+    cy.get('#current-security-answer').should('exist').and('be.visible').type('Test Answer').should('have.value', 'Test Answer');
+    cy.get('#verify-security-button').should('exist').and('be.visible').click();
+    cy.get('.alert-con').should('exist').and('be.visible');
+    cy.get('.alert-con .alert-success').should('exist').and('be.visible');
+    cy.get('.btn-close').click();
+
+    cy.get('#update-step').should('exist').and('be.visible');
+    cy.get('#security-question').should('exist').and('be.visible').select('Custom Question').should('have.value', 'Custom Question');
+    cy.get('#custom-question').should('exist').and('be.visible').type('Kagome Question').should('have.value', 'Kagome Question');
+    cy.get('#security-answer').should('exist').and('be.visible').type('Test Answer').should('have.value', 'Test Answer');
+    cy.get('#confirm-security-answer').should('exist').and('be.visible').type('Kagome').should('have.value', 'Kagome');
+    cy.get('#security-question-button').should('exist').and('be.visible').click();
+    cy.get('.alert-con').should('exist').and('be.visible');
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible');
+    cy.get('.btn-close').click();
+
+    cy.get('#confirm-security-answer').should('exist').and('be.visible').clear().type('Test Answer').should('have.value', 'Test Answer');
+    cy.get('#security-question-button').should('exist').and('be.visible').click();
+    cy.get('.alert-con').should('exist').and('be.visible');
+    cy.get('.alert-con .alert-success').should('exist').and('be.visible');
+    cy.get('.btn-close').click();
+
+    cy.wait(1000);
+    cy.get('#update-step').should('not.be.visible');
   })
 
   it('should be able to logout', () => {
