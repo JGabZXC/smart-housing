@@ -70,29 +70,17 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
 });
 exports.getProject = handler.getOne(Project);
 exports.createProject = catchAsync(async (req, res, next) => {
-  const {
-    name,
-    richDescription,
-    description,
-    isFeatured,
-    imageCover,
-    images,
-    date,
-  } = req.body;
+  const { date } = req.body;
+
   const expiresAt = signedImages.getExpiresAt();
   const payload = {};
 
+  const body = { ...req.body };
+  if (date === '') delete body.date;
+
   let newProject;
 
-  newProject = await Project.create({
-    name,
-    richDescription,
-    description,
-    isFeatured,
-    date,
-    imageCover,
-    images,
-  });
+  newProject = await Project.create(body);
 
   const { imgCover, imgsArray } = await s3Bucket.uploadToS3(req);
 
@@ -130,7 +118,7 @@ exports.createProject = catchAsync(async (req, res, next) => {
 exports.updateProject = catchAsync(async (req, res, next) => {
   const { name, richDescription, description, date } = req.body;
   const project = await Project.findById(req.params.id);
-  if(req.body.isFeatured === 'false') req.body.isFeatured = undefined;
+  if (req.body.isFeatured === 'false') req.body.isFeatured = undefined;
   if (!project) return next(new AppError('No project found with that ID', 404));
 
   if (

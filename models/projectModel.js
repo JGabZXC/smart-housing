@@ -13,7 +13,6 @@ const projectSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    default: Date.now,
   },
   richDescription: {
     type: String,
