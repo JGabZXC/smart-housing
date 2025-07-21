@@ -4,17 +4,19 @@ describe('Correct Header for Admin', () => {
   beforeEach(() => {
     cy.session('user-login', () => {
       cy.visit('/login');
-      cy.get('#email')
-        .type('admin@gmail.com')
-        .should('have.value', 'admin@gmail.com');
-
-      cy.get('#password')
-        .type('test1234')
-        .should('have.value', 'test1234');
-
+      cy.get('#email').type('admin@gmail.com');
+      cy.get('#password').type('test1234');
       cy.get('#login-button').click();
-      cy.wait(2000); // Wait for the login to process
-    })
+      cy.wait(2000);
+    });
+
+    // Clear any existing alerts before each test
+    cy.visit('/'); // Reset to a clean state
+    cy.get('body').then($body => {
+      if ($body.find('.alert-con .alert').length > 0) {
+        cy.get('.alert-con .alert .btn-close').click({ multiple: true, force: true });
+      }
+    });
   });
 
   it('should have admin action and correct dropdown menu', () => {
@@ -41,17 +43,11 @@ describe('Create User Page', () => {
   beforeEach(() => {
     cy.session('user-login', () => {
       cy.visit('/login');
-      cy.get('#email')
-        .type('admin@gmail.com')
-        .should('have.value', 'admin@gmail.com');
-
-      cy.get('#password')
-        .type('test1234')
-        .should('have.value', 'test1234');
-
+      cy.get('#email').type('admin@gmail.com');
+      cy.get('#password').type('test1234');
       cy.get('#login-button').click();
-      cy.wait(2000); // Wait for the login to process
-    })
+      cy.wait(2000);
+    });
   });
 
   it('should have correct form inputs', () => {
@@ -85,6 +81,10 @@ describe('Create User Page', () => {
     // Testing beginning of form submission
     cy.get('#name').type('test').should('have.value', 'test');
     cy.get('#createResidentSubmitButton').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    })
 
     // Address (Existing)
     cy.get('#phase').should('exist').and('be.visible').type('3');
@@ -92,10 +92,18 @@ describe('Create User Page', () => {
     cy.get('#lot').should('exist').and('be.visible').type('1');
     cy.get('#street').should('exist').and('be.visible').type('Maligaya');
     cy.get('#createResidentSubmitButton').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    })
 
     // Contact Number (Wrong)
     cy.get('#contactNumber').type('1234567890');
-    cy.get('#createResidentSubmitButton').should('exist').and('be.visible').click();
+    cy.get('#createResidentSubmitButton').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    })
 
     // Address (New)
     cy.get('#phase').should('exist').and('be.visible').clear().type('9');
@@ -103,26 +111,43 @@ describe('Create User Page', () => {
     cy.get('#lot').should('exist').and('be.visible').clear().type('1');
     cy.get('#street').should('exist').and('be.visible').clear().type('Yeet');
     cy.get('#createResidentSubmitButton').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
 
     // Contact Number (Correct)
     cy.get('#contactNumber').clear().type('1234567890');
-    cy.get('#createResidentSubmitButton').click();
+
 
     // Mismatched Password
     cy.get('#password').type('test1234');
     cy.get('#confirmPassword').type('test4321');
     cy.get('#createResidentSubmitButton').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    })
+
 
     // Matched Password
     cy.get('#confirmPassword').clear().type('test1234');
     cy.get('#createResidentSubmitButton').click();
 
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    })
+
+
     // Email (New)
     cy.get('#email').clear().type('testingemail100@gmail.com');
     cy.get('#createResidentSubmitButton').click();
+    cy.wait(500);
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
+
   });
 });
 
@@ -130,17 +155,19 @@ describe('Update User Page', () => {
   beforeEach(() => {
     cy.session('user-login', () => {
       cy.visit('/login');
-      cy.get('#email')
-        .type('admin@gmail.com')
-        .should('have.value', 'admin@gmail.com');
-
-      cy.get('#password')
-        .type('test1234')
-        .should('have.value', 'test1234');
-
+      cy.get('#email').type('admin@gmail.com');
+      cy.get('#password').type('test1234');
       cy.get('#login-button').click();
-      cy.wait(2000); // Wait for the login to process
-    })
+      cy.wait(2000);
+    });
+
+    // Clear any existing alerts before each test
+    cy.visit('/'); // Reset to a clean state
+    cy.get('body').then($body => {
+      if ($body.find('.alert-con .alert').length > 0) {
+        cy.get('.alert-con .alert .btn-close').click({ multiple: true, force: true });
+      }
+    });
   });
 
   it('should have correct form inputs', () => {
@@ -166,6 +193,7 @@ describe('Update User Page', () => {
     cy.visit('/admin/update/resident');
 
     cy.get('#updateResidentButton').invoke('removeAttr', 'disabled').click();
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
     });
@@ -173,25 +201,42 @@ describe('Update User Page', () => {
     // Not Existing Email
     cy.get('#searchEmail').clear().type('testemail101@gmail.com');
     cy.get('#searchEmailButton').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
 
     // Exisitng Email
     cy.get('#searchEmail').clear().type('testingemail100@gmail.com');
     cy.get('#searchEmailButton').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
 
     // Existing Email
     cy.get('#updateEmail').clear().type('franz@gmail.com');
     cy.get('#updateResidentButton').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
 
     // Previous Email
     cy.get('#updateEmail').clear().type('testingemail100@gmail.com');
 
     // Invalid Number
-    cy.get('#updateContactNumber').type('1234567890');
+    cy.get('#updateContactNumber').clear().type('1234567890');
     cy.get('#updateResidentButton').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
 
     // Correct Format Number
-    cy.get('#updateContactNumber').type('09254736581');
+    cy.get('#updateContactNumber').clear().type('09254736581');
     cy.get('#updateResidentButton').click();
+    cy.wait(500);
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
     });
@@ -203,6 +248,7 @@ describe('Update User Page', () => {
     // Search for existing user
     cy.get('#searchEmail').clear().type('testingemail100@gmail.com');
     cy.get('#searchEmailButton').click();
+    cy.wait(1000); // Wait to load user data
 
     cy.get('#updatePassword').type('test1234');
     // Wrong Match Password
@@ -212,6 +258,7 @@ describe('Update User Page', () => {
     // Correct Match Password
     cy.get('#updateConfirmPassword').clear().type('test1234');
     cy.get('#updateResidentButton').click();
+    cy.wait(500);
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
     });
@@ -222,17 +269,19 @@ describe('Dashboard Page', () => {
   beforeEach(() => {
     cy.session('user-login', () => {
       cy.visit('/login');
-      cy.get('#email')
-        .type('admin@gmail.com')
-        .should('have.value', 'admin@gmail.com');
-
-      cy.get('#password')
-        .type('test1234')
-        .should('have.value', 'test1234');
-
+      cy.get('#email').type('admin@gmail.com');
+      cy.get('#password').type('test1234');
       cy.get('#login-button').click();
-      cy.wait(2000); // Wait for the login to process
-    })
+      cy.wait(2000);
+    });
+
+    // Clear any existing alerts before each test
+    cy.visit('/'); // Reset to a clean state
+    cy.get('body').then($body => {
+      if ($body.find('.alert-con .alert').length > 0) {
+        cy.get('.alert-con .alert .btn-close').click({ multiple: true, force: true });
+      }
+    });
   });
 
   it('should have admin section for project and event', () => {
@@ -263,9 +312,10 @@ describe('Dashboard Page', () => {
       cy.get('#admin-project-search-button').click();
     });
 
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
 
     cy.get('#admin-project-search-form').within(() => {
       // Existing project
@@ -273,8 +323,8 @@ describe('Dashboard Page', () => {
       cy.get('#admin-project-search-button').click();
     });
 
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('not.exist');
-
 
     cy.get('#sort-project').select('name');
     cy.get('#show-project').select('20');
@@ -289,6 +339,7 @@ describe('Dashboard Page', () => {
       cy.get('#admin-event-search-button').click();
     });
 
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
     });
@@ -299,6 +350,7 @@ describe('Dashboard Page', () => {
       cy.get('#admin-event-search-button').click();
     });
 
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('not.exist');
 
     cy.get('#admin-event-section').within(() => {
@@ -312,8 +364,6 @@ describe('Dashboard Page', () => {
     cy.get('#admin-event-search-form').within(() => {
       cy.get('input[name="admin-search-event"]').clear();
       cy.get('#admin-event-search-button').click();
-
-
     });
 
     cy.get('#admin-event-section').within(() => {
@@ -340,6 +390,8 @@ describe('Dashboard Page', () => {
       cy.get('#name').type('Test').should('have.value', 'Test');
       cy.get('#saveBtnDashboard').click().should('be.disabled');
     });
+
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
     });
@@ -354,9 +406,11 @@ describe('Dashboard Page', () => {
       cy.get('#richDescription').type('Test').should('have.value', 'Test');
       cy.get('#saveBtnDashboard').click().should('be.disabled');
     })
+
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
 
     cy.get('#createDashboardForm').should('have.attr', 'data-type', 'projects').within(() => {
       // Valid Rich Description
@@ -368,18 +422,22 @@ describe('Dashboard Page', () => {
       cy.get('#description').clear().type('Test').should('have.value', 'Test');
       cy.get('#saveBtnDashboard').click().should('be.disabled');
     });
+
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
 
     cy.get('#createDashboardForm').should('have.attr', 'data-type', 'projects').within(() => {
       // Valid Description
       cy.get('#description').clear().type('This is a valid description for test project').should('have.value', 'This is a valid description for test project');
       cy.get('#saveBtnDashboard').click().should('be.disabled');
     });
+
+    cy.wait(500);
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
   });
 
   it('should be able to view project details', () => {
@@ -448,10 +506,10 @@ describe('Dashboard Page', () => {
       cy.get('#featured').click();
       cy.get('#editProjEveButton').click();
     });
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
-
+    })
     cy.get('#formEditProjEve').should('exist').should('be.visible').within(() => {
       cy.get('input[name="title"]').clear().type("Updated Project Name");
       cy.get('input[name="date"]').clear().type('2021-01-01');
@@ -461,9 +519,10 @@ describe('Dashboard Page', () => {
       cy.get('#editProjEveButton').click();
     });
 
+    cy.wait(500);
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
   });
 
   it('should be able to delete project', () => {
@@ -483,9 +542,10 @@ describe('Dashboard Page', () => {
         cy.get('#deleteBtnDashboard').click();
       });
     });
+    cy.wait(500);
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
   });
 
   // EVENTS
@@ -506,36 +566,40 @@ describe('Dashboard Page', () => {
     // Invalid Inputs
     cy.get('#name').type('Test').should('have.value', 'Test');
     cy.get('#saveBtnDashboard').click().should('be.disabled');
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
     cy.get('#date').type('2021-01-01').should('have.value', '2021-01-01');
     cy.get('#saveBtnDashboard').click().should('be.disabled');
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
     cy.get('#place').type('Test').should('have.value', 'Test');
     cy.get('#saveBtnDashboard').click().should('be.disabled');
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
     cy.get('#time').type('10:00').should('have.value', '10:00');
     cy.get('#saveBtnDashboard').click().should('be.disabled');
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
     cy.get('#richDescription').type('Test').should('have.value', 'Test');
     cy.get('#saveBtnDashboard').click().should('be.disabled');
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
     cy.get('#description').type('Test').should('have.value', 'Test');
     cy.get('#saveBtnDashboard').click().should('be.disabled');
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
-
-    cy.wait(1000);
+    })
 
     // Valid Inputs
     cy.get('#name').clear().type('A Test Event').should('have.value', 'A Test Event');
@@ -545,9 +609,10 @@ describe('Dashboard Page', () => {
     cy.get('#richDescription').clear().type('This is a rich description for event.').should('have.value', 'This is a rich description for event.');
     cy.get('#description').clear().type('This is a description for event.').should('have.value', 'This is a description for event.');
     cy.get('#saveBtnDashboard').click().should('be.disabled');
+    cy.wait(500);
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
   });
 
   it('should be able to view event details', () => {
@@ -611,10 +676,10 @@ describe('Dashboard Page', () => {
       cy.get('#editProjEveButton').click();
     });
 
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
-
+    })
     // Invalid inputs
     cy.get('#formEditProjEve').should('exist').should('be.visible').within(() => {
       cy.get('input[name="title"]').clear();
@@ -626,9 +691,10 @@ describe('Dashboard Page', () => {
       cy.get('#featured').click();
       cy.get('#editProjEveButton').click();
     });
+    cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
 
     cy.get('#formEditProjEve').should('exist').should('be.visible').within(() => {
       cy.get('input[name="title"]').clear().type("Updated Event Name");
@@ -639,9 +705,10 @@ describe('Dashboard Page', () => {
       cy.get('#editProjEveButton').click();
     });
 
+    cy.wait(500);
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
   });
 
   it('should be able to delete event', () => {
@@ -661,8 +728,9 @@ describe('Dashboard Page', () => {
         cy.get('#deleteBtnDashboard').click();
       });
     });
+    cy.wait(500);
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
-    });
+    })
   });
 });
