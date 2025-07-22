@@ -1127,3 +1127,152 @@ describe('Yearly Statement Page', () => {
     });
   })
 })
+
+describe('Accept Event Bookings Page', () => {
+  beforeEach(() => {
+    cy.session('user-login', () => {
+      cy.visit('/login');
+      cy.get('#email').type('admin@gmail.com');
+      cy.get('#password').type('test1234');
+      cy.get('#login-button').click();
+      cy.wait(2000);
+    });
+  });
+
+  it('should display event booking management interface with search and table controls', () => {
+    cy.visit('/admin/event-bookings');
+    cy.get('#acceptEventBookingSection').should('exist').and('be.visible').within(() => {
+      cy.get('#adminEventBookingSearchForm').should('exist').and('be.visible').within(() => {
+        cy.get('input[name="adminSearchBookingInput').should('exist').and('be.visible');
+        cy.get('#adminEventBookingSearchFormButton').should('exist').and('be.visible');
+      });
+    });
+
+    cy.get('#sortEventBooking').should('exist').and('be.visible');
+    cy.get('#showEventBooking').should('exist').and('be.visible');
+
+    cy.get('#tableAcceptEventBookings').should('exist').and('be.visible');
+  });
+
+  it('should search for event bookings by user email and display matching results', () => {
+    cy.visit('/admin/event-bookings');
+
+    cy.get('#adminEventBookingSearchForm').within(() => {
+      cy.get('input[name="adminSearchBookingInput').type('jurie@gmail.com');
+      cy.get('#adminEventBookingSearchFormButton').click();
+      cy.wait(1000); // Wait for the search results to load
+    });
+
+    cy.get('#tableAcceptEventBookings').within(() => {
+      cy.get('tbody').within(() => {
+        cy.get('tr').within(() => {
+          cy.get('td').eq(0).should('contain.text', 'Jurie Talaid');
+        });
+      });
+    });
+  });
+
+  it('should toggle booking approval status between approve and unapprove states', () => {
+    cy.visit('/admin/event-bookings');
+
+    cy.get('#adminEventBookingSearchForm').within(() => {
+      cy.get('input[name="adminSearchBookingInput').type('jurie@gmail.com');
+      cy.get('#adminEventBookingSearchFormButton').click();
+      cy.wait(1000); // Wait for the search results to load
+    });
+
+    cy.get('#tableAcceptEventBookings').within(() => {
+      cy.get('tbody').within(() => {
+        cy.get('tr').within(() => {
+          cy.get('td').eq(0).should('contain.text', 'Jurie Talaid');
+          cy.get('.btn').should('contain.text', 'Approve').click();
+        });
+      });
+    });
+
+    cy.wait(2000); // Wait for the approval to process
+
+    cy.get('#tableAcceptEventBookings').within(() => {
+      cy.get('tbody').within(() => {
+        cy.get('tr').within(() => {
+          cy.get('td').eq(0).should('contain.text', 'Jurie Talaid');
+          cy.get('.btn').should('contain.text', 'Unapprove').click();
+        });
+      });
+    });
+  })
+
+  it('should configure table to sort by user name with 20 entries displayed', () => {
+    cy.visit('/admin/event-bookings');
+
+    cy.get('#sortEventBooking').select('user.name');
+    cy.wait(1000); // Wait for the sorting to apply
+    cy.get('#showEventBooking').select('20');
+    cy.wait(1000);
+
+    cy.get('#tableAcceptEventBookings').should('exist').and('be.visible').within(() => {
+      cy.get('tbody').within(() => {
+        cy.get('tr').should('have.length.greaterThan', 10);
+      });
+    })
+  })
+})
+
+describe.only('Garbage Collection Page', () => {
+  beforeEach(() => {
+    cy.session('user-login', () => {
+      cy.visit('/login');
+      cy.get('#email').type('admin@gmail.com');
+      cy.get('#password').type('test1234');
+      cy.get('#login-button').click();
+      cy.wait(2000);
+    });
+  });
+
+  it('should display correct UI elements', () => {
+    cy.visit('/admin/garbage-collection');
+
+    cy.get('#garbageCollectionSection').should('exist').and('be.visible');
+    cy.get('button[data-bs-target="#garbageModal"]').should('exist').and('be.visible');
+    cy.get('#garbageList').should('exist').and('be.visible');
+
+    cy.wait(1000); // Wait for the garbage collection data to load
+
+    cy.get('.card').first().within(() => {
+      cy.get('#dropdownMenuButton').click();
+      cy.get('.dropdown-menu.show').should('exist').and('be.visible');
+      cy.get('#dropdownMenuButton').click();
+      cy.get('.dropdown-menu.show').should('not.exist');
+    });
+  });
+
+  it('should be able to add day', () => {
+    cy.visit('/admin/garbage-collection');
+
+    cy.wait(1000); // Wait for the garbage collection data to load
+
+    cy.get('.card').first().within(() => {
+      cy.get('#dropdownMenuButton').click();
+      cy.get('.dropdown-menu.show').within(() => {
+        cy.get('#garbageModal').should('exist').and('be.visible').within(() => {
+          cy.get('#day').select('Friday');
+          cy.get('#saveBtnCollection').click();
+          cy.wait(1000); // Wait for the save action to complete
+        });
+      });
+    });
+    cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+  })
+
+  it('should be a able to add time and edit name', () => {
+    cy.visit('/admin/garbage-collection');
+
+    cy.wait(1000); // Wait for the garbage collection data to load
+
+    cy.get('.card').first().within(() => {
+      cy.contains('Friday').within(())
+    });
+  })
+})

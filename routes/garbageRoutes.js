@@ -46,6 +46,11 @@ router
     authController.protect,
     authController.protectTo('admin'),
     garbageController.insertGarbageScheduleTimeLocation,
+  )
+  .delete(
+    authController.protect,
+    authController.protectTo('admin'),
+    garbageController.deleteGarbageSchedule,
   );
 router
   .route('/schedule/:garbageId/:scheduleId/:timelocationId')

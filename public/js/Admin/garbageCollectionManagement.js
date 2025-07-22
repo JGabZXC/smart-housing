@@ -65,6 +65,9 @@ class GarbageCollectionManager {
       if(e.target.matches('.delete-phase-number')) {
         this.handleDeletePhase(e.target.dataset.garbageId);
       }
+      if(e.target.matches('.delete-day')) {
+        this.handleDeleteDay(e.target.dataset);
+      }
     });
 
     // Reset form when modal is hidden
@@ -295,6 +298,10 @@ class GarbageCollectionManager {
 
   async handleDeletePhase(garbageId) {
     deleteModalFunc.call(this, "Phase", `/api/v1/garbages/${garbageId}`);
+  }
+
+  async handleDeleteDay({ garbageId, scheduleId }) {
+    deleteModalFunc.call(this, "Time Location", `/api/v1/garbages/schedule/${garbageId}/${scheduleId}`);
   }
 
 // Add this helper method to your class

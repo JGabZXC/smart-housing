@@ -19,7 +19,7 @@ function renderCollections(collections) {
                      <button class="dropdown-item btn btn-sm edit-phase-number text-slate-600 fw-semibold" data-bs-toggle="modal" data-bs-target="#garbageModal" data-garbage-id="${garbage._id}">
                         Edit Phase Number
                       </button>
-                   </li> 
+                   </li>
                    <li>
                      <button class="dropdown-item btn btn-sm delete-phase-number text-slate-600 fw-semibold" data-garbage-id="${garbage._id}">
                         Delete Phase
@@ -34,15 +34,20 @@ function renderCollections(collections) {
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="mb-0 text-slate-700 fw-bold">${schedule.day}</h6>
                 <div class="d-flex align-items-center gap-2">
-                  <button class="btn btn-sm add-time border border-slate-400 text-slate-400 fw-semibold" 
+                  <button class="btn btn-sm add-time border border-slate-400 text-slate-400 fw-semibold"
                     data-garbage-id="${garbage._id}"
                     data-schedule-id="${schedule._id}">
                     Add Time
                   </button>
-                  <button class="btn btn-sm edit-name border border-slate-400 text-slate-400 fw-semibold" 
+                  <button class="btn btn-sm edit-name border border-slate-400 text-slate-400 fw-semibold"
                     data-garbage-id="${garbage._id}"
                     data-schedule-id="${schedule._id}">
                     Edit Name
+                  </button>
+                  <button class="btn btn-sm delete-day border border-slate-400 text-slate-400 fw-semibold "
+                    data-garbage-id="${garbage._id}"
+                    data-schedule-id="${schedule._id}">
+                    Delete Day
                   </button>
                 </div>
               </div>

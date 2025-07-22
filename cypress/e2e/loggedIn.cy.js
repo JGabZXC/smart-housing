@@ -40,11 +40,13 @@ describe('Authenticated (Regular User)', () => {
     cy.get('#form-message').should('exist').and('be.visible');
     cy.get('#message').type('as').should('have.value', 'as');
     cy.get('#submit-message-btn').click();
+    cy.wait(1000);
     cy.get('.alert-con').should('exist').and('be.visible');
     cy.get('.alert-danger').should('exist');
 
     cy.get('#message').clear().type('Simple Test Comment').should('have.value', 'Simple Test Comment');
     cy.get('#submit-message-btn').click();
+    cy.wait(1000);
     cy.get('.alert-con').should('exist').and('be.visible');
     cy.get('.alert-success').should('exist').and('be.visible');
   });
@@ -70,11 +72,10 @@ describe('Authenticated (Regular User)', () => {
     cy.get('.input-group .cancel-edit').should('exist').and('be.visible');
     cy.get('.input-group input').should('exist').and('be.visible').type('Edited Message').should('have.value', 'Edited Message');
     cy.get('.input-group .confirm-edit').should('exist').and('be.visible').click();
+    cy.wait(1000);
     cy.get('.alert-con').should('exist').and('be.visible');
     cy.get('.alert-success').should('exist').and('be.visible');
     cy.get('.btn-close').click(); // Close the alert
-
-    cy.wait(500);
 
     // Deleting the first card
     cy.get('.message-card').first().find('.dropdown-toggle').click();
@@ -82,7 +83,7 @@ describe('Authenticated (Regular User)', () => {
     cy.get('.message-card').first().find('.dropdown-menu.show').find('.delete-message').click();
     cy.get('.modal').should('exist').and('be.visible');
     cy.get('.modal').find('.btn-secondary').should('contain.text', 'Cancel').and('be.visible');
-    cy.wait(500);
+    cy.wait(1000);
     cy.get('.btn-secondary').click();
     cy.get('.modal').should('not.exist');
 
@@ -217,7 +218,7 @@ describe('Me Authenticated', () => {
   it('should be able to book event', () => {
     cy.visit('/me');
     cy.get('#bookEventPlace').should('exist').and('be.visible');
-    cy.get('#date').should('exist').and('be.visible').type('2025-10-01').should('have.value', '2025-10-01');
+    cy.get('#date').should('exist').and('be.visible').type('2025-10-03').should('have.value', '2025-10-03');
     cy.get('#time').should('exist').and('be.visible').type('10:00').should('have.value', '10:00');
     cy.get('#place').should('exist').and('be.visible').type('Phase 3 Clubhouse').should('have.value', 'Phase 3 Clubhouse');
     cy.get('#buttonEventSubmit').should('exist').and('be.visible').click();

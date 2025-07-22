@@ -25,8 +25,6 @@ exports.changeDetails = catchAsync(async (req, res, next) => {
   if (typeof name !== 'string' || typeof email !== 'string')
     return next(new AppError('Name or email must be strings', 400));
 
-  if(contactNumber.length !== 11) return next(new AppError('Invalid contact number', 400));
-
   req.body.name = name
     .trim()
     .replace(/\s+/g, ' ')
@@ -38,6 +36,9 @@ exports.changeDetails = catchAsync(async (req, res, next) => {
   if (!email) delete req.body.email;
   if (!name) delete req.body.name;
   if (!contactNumber) delete req.body.contactNumber;
+
+  if (contactNumber && contactNumber.length !== 11)
+    return next(new AppError('Invalid contact number', 400));
 
   if (email) {
     const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
