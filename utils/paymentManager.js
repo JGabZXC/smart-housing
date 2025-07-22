@@ -328,6 +328,10 @@ function getNumberOfMonths(startDate, endDate) {
 }
 
 function calculateFullMonths(fromDate, toDate) {
+  if (fromDate.getFullYear() < 2025 || toDate.getFullYear() < 2025) {
+    return { isValid: false, months: 0 };
+  }
+
   // Check if fromDate is before toDate
   if (fromDate >= toDate) {
     return { isValid: false, months: 0 };

@@ -819,13 +819,13 @@ describe('Address Page', () => {
     });
   })
 
-  it.only('should search for created address and open edit modal with populated fields', () => {
+  it('should search for created address and open edit modal with populated fields', () => {
     cy.visit('/admin/address');
 
     // Created Address
     cy.get('input[name="admin-search-event"]').clear().type('Phase 9, Block 2, Lot 3, Yeet');
     cy.get('#search-address-button').click();
-    cy.wait(500); // Wait for the search results to load
+    cy.wait(1000); // Wait for the search results to load
     cy.get('.table').within(() => {
       cy.get('tbody').within(() => {
         cy.get('tr').should('have.length', 1).within(() => {
@@ -917,7 +917,7 @@ describe('Address Page', () => {
     // Search for updated address
     cy.get('input[name="admin-search-event"]').clear().type('Phase 9, Block 2, Lot 4, Yeet');
     cy.get('#search-address-button').click();
-    cy.wait(500); // Wait for the search results to load
+    cy.wait(1000); // Wait for the search results to load
 
     cy.get('.table').within(() => {
       cy.get('tbody').within(() => {
@@ -931,5 +931,175 @@ describe('Address Page', () => {
       cy.get('#complete-address').should('contain.text', 'Phase 9, Blk 2, Lot 4, Street Yeet');
       cy.get('#delete-btn').click();
     })
+  });
+})
+
+describe.only('Manual Payment Page', () => {
+  beforeEach(() => {
+    cy.session('user-login', () => {
+      cy.visit('/login');
+      cy.get('#email').type('admin@gmail.com');
+      cy.get('#password').type('test1234');
+      cy.get('#login-button').click();
+      cy.wait(2000);
+    });
+  });
+
+  it('should display search interface and hide payment form until valid user is found', () => {
+    cy.visit('/admin/manual-payment');
+    cy.get('#search-user-input').should('exist').and('be.visible');
+    cy.get('#search-user-button').should('exist').and('be.visible');
+    cy.get('#manual-payment-details').should('have.class', 'visually-hidden');
+
+    cy.get('#search-user-input').type('test');
+    cy.get('#search-user-button').click();
+    cy.wait(1000); // Wait for the search results to load
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+    cy.get('#search-user-input').clear().type('testingemail100@gmail.com');
+    cy.get('#search-user-button').click();
+    cy.wait(1000); // Wait for the search results to load
+    cy.get('#manual-payment-details').should('not.have.class', 'visually-hidden');
+
+    cy.get('#manual-payment-details').should('exist').and('be.visible');
+    cy.get('#statement-admin-manual').should('exist').and('be.visible');
+  });
+
+  it('should search for user by address and display payment details form', () => {
+    cy.visit('/admin/manual-payment');
+
+    // Address of testingemail100@gmail.com
+    cy.get('#search-user-input').clear().type('phase 9, block 2, lot 1');
+    cy.get('#search-user-button').click();
+    cy.wait(1000); // Wait for the search results to load
+    cy.get('#manual-payment-details').should('not.have.class', 'visually-hidden');
+
+    cy.get('#manual-payment-details').should('exist').and('be.visible');
+    cy.get('#statement-admin-manual').should('exist').and('be.visible');
+  })
+
+  it('should validate payment form fields and create manual payment record with automatic calculation', () => {
+    cy.visit('/admin/manual-payment');
+
+    // Address of testingemail100@gmail.com
+    cy.get('#search-user-input').clear().type('phase 9, block 2, lot 1');
+    cy.get('#search-user-button').click();
+    cy.wait(1000); // Wait for the search results to load
+    cy.get('#manual-payment-details').should('not.have.class', 'visually-hidden');
+
+    // No Fields
+    cy.get('#manual-payment-form').within(() => {
+      cy.get('#from-manual-payment').clear();
+      cy.get('#to-manual-payment').clear();
+      // cy.get('#checkbox-manual-payment').clear();
+      cy.get('#manual-payment-amount').invoke('removeAttr', 'disabled').clear();
+      cy.get('#or-statement').clear();
+      cy.get('#manual-payment-form-button').click();
+    });
+    cy.wait(1000);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    })
+
+    // Invalid Date Fields
+    cy.get('#manual-payment-form').within(() => {
+      cy.get('#from-manual-payment').clear().type('2021-01-01');
+      cy.get('#to-manual-payment').clear().type('2021-01-01');
+      cy.get('#manual-payment-form-button').click();
+    });
+    cy.wait(1000);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    })
+
+    // Valid Inputs
+    cy.get('#manual-payment-form').within(() => {
+      cy.get('#from-manual-payment').clear().type('2025-01-01');
+      cy.get('#to-manual-payment').clear().type('2025-03-31');
+      cy.get('#or-statement').clear().type('TESTOR0001');
+      cy.get('#manual-payment-amount').should('have.value', '300');
+      cy.get('#manual-payment-form-button').click();
+    });
+    cy.wait(1000);
+    cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    })
+
+    // Manual Payment Enabled
+    cy.get('#manual-payment-form').within(() => {
+      cy.get('#from-manual-payment').clear().type('2025-04-01');
+      cy.get('#to-manual-payment').clear().type('2025-04-30');
+      cy.get('#or-statement').clear().type('TESTOR0002');
+      cy.get('#checkbox-manual-payment').click();
+      cy.get('#manual-payment-amount').clear().type('250');
+      cy.get('#manual-payment-amount').should('have.value', '250');
+      cy.get('#manual-payment-form-button').click();
+    });
+    cy.wait(1000);
+    cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+
+    cy.get('#manual-payment-form').within(() => {
+      cy.get('#manual-payment-amount').should('have.attr', 'disabled');
+    });
+  });
+
+  it('should allow year selection for payment statement display', () => {
+    cy.visit('/admin/manual-payment');
+
+    // Address of testingemail100@gmail.com
+    cy.get('#search-user-input').clear().type('phase 9, block 2, lot 1');
+    cy.get('#search-user-button').click();
+    cy.wait(1000); // Wait for the search results to load
+    cy.get('#manual-payment-details').should('not.have.class', 'visually-hidden');
+
+    cy.get('#year-select').select('2026').should('have.value', '2026');
+  });
+
+  it('should filter transaction records by date range and payment method with pagination controls', () => {
+    cy.visit('/admin/manual-payment');
+
+    // Address of testingemail100@gmail.com
+    cy.get('#search-user-input').clear().type('phase 9, block 2, lot 1');
+    cy.get('#search-user-button').click();
+    cy.wait(1000); // Wait for the search results to load
+    cy.get('#manual-payment-details').should('not.have.class', 'visually-hidden');
+
+    cy.get('#from-date-filter').type('2025-02-01');
+    cy.get('#to-date-filter').type('2025-02-28');
+    cy.get('#filter-date-form-button').click();
+    cy.wait(1000); // Wait for the search results to load
+    cy.get('.custom-dashboard-table-height').within(() => {
+      cy.get('tbody').within(() => {
+        cy.get('tr').should('have.length', 1).within(() => {
+          cy.get('td').eq(0).should('contain.text', '1');
+          cy.get('td').eq(1).should('contain.text', 'January 2025 - March 2025');
+          cy.get('td').eq(2).should('contain.text', '300');
+          cy.get('td').eq(3).should('contain.text', 'July 22, 2025');
+          cy.get('td').eq(4).should('contain.text', 'TESTOR0001');
+          cy.get('td').eq(5).should('contain.text', 'manual');
+        });
+      });
+    });
+
+    cy.get('#from-date-filter').clear();
+    cy.get('#to-date-filter').clear();
+    cy.get('#payment-method-filter').select('stripe');
+    cy.get('#filter-date-form-button').click();
+    cy.wait(1000); // Wait for the search results to load
+    cy.get('.custom-dashboard-table-height').within(() => {
+      cy.get('tbody').within(() => {
+        cy.get('tr').should('have.length', 1).within(() => {
+          cy.get('td').eq(0).should('contain.text', 'Either no payment record exists or no payment date is recorded.');
+        });
+      });
+    });
+
+    cy.get('#show-payment').select('20');
+    cy.wait(1000); // Wait for the search results to load
   });
 })

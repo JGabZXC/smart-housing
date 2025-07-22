@@ -120,6 +120,8 @@ exports.createPayment = catchAsync(async (req, res, next) => {
       ),
     );
 
+  if(!or) return next(new AppError('Please provide a valid "official receipt"', 400));
+
   const convertedFromDateFormat = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
