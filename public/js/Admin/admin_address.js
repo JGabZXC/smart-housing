@@ -61,10 +61,10 @@ function modalFormBuilder(doc) {
                 <div id="dayContainer" class="mb-3">
                     <label for="status" class="form-label fw-semibold">Status</label>
                     <select class="form-select" id="status" name="status">
-                      <option value="">Select Type</option>
-                      <option value="unoccupied">Unoccupied</option>
-                      <option value="occupied">Occupied</option>
-                      <option value="maintenance">Maintenance</option>
+                      <option value="" ${!doc?.status ? 'selected' : ''}>Select Type</option>
+                      <option value="unoccupied" ${doc?.status === 'unoccupied' ? 'selected' : ''}>Unoccupied</option>
+                      <option value="occupied" ${doc?.status === 'occupied' ? 'selected' : ''}>Occupied</option>
+                      <option value="maintenance" ${doc?.status === 'maintenance' ? 'selected' : ''}>Maintenance</option>
                     </select>
                 </div>
             </div>

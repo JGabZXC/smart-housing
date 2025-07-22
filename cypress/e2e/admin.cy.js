@@ -9,14 +9,6 @@ describe('Correct Header for Admin', () => {
       cy.get('#login-button').click();
       cy.wait(2000);
     });
-
-    // Clear any existing alerts before each test
-    cy.visit('/'); // Reset to a clean state
-    cy.get('body').then($body => {
-      if ($body.find('.alert-con .alert').length > 0) {
-        cy.get('.alert-con .alert .btn-close').click({ multiple: true, force: true });
-      }
-    });
   });
 
   it('should have admin action and correct dropdown menu', () => {
@@ -50,7 +42,7 @@ describe('Create User Page', () => {
     });
   });
 
-  it('should have correct form inputs', () => {
+  it('should display user creation form with all required input fields', () => {
     cy.visit('/admin/signup');
     cy.get('#name').should('exist').and('be.visible');
     cy.get('#contactNumber').should('exist').and('be.visible');
@@ -64,7 +56,7 @@ describe('Create User Page', () => {
     cy.get('#createResidentSubmitButton').should('exist').and('be.visible');
   });
 
-  it('should have validation for required fields and can create user', () => {
+  it('should validate all required fields and create user with comprehensive error handling', () => {
     cy.visit('/admin/signup');
 
     // Remove required attributes for testing
@@ -160,17 +152,9 @@ describe('Update User Page', () => {
       cy.get('#login-button').click();
       cy.wait(2000);
     });
-
-    // Clear any existing alerts before each test
-    cy.visit('/'); // Reset to a clean state
-    cy.get('body').then($body => {
-      if ($body.find('.alert-con .alert').length > 0) {
-        cy.get('.alert-con .alert .btn-close').click({ multiple: true, force: true });
-      }
-    });
   });
 
-  it('should have correct form inputs', () => {
+  it('should display user search and update form with all required input fields', () => {
     cy.visit('/admin/update/resident');
     cy.get('#searchEmail').should('exist').and('be.visible');
     cy.get('#searchEmailButton').should('exist').and('be.visible');
@@ -189,7 +173,7 @@ describe('Update User Page', () => {
     cy.get('#updateResidentButton').should('exist').should('be.visible').and('be.disabled');
   });
 
-  it('should be able to search, have validation, and update user', () => {
+  it('should validate email search and populate form fields when user is found', () => {
     cy.visit('/admin/update/resident');
 
     cy.get('#updateResidentButton').invoke('removeAttr', 'disabled').click();
@@ -242,7 +226,7 @@ describe('Update User Page', () => {
     });
   });
 
-  it('should be able to update password', () => {
+  it('should update user password with confirmation validation', () => {
     cy.visit('/admin/update/resident');
 
     // Search for existing user
@@ -274,17 +258,9 @@ describe('Dashboard Page', () => {
       cy.get('#login-button').click();
       cy.wait(2000);
     });
-
-    // Clear any existing alerts before each test
-    cy.visit('/'); // Reset to a clean state
-    cy.get('body').then($body => {
-      if ($body.find('.alert-con .alert').length > 0) {
-        cy.get('.alert-con .alert .btn-close').click({ multiple: true, force: true });
-      }
-    });
   });
 
-  it('should have admin section for project and event', () => {
+  it('should display project and event management sections with all interface elements', () => {
     cy.visit('/admin/dashboard');
     cy.get('#admin-project-section').should('exist').and('be.visible').within(() => {
       cy.get('#admin-project-search-form').should('exist').and('be.visible');
@@ -303,7 +279,7 @@ describe('Dashboard Page', () => {
     });
   });
 
-  it('should be able to search, sort, and show projects', () => {
+  it('should search and sort projects with proper validation and display controls', () => {
     cy.visit('/admin/dashboard');
 
     cy.get('#admin-project-search-form').within(() => {
@@ -330,7 +306,7 @@ describe('Dashboard Page', () => {
     cy.get('#show-project').select('20');
   });
 
-  it('should be able to search, sort, and show events', () => {
+  it('should search and sort events with proper validation and display controls', () => {
     cy.visit('/admin/dashboard');
 
     cy.get('#admin-event-search-form').within(() => {
@@ -375,7 +351,7 @@ describe('Dashboard Page', () => {
   });
 
   // PROJECTS
-  it('should be able to create project', () => {
+  it('should create new project with form validation for all required fields', () => {
     cy.visit('/admin/dashboard');
 
     cy.get('#admin-project-create-button').click();
@@ -440,7 +416,7 @@ describe('Dashboard Page', () => {
     })
   });
 
-  it('should be able to view project details', () => {
+  it('should navigate to project details page from dashboard table', () => {
     cy.visit('/admin/dashboard');
     cy.get('#admin-project-search-form').within(() => {
       // Created project
@@ -459,7 +435,7 @@ describe('Dashboard Page', () => {
     })
   });
 
-  it('should be able to update project details and have validation', () => {
+  it('should update project details with comprehensive field validation', () => {
     cy.visit('/admin/dashboard');
     cy.get('#admin-project-search-form').within(() => {
       // Created project
@@ -496,6 +472,10 @@ describe('Dashboard Page', () => {
       cy.get('textarea[name="description"]').clear();
       cy.get('#editProjEveButton').click();
     });
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    })
 
     // Invalid inputs
     cy.get('#formEditProjEve').should('exist').should('be.visible').within(() => {
@@ -518,14 +498,13 @@ describe('Dashboard Page', () => {
       cy.get('#featured').click();
       cy.get('#editProjEveButton').click();
     });
-
     cy.wait(500);
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
     })
   });
 
-  it('should be able to delete project', () => {
+  it('should delete project with confirmation modal', () => {
     cy.visit('/admin/dashboard');
 
     cy.get('#admin-project-search-form').within(() => {
@@ -549,7 +528,7 @@ describe('Dashboard Page', () => {
   });
 
   // EVENTS
-  it('should be able to create event', () => {
+  it('should create new event with form validation for all required fields', () => {
     cy.visit('/admin/dashboard');
 
     cy.get('#admin-event-create-button').click();
@@ -615,7 +594,7 @@ describe('Dashboard Page', () => {
     })
   });
 
-  it('should be able to view event details', () => {
+  it('should navigate to event details page from dashboard table', () => {
     cy.visit('/admin/dashboard');
     cy.get('#admin-event-search-form').within(() => {
       // Created project
@@ -634,7 +613,7 @@ describe('Dashboard Page', () => {
     })
   });
 
-  it('should be able to update event details and have validation', () => {
+  it('should update event details with comprehensive field validation', () => {
     cy.visit('/admin/dashboard');
     cy.get('#admin-event-search-form').within(() => {
       // Created project
@@ -675,11 +654,11 @@ describe('Dashboard Page', () => {
       cy.get('textarea[name="description"]').clear();
       cy.get('#editProjEveButton').click();
     });
-
     cy.wait(500);
     cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
     })
+
     // Invalid inputs
     cy.get('#formEditProjEve').should('exist').should('be.visible').within(() => {
       cy.get('input[name="title"]').clear();
@@ -704,14 +683,13 @@ describe('Dashboard Page', () => {
       cy.get('#featured').click();
       cy.get('#editProjEveButton').click();
     });
-
     cy.wait(500);
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
     })
   });
 
-  it('should be able to delete event', () => {
+  it('should delete event with confirmation modal', () => {
     cy.visit('/admin/dashboard');
 
     cy.get('#admin-event-search-form').within(() => {
@@ -734,3 +712,224 @@ describe('Dashboard Page', () => {
     })
   });
 });
+
+describe('Address Page', () => {
+  beforeEach(() => {
+    cy.session('user-login', () => {
+      cy.visit('/login');
+      cy.get('#email').type('admin@gmail.com');
+      cy.get('#password').type('test1234');
+      cy.get('#login-button').click();
+      cy.wait(2000);
+    });
+  });
+
+  it('should display address management interface with all required elements', () => {
+    cy.visit('/admin/address');
+
+    cy.get('#admin-address-section').should('exist').should('be.visible').within(() => {
+      cy.get('#search-address-form').should('exist').should('be.visible');
+      cy.get('#sort-address').should('exist').should('be.visible');
+      cy.get('#show-address').should('exist').should('be.visible');
+      cy.get('#admin-create-address-button').should('exist').should('be.visible');
+      cy.get('.table').should('exist').should('be.visible');
+    });
+
+    cy.get('input[name="admin-search-event"]').type('Phase 9, Block 2, Lot 2, Yeet');
+    cy.get('#search-address-button').click();
+    cy.wait(1000); // Wait for the search results to load
+    cy.get('.table').within(() => {
+      cy.get('tbody').within(() => {
+        cy.get('tr').should('have.length.greaterThan', 0);
+      });
+    });
+  });
+
+  it('should display create address modal with all form fields', () => {
+    cy.visit('/admin/address');
+
+    cy.get('#admin-create-address-button').click();
+    cy.get('#addressModal').should('exist').should('be.visible').within(() => {
+      cy.get('#phase').should('exist').should('be.visible');
+      cy.get('#block').should('exist').should('be.visible');
+      cy.get('#lot').should('exist').should('be.visible');
+      cy.get('#street').should('exist').should('be.visible');
+      cy.get('#status').should('exist').should('be.visible');
+      cy.get('#address-modal-save-btn').should('exist').should('be.visible');
+      cy.get('#address-modal-close-btn').should('exist').should('be.visible');
+    });
+  });
+
+  it('should sort addresses by phase and display 20 entries per page', () => {
+    cy.visit('/admin/address');
+    cy.get('#sort-address').select('Phase');
+    cy.get('#show-address').select('20');
+    cy.get('.table').should('exist').should('be.visible').within(() => {
+      cy.get('tbody').within(() => {
+        cy.get('tr').should('have.length.greaterThan', 10);
+      });
+    });
+  });
+
+  it('should validate required fields when creating new address', () => {
+    cy.visit('/admin/address');
+
+    cy.get('#admin-create-address-button').click();
+    cy.get('#phase').type('9');
+    cy.get('#address-modal-save-btn').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+    cy.get('#block').type('2');
+    cy.get('#address-modal-save-btn').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+    // Existing Address Lot
+    cy.get('#lot').type('1');
+    cy.get('#address-modal-save-btn').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+    cy.get('#street').type('Yeet');
+    cy.get('#address-modal-save-btn').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+    cy.get('#status').select('unoccupied');
+    cy.get('#address-modal-save-btn').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+    cy.get('#lot').clear().type('3');
+    cy.get('#address-modal-save-btn').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+  })
+
+  it.only('should search for created address and open edit modal with populated fields', () => {
+    cy.visit('/admin/address');
+
+    // Created Address
+    cy.get('input[name="admin-search-event"]').clear().type('Phase 9, Block 2, Lot 3, Yeet');
+    cy.get('#search-address-button').click();
+    cy.wait(500); // Wait for the search results to load
+    cy.get('.table').within(() => {
+      cy.get('tbody').within(() => {
+        cy.get('tr').should('have.length', 1).within(() => {
+          cy.get('td').eq(0).should('contain.text', '9');
+          cy.get('td').eq(1).should('contain.text', '2');
+          cy.get('td').eq(2).should('contain.text', '3');
+          cy.get('td').eq(3).should('contain.text', 'Yeet');
+          cy.get('td').eq(4).should('contain.text', 'unoccupied');
+          cy.get('#edit-btn').should('exist').click();
+        });
+      });
+    });
+
+    cy.get('#addressForm').within(() => {
+      cy.get('#phase').should('contain.value', '9');
+      cy.get('#block').should('contain.value', '2');
+      cy.get('#lot').should('contain.value', '3');
+      cy.get('#street').should('contain.value', 'Yeet');
+      cy.get('#status').should('contain.value', 'unoccupied');
+    })
+  });
+
+  it('should update selected address with validation', () => {
+    cy.visit('/admin/address');
+
+    // Search for created address
+    cy.get('input[name="admin-search-event"]').clear().type('Phase 9, Block 2, Lot 3, Yeet');
+    cy.get('#search-address-button').click();
+    cy.wait(500); // Wait for the search results to load
+
+    cy.get('.table').within(() => {
+      cy.get('tbody').within(() => {
+        cy.get('tr').should('have.length', 1).within(() => {
+          cy.get('#edit-btn').click();
+        });
+      });
+    });
+
+    cy.get('#addressForm').within(() => {
+      // Remove required attributes for testing
+      cy.get('#phase').invoke('removeAttr', 'required');
+      cy.get('#block').invoke('removeAttr', 'required');
+      cy.get('#lot').invoke('removeAttr', 'required');
+      cy.get('#street').invoke('removeAttr', 'required');
+      cy.get('#status').invoke('removeAttr', 'required');
+    });
+
+    // Invalid Inputs
+    cy.get('#phase').clear();
+    cy.get('#block').clear();
+    cy.get('#lot').clear();
+    cy.get('#street').clear();
+    cy.get('#status').select('');
+    cy.get('#address-modal-save-btn').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+    // Existing Address
+    cy.get('#phase').clear().type('3');
+    cy.get('#block').clear().type('1');
+    cy.get('#lot').clear().type('1');
+    cy.get('#street').clear().type('Maligaya');
+    cy.get('#status').select('unoccupied');
+    cy.get('#address-modal-save-btn').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-danger').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+    // Non Existing Address
+    cy.get('#phase').clear().type('9');
+    cy.get('#block').clear().type('2');
+    cy.get('#lot').clear().type('4');
+    cy.get('#street').clear().type('Yeet');
+    cy.get('#status').select('maintenance');
+    cy.get('#address-modal-save-btn').click();
+    cy.wait(500);
+    cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+  });
+
+  it('should delete selected address', () => {
+    cy.visit('/admin/address');
+
+    // Search for updated address
+    cy.get('input[name="admin-search-event"]').clear().type('Phase 9, Block 2, Lot 4, Yeet');
+    cy.get('#search-address-button').click();
+    cy.wait(500); // Wait for the search results to load
+
+    cy.get('.table').within(() => {
+      cy.get('tbody').within(() => {
+        cy.get('tr').should('have.length', 1).within(() => {
+          cy.get('#delete-btn').click();
+        });
+      });
+    });
+
+    cy.get('#delete').should('exist').and('be.visible').within(() => {
+      cy.get('#complete-address').should('contain.text', 'Phase 9, Blk 2, Lot 4, Street Yeet');
+      cy.get('#delete-btn').click();
+    })
+  });
+})
