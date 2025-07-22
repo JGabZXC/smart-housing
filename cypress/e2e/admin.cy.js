@@ -1218,7 +1218,7 @@ describe('Accept Event Bookings Page', () => {
   })
 })
 
-describe.only('Garbage Collection Page', () => {
+describe('Garbage Collection Page', () => {
   beforeEach(() => {
     cy.session('user-login', () => {
       cy.visit('/login');
@@ -1254,25 +1254,78 @@ describe.only('Garbage Collection Page', () => {
     cy.get('.card').first().within(() => {
       cy.get('#dropdownMenuButton').click();
       cy.get('.dropdown-menu.show').within(() => {
-        cy.get('#garbageModal').should('exist').and('be.visible').within(() => {
-          cy.get('#day').select('Friday');
-          cy.get('#saveBtnCollection').click();
-          cy.wait(1000); // Wait for the save action to complete
-        });
+        cy.get(':nth-child(1) > .dropdown-item').click();
       });
+    });
+    cy.get('#garbageModal').should('exist').and('be.visible').within(() => {
+      cy.get('#day').select('Friday');
+      cy.get('#saveBtnCollection').click();
+      cy.wait(1000); // Wait for the save action to complete
     });
     cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
       cy.get('.btn-close').click();
     });
   })
 
-  it('should be a able to add time and edit name', () => {
+  it('should be a able to add time, edit name and delete day', () => {
     cy.visit('/admin/garbage-collection');
 
     cy.wait(1000); // Wait for the garbage collection data to load
+    cy.get(':nth-child(4) > .justify-content-between > .d-flex > .add-time').should('exist').and('be.visible');
+    cy.get(':nth-child(4) > .justify-content-between > .d-flex > .edit-name').should('exist').and('be.visible');
+    cy.get(':nth-child(4) > .justify-content-between > .d-flex > .delete-day').should('exist').and('be.visible');
 
-    cy.get('.card').first().within(() => {
-      cy.contains('Friday').within(())
+    cy.get(':nth-child(4) > .justify-content-between > .d-flex > .add-time').click();
+    cy.get('#garbageModal').within(() => {
+      cy.get('#timeFrom').type('08:00');
+      cy.wait(500); // Wait for the time input to be processed
+      cy.get('#timeTo').type('10:00');
+      cy.get('.street-input').eq(0).type('Yeet');
+      cy.get('.add-street').click();
+      cy.get('.street-input').eq(1).type('Amsterdam');
+      cy.get('#saveBtnCollection').click();
+      cy.wait(1000); // Wait for the save action to complete
     });
+    cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+    cy.get(':nth-child(4) > .table > tbody > tr > :nth-child(3) > .btn-outline-primary').should('exist').and('be.visible').click();
+    cy.get('#garbageModal').within(() => {
+      cy.get('.remove-street').click();
+      cy.get('#saveBtnCollection').click();
+      cy.wait(1000); // Wait for the save action to complete
+    });
+    cy.get('.alert-con .alert-success').should('exist').and('be.visible').within(() => {
+      cy.get('.btn-close').click();
+    });
+
+    cy.get(':nth-child(4) > .table > tbody > tr > :nth-child(3) > .btn-outline-danger').should('exist').and('be.visible').click();
+    cy.get('#deleteConfirmModal').within(() => {
+      cy.get('#confirmDelete').click();
+      cy.wait(1000); // Wait for the delete action to complete
+    });
+    cy.get('#notificationModal').within(() => {
+      cy.get('.btn').click();
+    });
+
+    // EDIT NAME
+    cy.get(':nth-child(4) > .justify-content-between > .d-flex > .edit-name').click();
+    cy.get('#garbageModal').within(() => {
+      cy.get('#day').select('Saturday');
+      cy.get('#saveBtnCollection').click();
+      cy.wait(1000); // Wait for the save action to complete
+    });
+
+    // DELETE DAY
+    cy.get(':nth-child(4) > .justify-content-between > .d-flex > .delete-day').click();
+    cy.get('#deleteConfirmModal').within(() => {
+      cy.get('#confirmDelete').click();
+      cy.wait(1000); // Wait for the delete action to complete
+    });
+    cy.get('#notificationModal').within(() => {
+      cy.get('.btn').click();
+    });
+
   })
 })
