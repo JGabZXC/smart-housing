@@ -14,7 +14,6 @@ exports.changePassword = catchAsync(async (req, res, next) => {
 
   user.password = password;
   user.confirmPassword = confirmPassword;
-  user.passwordChangedAt = Date.now();
   const updatedUser = await user.save({ validateModifiedOnly: true });
 
   authController.sendToken(updatedUser, 200, res);
@@ -37,6 +36,9 @@ exports.changeDetails = catchAsync(async (req, res, next) => {
   if (!email) delete req.body.email;
   if (!name) delete req.body.name;
   if (!contactNumber) delete req.body.contactNumber;
+
+  if (contactNumber && contactNumber.length !== 11)
+    return next(new AppError('Invalid contact number', 400));
 
   if (email) {
     const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -189,7 +191,6 @@ exports.resetPasswordViaToken = catchAsync(async (req, res, next) => {
   user.confirmPassword = confirmPassword;
   user.resetToken = undefined;
   user.resetTokenExpires = undefined;
-  user.passwordChangedAt = Date.now();
 
   const updatedUser = await user.save({ validateModifiedOnly: true });
 

@@ -13,7 +13,6 @@ const projectSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    default: Date.now,
   },
   richDescription: {
     type: String,
@@ -42,6 +41,8 @@ const projectSchema = new mongoose.Schema({
   },
   slug: String,
 });
+
+projectSchema.index({ slug: 1 }, { unique: true });
 
 projectSchema.pre('save', async function (next) {
   if (this.isFeatured) {

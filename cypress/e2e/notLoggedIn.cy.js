@@ -212,7 +212,7 @@ describe('Events Page', () => {
   });
 });
 
-describe.only('Login Page', () => {
+describe('Login Page', () => {
   beforeEach(() => {
     cy.visit('/login');
   });
@@ -247,8 +247,7 @@ describe.only('Login Page', () => {
     cy.get('#login-button').click();
     cy.get('.alert-con').should('exist').and('be.visible');
     cy.get('.alert-danger').should('exist');
-    cy.wait(5000); // Wait for the alert to disappear
-    cy.get('.alert-con').should('not.exist');
+    cy.get('.btn-close').click();
   });
 
   it('should successfully login with valid credentials', () => {

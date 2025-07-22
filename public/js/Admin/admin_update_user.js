@@ -17,7 +17,7 @@ if(updateUserSection) {
     const email = new FormData(e.target).get('searchEmail');
     if(!email.trim()) {
       updateResidentForm.reset();
-      updateResidentButton.setAttribute('disabled', true);
+      updateResidentButton.disabled = true;
       return;
     }
 
@@ -37,7 +37,7 @@ if(updateUserSection) {
         residentId.value = data._id;
         document.querySelector("#updateName").value = data.name;
         document.querySelector("#updateEmail").value = data.email;
-        updateResidentButton.removeAttribute('disabled');
+        updateResidentButton.disabled = false;
       }
     } catch(err) {
       showAlert('error', err.response?.data?.message || 'An error occurred');
@@ -72,7 +72,6 @@ if(updateUserSection) {
       if(res.status === 'success') {
         showAlert('success', 'Resident updated successfully!');
         updateResidentForm.reset();
-        updateResidentButton.setAttribute('disabled', true);
       }
     } catch(err) {
       showAlert('error', err.response?.data?.message || 'An error occurred');

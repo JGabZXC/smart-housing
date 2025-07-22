@@ -72,6 +72,10 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
   this.confirmPassword = undefined;
 
+  if (!this.isNew) {
+    this.passwordChangedAt = Date.now() - 1000;
+  }
+
   next();
 });
 
@@ -110,8 +114,10 @@ userSchema.methods.isCorrectSecretAnswer = async function (
 // Password Change Checker
 userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
   if (this.passwordChangedAt) {
-    const changeTimeStamp = this.passwordChangedAt.getTime() / 1000;
-    return JWTTimeStamp < changeTimeStamp;
+    const changeTimeStamp = Math.floor(this.passwordChangedAt.getTime() / 1000);
+    console.log(JWTTimeStamp, (changeTimeStamp + 1));
+    console.log(JWTTimeStamp < (changeTimeStamp + 1));
+    return JWTTimeStamp < (changeTimeStamp + 1);
   }
 
   return false;

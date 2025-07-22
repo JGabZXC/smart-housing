@@ -32,6 +32,8 @@ const sendToken = (user, statusCode, res) => {
 
   user.password = undefined; // remove password from the output
 
+  console.log('Send token: ', token);
+
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -51,13 +53,15 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   if (req.body.password || req.body.confirmPassword) {
     user.password = req.body.password;
     user.confirmPassword = req.body.confirmPassword;
-    user.passwordChangedAt = Date.now();
   }
 
   if (typeof req.body.address === 'object') {
     const { phase, block, lot, street } = req.body.address;
     if (!phase && !block && !lot && !street) req.body.address = '';
   }
+
+  if (req.body.contactNumber && req.body.contactNumber.length !== 11)
+    return next(new AppError('Invalid contact number', 400));
 
   if (req.body.address) {
     // Validate new address
@@ -188,6 +192,8 @@ exports.protect = catchAsync(async (req, res, next) => {
   } else if (req.cookies.jwt) {
     token = req.cookies.jwt;
   }
+
+  console.log('Token:', token);
 
   if (!token)
     if (process.env.NODE_ENV === 'development')

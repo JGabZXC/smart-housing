@@ -65,6 +65,9 @@ class GarbageCollectionManager {
       if(e.target.matches('.delete-phase-number')) {
         this.handleDeletePhase(e.target.dataset.garbageId);
       }
+      if(e.target.matches('.delete-day')) {
+        this.handleDeleteDay(e.target.dataset);
+      }
     });
 
     // Reset form when modal is hidden
@@ -102,7 +105,6 @@ class GarbageCollectionManager {
         }
       }
     };
-    console.log(body);
 
     try {
       buttonSpinner(saveBtnCollection, "Save", "Saving");
@@ -110,7 +112,13 @@ class GarbageCollectionManager {
         await patchData(`/api/v1/garbages/${formData.garbageId}`, {
           phase: body.phase
         });
+      } else if(body.schedule.day && formData.garbageId && formData.scheduleId && body.phase === '') {
+        // Edit existing day name - pass day directly, not wrapped in schedule object
+        await patchData(`/api/v1/garbages/schedule/${formData.garbageId}/${formData.scheduleId}`, {
+          day: body.schedule.day
+        });
       } else if(body.schedule.day && body.phase === '') {
+        // Add new day - KEEP THIS AFTER THE EDIT CONDITION
         await postData(`/api/v1/garbages/schedule/${formData.garbageId}`, { schedule: { day: body.schedule.day } });
       } else if(body.schedule.timeLocation.time && body.schedule.timeLocation.street.length > 0 && body.phase === '') {
         console.log("else if")
@@ -282,6 +290,8 @@ class GarbageCollectionManager {
     const schedule = garbageData.schedule.find(s => s._id === scheduleId);
 
     this.setFormValues({
+      garbageId,
+      scheduleId,
       day: schedule.day,
     });
 
@@ -295,6 +305,10 @@ class GarbageCollectionManager {
 
   async handleDeletePhase(garbageId) {
     deleteModalFunc.call(this, "Phase", `/api/v1/garbages/${garbageId}`);
+  }
+
+  async handleDeleteDay({ garbageId, scheduleId }) {
+    deleteModalFunc.call(this, "Schedule", `/api/v1/garbages/schedule/${garbageId}/${scheduleId}`);
   }
 
 // Add this helper method to your class

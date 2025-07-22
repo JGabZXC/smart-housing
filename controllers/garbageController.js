@@ -99,7 +99,7 @@ exports.deleteGarbageScheduleTimeLocation = catchAsync(
     if (!toUpdateLocation)
       return next(new AppError('No time location found with that ID', 404));
 
-    schedule.timeLocation.pull(timelocationId) // Delete the time location
+    schedule.timeLocation.pull(timelocationId); // Delete the time location
 
     const updatedGarbage = await existingTimeLocation.save({
       validateModifiedOnly: true,
@@ -169,6 +169,30 @@ exports.insertGarbageScheduleTimeLocation = catchAsync(
     });
   },
 );
+exports.deleteGarbageSchedule = catchAsync(async (req, res, next) => {
+  const { garbageId, scheduleId } = req.params;
+
+  const schedule = await Garbage.findOne({
+    _id: garbageId,
+    'schedule._id': scheduleId,
+  });
+
+  if (!schedule)
+    return next(new AppError('No garbage or schedule found with that ID', 404));
+
+  schedule.schedule.pull(scheduleId);
+
+  const updatedGarbage = await schedule.save({
+    validateModifiedOnly: true,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      doc: updatedGarbage,
+    },
+  });
+});
 
 exports.updateTimeLocation = catchAsync(async (req, res, next) => {
   const { garbageId, timeLocationId } = req.params;

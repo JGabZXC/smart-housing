@@ -52,6 +52,8 @@ const eventSchema = new mongoose.Schema({
   slug: String,
 });
 
+eventSchema.index({ slug: 1 }, { unique: true });
+
 eventSchema.pre(/^find/, function (next) {
   this.select('-__v');
   next();

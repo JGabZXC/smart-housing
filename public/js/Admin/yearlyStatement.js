@@ -49,7 +49,7 @@ class YearlyStatementManager {
     const yearSelect = document.getElementById('yearSelect');
     const currentYear = new Date().getFullYear();
 
-    for (let year = 2020; year <= currentYear + 5; year++) {
+    for (let year = 2025; year <= currentYear + 5; year++) {
       const option = document.createElement('option');
       option.value = year;
       option.textContent = year;
