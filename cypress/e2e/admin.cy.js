@@ -934,7 +934,7 @@ describe('Address Page', () => {
   });
 })
 
-describe.only('Manual Payment Page', () => {
+describe('Manual Payment Page', () => {
   beforeEach(() => {
     cy.session('user-login', () => {
       cy.visit('/login');
@@ -1102,4 +1102,28 @@ describe.only('Manual Payment Page', () => {
     cy.get('#show-payment').select('20');
     cy.wait(1000); // Wait for the search results to load
   });
+})
+
+describe('Yearly Statement Page', () => {
+  beforeEach(() => {
+    cy.session('user-login', () => {
+      cy.visit('/login');
+      cy.get('#email').type('admin@gmail.com');
+      cy.get('#password').type('test1234');
+      cy.get('#login-button').click();
+      cy.wait(2000);
+    });
+  });
+
+  it('should have correct interface elements and functionality', () => {
+    cy.visit('/admin/yearly-statement');
+    cy.get('#yearlyStatementSection').should('exist').and('be.visible');
+    cy.get('#contentContainer').should('exist').and('be.visible');
+
+    cy.get(':nth-child(7) > .card > .card-body').should('exist').should('be.visible').click();
+    cy.wait(500);
+    cy.get('#transactionModal').should('exist').and('be.visible').within(() => {
+     cy.get('.btn-close').click();
+    });
+  })
 })
