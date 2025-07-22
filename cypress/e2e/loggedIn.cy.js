@@ -218,7 +218,7 @@ describe('Me Authenticated', () => {
   it('should be able to book event', () => {
     cy.visit('/me');
     cy.get('#bookEventPlace').should('exist').and('be.visible');
-    cy.get('#date').should('exist').and('be.visible').type('2025-10-03').should('have.value', '2025-10-03');
+    cy.get('#date').should('exist').and('be.visible').type('2025-10-04').should('have.value', '2025-10-04');
     cy.get('#time').should('exist').and('be.visible').type('10:00').should('have.value', '10:00');
     cy.get('#place').should('exist').and('be.visible').type('Phase 3 Clubhouse').should('have.value', 'Phase 3 Clubhouse');
     cy.get('#buttonEventSubmit').should('exist').and('be.visible').click();
