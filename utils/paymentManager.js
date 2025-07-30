@@ -32,16 +32,25 @@ class CreatePayment {
         );
       }
 
-      // Only create one record if the range is not split
-      if (allocation.allocations.length === 1) {
-        const alloc = allocation.allocations[0];
+      // Check if allocation covers only the selected range (fromDate to toDate)
+      const firstAlloc = allocation.allocations[0];
+      const lastAlloc = allocation.allocations[allocation.allocations.length - 1];
+      const coversSelectedRange =
+        allocation.allocations.length === 1 ||
+        (
+          firstAlloc.fromDate.getTime() === new Date(this.fromDate).getTime() &&
+          lastAlloc.toDate.getTime() === new Date(this.toDate).getTime()
+        );
+
+      if (coversSelectedRange) {
+        // Store the payment as a single record for the selected range
         const payment = await this.modelInstance.create({
           user: this.user._id,
           address: this.user.address,
-          amount: alloc.amount,
+          amount: allocation.totalApplied,
           dateRange: {
-            from: alloc.fromDate,
-            to: alloc.toDate,
+            from: this.fromDate,
+            to: this.toDate,
           },
           stripeSessionId: this.stripeSessionId,
           paymentIntentId: this.paymentIntentId,
@@ -52,31 +61,33 @@ class CreatePayment {
           unusedAmount: allocation.unusedAmount,
           appliedAmount: allocation.totalApplied,
         };
+      } else {
+        // Multiple allocations/rollover (for excess payment)
+        const payments = [];
+        for (const alloc of allocation.allocations) {
+          payments.push(
+            await this.modelInstance.create({
+              user: this.user._id,
+              address: this.user.address,
+              amount: alloc.amount,
+              dateRange: {
+                from: alloc.fromDate,
+                to: alloc.toDate,
+              },
+              stripeSessionId: this.stripeSessionId,
+              paymentIntentId: this.paymentIntentId,
+              paymentMethod: this.type,
+            }),
+          );
+        }
+        return {
+          payment: payments,
+          unusedAmount: allocation.unusedAmount,
+          appliedAmount: allocation.totalApplied,
+        };
       }
-      // Multiple allocations/rollover
-      const payments = [];
-      for (const alloc of allocation.allocations) {
-        payments.push(
-          await this.modelInstance.create({
-            user: this.user._id,
-            address: this.user.address,
-            amount: alloc.amount,
-            dateRange: {
-              from: alloc.fromDate,
-              to: alloc.toDate,
-            },
-            stripeSessionId: this.stripeSessionId,
-            paymentIntentId: this.paymentIntentId,
-            paymentMethod: this.type,
-          }),
-        );
-      }
-      return {
-        payment: payments,
-        unusedAmount: allocation.unusedAmount,
-        appliedAmount: allocation.totalApplied,
-      };
     }
+    // Stripe and others: unchanged
     return await this.modelInstance.create({
       user: this.user._id,
       address: this.user.address,
