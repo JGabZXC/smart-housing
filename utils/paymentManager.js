@@ -103,53 +103,67 @@ class CreatePayment {
       user: this.user._id,
     });
 
-    const allocations = [];
     let remainingAmount = requestedAmount;
+    const allocations = [];
 
-    // Calculate max allowed for the selected range
+    // Track months in the selected range
     const months = this.getMonthKeys(this.fromDate, this.toDate);
-    let totalAllowed = 0;
-    let alreadyPaid = 0;
+
+    // Track the actual paid months
+    let firstMonthPaid = null;
+    let lastMonthPaid = null;
+    let amountAllocated = 0;
 
     for (const monthKey of months) {
-      totalAllowed += 100;
+      let alreadyPaidForMonth = 0;
       for (const payment of existingPayments) {
-        alreadyPaid += this._getAmountPaidForMonth(payment, monthKey);
+        alreadyPaidForMonth += this._getAmountPaidForMonth(payment, monthKey);
+      }
+      const availableForMonth = Math.max(0, 100 - alreadyPaidForMonth);
+
+      if (availableForMonth > 0 && remainingAmount > 0) {
+        const toApply = Math.min(remainingAmount, availableForMonth);
+
+        // Set the start of the allocation range
+        if (!firstMonthPaid) {
+          // Set first day of first month
+          const [year, month] = monthKey.split('-').map(Number);
+          firstMonthPaid = new Date(year, month, 1);
+        }
+        // Always update to last month covered
+        const [year, month] = monthKey.split('-').map(Number);
+        lastMonthPaid = new Date(year, month + 1, 0);
+
+        amountAllocated += toApply;
+        remainingAmount -= toApply;
+
+        // If used up, break
+        if (remainingAmount <= 0) break;
       }
     }
-    const availableForRange = totalAllowed - alreadyPaid;
 
-    // If the payment fits the selected range, allocate as a single record
-    if (remainingAmount <= availableForRange) {
+    // Only create allocation if any payment was made in the selected range
+    if (firstMonthPaid && lastMonthPaid) {
       allocations.push({
-        amount: remainingAmount,
-        fromDate: new Date(this.fromDate),
-        toDate: new Date(this.toDate),
+        amount: amountAllocated,
+        fromDate: firstMonthPaid,
+        toDate: lastMonthPaid,
       });
-      remainingAmount = 0;
-    } else {
-      // Allocate max possible for range, then roll over the rest
-      if (availableForRange > 0) {
-        allocations.push({
-          amount: availableForRange,
-          fromDate: new Date(this.fromDate),
-          toDate: new Date(this.toDate),
-        });
-        remainingAmount -= availableForRange;
-      }
+    }
 
-      // Start rolling over to next months
-      const rollDate = new Date(this.toDate);
+    // Handle rollover if there's still remainingAmount
+    if (remainingAmount > 0) {
+      // Start allocating to next months (outside selected range)
+      const rollDate = new Date(lastMonthPaid);
       rollDate.setMonth(rollDate.getMonth() + 1);
 
       while (remainingAmount > 0) {
         const monthKey = `${rollDate.getFullYear()}-${rollDate.getMonth()}`;
-        let paid = 0;
+        let alreadyPaidForMonth = 0;
         for (const payment of existingPayments) {
-          paid += this._getAmountPaidForMonth(payment, monthKey);
+          alreadyPaidForMonth += this._getAmountPaidForMonth(payment, monthKey);
         }
-        const maxForMonth = 100;
-        const availableForMonth = Math.max(0, maxForMonth - paid);
+        const availableForMonth = Math.max(0, 100 - alreadyPaidForMonth);
         if (availableForMonth > 0) {
           const toApply = Math.min(remainingAmount, availableForMonth);
           allocations.push({
