@@ -379,110 +379,55 @@ async function validatePaymentPeriod(paymentManager, paymentAmount) {
 function generateMonthlyStatement(payments, year) {
   const monthlyDues = 100;
   const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
   ];
 
-  // Initialize monthly statement
-  const monthlyBreakdown = months.map((month, index) => ({
-    month,
-    monthNumber: index + 1,
-    status: 'unpaid',
-    amountDue: monthlyDues,
-    amountPaid: 0,
-    remainingBalance: monthlyDues,
-    paymentDate: null,
-    paymentId: null,
-  }));
-
-  // Sort payments by payment date
-  const sortedPayments = payments.sort(
-    (a, b) => new Date(a.paymentDate) - new Date(b.paymentDate),
-  );
-
-  // Track total payments per month across all years
+  // Track total paid per month globally
   const globalMonthlyPayments = new Map();
 
-  // First pass: calculate how much is paid for each month globally
-  sortedPayments.forEach((payment) => {
-    let remainingAmount = payment.amount;
-    const startDate = new Date(payment.dateRange.from);
-    const endDate = new Date(payment.dateRange.to);
-    const currentDate = new Date(startDate);
+  // First pass: allocate payments sequentially across all months
+  payments
+    .sort((a, b) => new Date(a.paymentDate) - new Date(b.paymentDate))
+    .forEach((payment) => {
+      let remainingAmount = payment.amount;
+      const startDate = new Date(payment.dateRange.from);
+      const endDate = new Date(payment.dateRange.to);
+      const currentDate = new Date(startDate);
 
-    while (currentDate <= endDate && remainingAmount > 0) {
-      const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
-      const existingAmount = globalMonthlyPayments.get(monthKey) || 0;
-      const amountToApply = Math.min(remainingAmount, 100 - existingAmount);
+      while (currentDate <= endDate && remainingAmount > 0) {
+        const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+        const alreadyPaid = globalMonthlyPayments.get(monthKey) || 0;
+        const toPay = Math.min(monthlyDues - alreadyPaid, remainingAmount);
 
-      if (amountToApply > 0) {
-        globalMonthlyPayments.set(monthKey, existingAmount + amountToApply);
-        remainingAmount -= amountToApply;
+        if (toPay > 0) {
+          globalMonthlyPayments.set(monthKey, alreadyPaid + toPay);
+          remainingAmount -= toPay;
+        }
+        currentDate.setMonth(currentDate.getMonth() + 1);
       }
+    });
 
-      currentDate.setMonth(currentDate.getMonth() + 1);
-    }
+  // Build statement for the selected year
+  const monthlyBreakdown = months.map((month, idx) => {
+    const monthKey = `${year}-${idx}`;
+    const paid = globalMonthlyPayments.get(monthKey) || 0;
+    return {
+      month,
+      monthNumber: idx + 1,
+      status: paid === 0 ? 'unpaid' : paid >= monthlyDues ? 'paid' : 'partial',
+      amountDue: monthlyDues,
+      amountPaid: paid,
+      remainingBalance: monthlyDues - paid,
+      paymentDate: null,
+      paymentId: null,
+    };
   });
 
-  // Second pass: apply payments to the requested year's statement
-  let paymentPointer = 0;
-
-  while (paymentPointer < sortedPayments.length) {
-    const payment = sortedPayments[paymentPointer];
-    let amountLeft = payment.amount;
-
-    // Find the starting month index in the statement for this payment
-    const startMonthIndex = new Date(payment.dateRange.from).getFullYear() === year
-      ? new Date(payment.dateRange.from).getMonth()
-      : 0;
-
-    let monthPointer = startMonthIndex;
-
-    while (amountLeft > 0 && monthPointer < monthlyBreakdown.length) {
-      const monthData = monthlyBreakdown[monthPointer];
-      const toPay = Math.min(monthlyDues - monthData.amountPaid, amountLeft);
-
-      if (toPay > 0) {
-        monthData.amountPaid += toPay;
-        monthData.remainingBalance = monthlyDues - monthData.amountPaid;
-        monthData.paymentDate = payment.paymentDate;
-        monthData.paymentId = payment._id;
-
-        if (monthData.amountPaid >= monthlyDues) {
-          monthData.status = 'paid';
-          monthPointer++;
-        } else {
-          monthData.status = 'partial';
-          break;
-        }
-        amountLeft -= toPay;
-      } else {
-        monthPointer++;
-      }
-    }
-    paymentPointer++;
-  }
-
-  // Calculate totals
-  const totalPaid = monthlyBreakdown.reduce(
-    (sum, month) => sum + month.amountPaid,
-    0,
-  );
+  // Totals
+  const totalPaid = monthlyBreakdown.reduce((sum, m) => sum + m.amountPaid, 0);
   const totalDue = months.length * monthlyDues;
-  const totalRemaining = monthlyBreakdown.reduce(
-    (sum, month) => sum + month.remainingBalance,
-    0,
-  );
+  const totalRemaining = monthlyBreakdown.reduce((sum, m) => sum + m.remainingBalance, 0);
 
   return {
     year,
@@ -491,13 +436,9 @@ function generateMonthlyStatement(payments, year) {
       totalDue,
       totalPaid,
       totalRemaining,
-      monthsFullyPaid: monthlyBreakdown.filter((m) => m.status === 'paid')
-        .length,
-      monthsPartiallyPaid: monthlyBreakdown.filter(
-        (m) => m.status === 'partial',
-      ).length,
-      monthsUnpaid: monthlyBreakdown.filter((m) => m.status === 'unpaid')
-        .length,
+      monthsFullyPaid: monthlyBreakdown.filter((m) => m.status === 'paid').length,
+      monthsPartiallyPaid: monthlyBreakdown.filter((m) => m.status === 'partial').length,
+      monthsUnpaid: monthlyBreakdown.filter((m) => m.status === 'unpaid').length,
     },
   };
 }
