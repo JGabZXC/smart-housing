@@ -240,6 +240,14 @@ if(manualPaymentSection) {
       const toDate = formData.get('to-manual-payment');
       const or = formData.get('or-statement');
 
+      // Year validation
+      const fromYear = new Date(fromDate).getFullYear();
+      const toYear = new Date(toDate).getFullYear();
+      if (fromYear < 2025 || toYear < 2025) {
+        showAlert('error', 'Cannot process payments for years below 2025.');
+        return;
+      }
+
       try {
         buttonSpinner(manualPaymentFormButton, 'Submit', 'Creating Payment');
         const response = await postData(`/api/v1/payments`, {
@@ -266,7 +274,6 @@ if(manualPaymentSection) {
       } finally {
         buttonSpinner(manualPaymentFormButton, 'Submit', 'Creating Payment');
       }
-
     });
     fromManualPayment.addEventListener('change', () => {
       if(!toManualPayment.value) return;
