@@ -77,8 +77,6 @@ class CreatePayment {
         appliedAmount: allocation.totalApplied,
       };
     }
-
-    // Not manual, just create as is
     return await this.modelInstance.create({
       user: this.user._id,
       address: this.user.address,
@@ -98,97 +96,72 @@ class CreatePayment {
    * Example: If Dec 2025 is partially paid (50), and we attempt to pay 100 for Dec 2025,
    * it will allocate 50 to Dec 2025 and 50 to Jan 2026.
    */
-  async allocatePayment(requestedAmount) {
+  // javascript
+// utils/paymentManager.js
+  async allocatePayment(requestedAmount, throwIfExceed100 = false) {
     const existingPayments = await this.modelInstance.find({
       user: this.user._id,
     });
 
     let remainingAmount = requestedAmount;
     const allocations = [];
+    const currentDate = new Date(this.fromDate);
+    const endDate = new Date(this.toDate);
 
-    // Track months in the selected range
-    const months = this.getMonthKeys(this.fromDate, this.toDate);
-
-    // Track the actual paid months
-    let firstMonthPaid = null;
-    let lastMonthPaid = null;
-    let amountAllocated = 0;
-
-    for (const monthKey of months) {
+    // Allocate within selected range
+    while (remainingAmount > 0 && currentDate <= endDate) {
+      const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
       let alreadyPaidForMonth = 0;
-      for (const payment of existingPayments) {
+      existingPayments.forEach(payment => {
         alreadyPaidForMonth += this._getAmountPaidForMonth(payment, monthKey);
-      }
+      });
       const availableForMonth = Math.max(0, 100 - alreadyPaidForMonth);
 
-      if (availableForMonth > 0 && remainingAmount > 0) {
+      if (throwIfExceed100 && remainingAmount > availableForMonth && availableForMonth > 0) {
+        throw new Error(
+          `Payment for ${monthKey} would exceed ₱100. Please reduce payment or select another month.`,
+        );
+      }
+
+      if (availableForMonth > 0) {
         const toApply = Math.min(remainingAmount, availableForMonth);
-
-        // Set the start of the allocation range
-        if (!firstMonthPaid) {
-          // Set first day of first month
-          const [year, month] = monthKey.split('-').map(Number);
-          firstMonthPaid = new Date(year, month, 1);
-        }
-        // Always update to last month covered
-        const [year, month] = monthKey.split('-').map(Number);
-        lastMonthPaid = new Date(year, month + 1, 0);
-
-        amountAllocated += toApply;
+        allocations.push({
+          amount: toApply,
+          fromDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+          toDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0),
+        });
         remainingAmount -= toApply;
-
-        // If used up, break
-        if (remainingAmount <= 0) break;
       }
+      currentDate.setMonth(currentDate.getMonth() + 1);
     }
 
-    // Only create allocation if any payment was made in the selected range
-    if (firstMonthPaid && lastMonthPaid) {
-      allocations.push({
-        amount: amountAllocated,
-        fromDate: firstMonthPaid,
-        toDate: lastMonthPaid,
+    // If there is still remainingAmount, check future months
+    while (remainingAmount > 0) {
+      const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+      let alreadyPaidForMonth = 0;
+      existingPayments.forEach(payment => {
+        alreadyPaidForMonth += this._getAmountPaidForMonth(payment, monthKey);
       });
-    }
+      const availableForMonth = Math.max(0, 100 - alreadyPaidForMonth);
 
-    // Handle rollover if there's still remainingAmount
-    if (remainingAmount > 0) {
-      // Start allocating to next months (outside selected range)
-      const rollDate = new Date(lastMonthPaid);
-      rollDate.setMonth(rollDate.getMonth() + 1);
-
-      while (remainingAmount > 0) {
-        const monthKey = `${rollDate.getFullYear()}-${rollDate.getMonth()}`;
-        let alreadyPaidForMonth = 0;
-        for (const payment of existingPayments) {
-          alreadyPaidForMonth += this._getAmountPaidForMonth(payment, monthKey);
-        }
-        const availableForMonth = Math.max(0, 100 - alreadyPaidForMonth);
-        if (availableForMonth > 0) {
-          const toApply = Math.min(remainingAmount, availableForMonth);
-          allocations.push({
-            amount: toApply,
-            fromDate: new Date(rollDate.getFullYear(), rollDate.getMonth(), 1),
-            toDate: new Date(
-              rollDate.getFullYear(),
-              rollDate.getMonth() + 1,
-              0,
-            ),
-          });
-          remainingAmount -= toApply;
-        }
-        rollDate.setMonth(rollDate.getMonth() + 1);
-        if (
-          rollDate.getFullYear() >
-          new Date(this.fromDate).getFullYear() + 5
-        ) {
-          break;
-        }
+      // If month is already fully paid, throw error
+      if (availableForMonth === 0) {
+        throw new Error(
+          `Cannot allocate payment to ${monthKey} as it is either already fully paid or the amount will exceed 100. Please reduce the amount.`
+        );
       }
+
+      const toApply = Math.min(remainingAmount, availableForMonth);
+      allocations.push({
+        amount: toApply,
+        fromDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+        toDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0),
+      });
+      remainingAmount -= toApply;
+      currentDate.setMonth(currentDate.getMonth() + 1);
     }
 
-    const totalApplied = requestedAmount - remainingAmount;
-    return { allocations, unusedAmount: remainingAmount, totalApplied };
+    return { allocations, unusedAmount: remainingAmount, totalApplied: requestedAmount - remainingAmount };
   }
 
   /**
@@ -232,38 +205,20 @@ class CreatePayment {
     if (!payments || payments.length === 0) return false;
 
     const monthKeys = this.getMonthKeys(fromDate, toDate);
-    let remainingCurrentAmount = currentAmount;
 
     for (const monthKey of monthKeys) {
       let totalForMonth = 0;
-
       payments.forEach((payment) => {
-        const paymentAmount = this._getAmountPaidForMonth(payment, monthKey);
-        totalForMonth += paymentAmount;
+        totalForMonth += this._getAmountPaidForMonth(payment, monthKey);
       });
 
-      // Block payment if month is already fully paid
-      if (totalForMonth >= 100) {
-        return true; // Invalid payment, would overlap
-      }
-
-      // Calculate how much of current payment would apply to this month
-      const availableSpace = Math.max(0, 100 - totalForMonth);
-      const currentPaymentForMonth = Math.min(
-        remainingCurrentAmount,
-        availableSpace,
-      );
-
-      // Block payment if it would exceed allowed amount
-      if (totalForMonth + currentPaymentForMonth > 100) {
+      // Block if any payment exists for the month (partial or full)
+      if (totalForMonth > 0) {
         return true;
       }
-
-      remainingCurrentAmount -= currentPaymentForMonth;
-      if (remainingCurrentAmount <= 0) break;
     }
 
-    return false; // Valid payment
+    return false; // Valid payment, no partials
   }
 
   getMonthKeys(fromDate, toDate) {
@@ -338,14 +293,14 @@ function calculateFullMonths(fromDate, toDate) {
 }
 
 async function validatePaymentPeriod(paymentManager, paymentAmount) {
-  const { fromDate, toDate } = paymentManager;
-  if (await paymentManager.hasPaymentPeriod(fromDate, toDate, paymentAmount))
-    throw new Error(
-      'Payment period already fully paid or would exceed 100 pesos',
-    );
-  // Overlap check commented out
-  // if (await paymentManager.findOverlappingPeriods(fromDate, toDate))
-  //   throw new Error('Payment period overlaps with existing period');
+  const { fromDate, toDate, type } = paymentManager;
+  if (type === 'stripe') {
+    if (await paymentManager.hasPaymentPeriod(fromDate, toDate, paymentAmount))
+      throw new Error(
+        'Payment period already fully paid or would exceed 100 pesos',
+      );
+  }
+  // Manual payments: allow partial payments, only block if > 100 in allocatePayment
 }
 
 function generateMonthlyStatement(payments, year) {

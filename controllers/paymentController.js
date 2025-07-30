@@ -163,6 +163,7 @@ exports.createPayment = catchAsync(async (req, res, next) => {
 exports.updatePayment = handler.updateOne(Payment);
 exports.deletePayment = handler.deleteOne(Payment);
 
+// controllers/paymentController.js
 exports.createCheckoutSession = catchAsync(async (req, res, next) => {
   const { fromDate, toDate } = req.body;
 
@@ -185,6 +186,31 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
       ),
     );
 
+  const paymentManager = new PaymentManager.CreatePayment({
+    modelInstance: Payment,
+    user: req.user,
+    fromDate: convertedFromDate,
+    toDate: convertedToDate,
+    type: 'stripe',
+  });
+
+  const paymentAmount = calcMonths.months * 100;
+
+  // Strictly block checkout if any month in range is partially paid or would exceed ₱100
+  const isInvalid = await paymentManager.hasPaymentPeriod(
+    convertedFromDate,
+    convertedToDate,
+    paymentAmount
+  );
+  if (isInvalid) {
+    return next(
+      new AppError(
+        'Selected month(s) already have partial payment or would exceed ₱100. Please choose another month or reduce amount.',
+        400
+      )
+    );
+  }
+
   const convertedFromDateFormat = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
@@ -195,21 +221,6 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
     month: 'long',
     day: '2-digit',
   }).format(convertedToDate);
-
-  const paymentManager = new PaymentManager.CreatePayment({
-    modelInstance: Payment,
-    user: req.user,
-    fromDate: convertedFromDate,
-    toDate: convertedToDate,
-    type: 'stripe',
-  });
-
-  try {
-    const paymentAmount = calcMonths.months * 100; // Assuming 100 PHP per month
-    await PaymentManager.validatePaymentPeriod(paymentManager, paymentAmount);
-  } catch (err) {
-    return next(new AppError(err.message, 400));
-  }
 
   const dateRange = `${convertedFromDateFormat}TO${convertedToDateFormat}`;
 
@@ -228,10 +239,7 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
             name: 'Payment for dues',
             description: `Payment for ${convertedFromDateFormat} to ${convertedToDateFormat}. Do not forget to screenshot the payment confirmation.`,
           },
-          unit_amount:
-            calcMonths.months *
-            100 * // Assuming 100 PHP per month
-            100, // Convert to pesos (PHP)
+          unit_amount: paymentAmount * 100, // Convert to centavos
         },
         quantity: 1,
       },
@@ -481,6 +489,7 @@ exports.getYearlyStatement = catchAsync(async (req, res, next) => {
 });
 
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
+  console.log("you are in the webhookCheckout function");
   const sig = req.headers['stripe-signature'];
   const endpointSecret =
     process.env.NODE_ENV === 'development'
