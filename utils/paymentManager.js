@@ -22,84 +22,72 @@ class CreatePayment {
   }
 
   async addPaymentDate(amount = 100) {
+    // Use allocation logic for both manual and stripe
+    const allocation = await this.allocatePayment(amount);
     if (this.type === 'manual') {
-      const allocation = await this.allocatePayment(amount);
       this.stripeSessionId = this.or;
 
-      if (!allocation || allocation.allocations.length === 0) {
-        throw new Error(
-          'No available months to apply payment. All months are already fully paid.',
-        );
-      }
-
-      // Check if allocation covers only the selected range (fromDate to toDate)
-      const firstAlloc = allocation.allocations[0];
-      const lastAlloc = allocation.allocations[allocation.allocations.length - 1];
-      const coversSelectedRange =
-        allocation.allocations.length === 1 ||
-        (
-          firstAlloc.fromDate.getTime() === new Date(this.fromDate).getTime() &&
-          lastAlloc.toDate.getTime() === new Date(this.toDate).getTime()
-        );
-
-      if (coversSelectedRange) {
-        // Store the payment as a single record for the selected range
-        const payment = await this.modelInstance.create({
-          user: this.user._id,
-          address: this.user.address,
-          amount: allocation.totalApplied,
-          dateRange: {
-            from: this.fromDate,
-            to: this.toDate,
-          },
-          stripeSessionId: this.stripeSessionId,
-          paymentIntentId: this.paymentIntentId,
-          paymentMethod: this.type,
-        });
-        return {
-          payment,
-          unusedAmount: allocation.unusedAmount,
-          appliedAmount: allocation.totalApplied,
-        };
-      } else {
-        // Multiple allocations/rollover (for excess payment)
-        const payments = [];
-        for (const alloc of allocation.allocations) {
-          payments.push(
-            await this.modelInstance.create({
-              user: this.user._id,
-              address: this.user.address,
-              amount: alloc.amount,
-              dateRange: {
-                from: alloc.fromDate,
-                to: alloc.toDate,
-              },
-              stripeSessionId: this.stripeSessionId,
-              paymentIntentId: this.paymentIntentId,
-              paymentMethod: this.type,
-            }),
-          );
-        }
-        return {
-          payment: payments,
-          unusedAmount: allocation.unusedAmount,
-          appliedAmount: allocation.totalApplied,
-        };
-      }
     }
-    // Stripe and others: unchanged
-    return await this.modelInstance.create({
-      user: this.user._id,
-      address: this.user.address,
-      amount: amount,
-      dateRange: {
-        from: this.fromDate,
-        to: this.toDate,
-      },
-      stripeSessionId: this.stripeSessionId,
-      paymentIntentId: this.paymentIntentId,
-      paymentMethod: this.type,
-    });
+
+    if (!allocation || allocation.allocations.length === 0) {
+      throw new Error(
+        'No available months to apply payment. All months are already fully paid.',
+      );
+    }
+
+    const firstAlloc = allocation.allocations[0];
+    const lastAlloc = allocation.allocations[allocation.allocations.length - 1];
+    const coversSelectedRange =
+      allocation.allocations.length === 1 ||
+      (
+        firstAlloc.fromDate.getTime() === new Date(this.fromDate).getTime() &&
+        lastAlloc.toDate.getTime() === new Date(this.toDate).getTime()
+      );
+
+    if (coversSelectedRange) {
+      // Store the payment as a single record for the selected range
+      const payment = await this.modelInstance.create({
+        user: this.user._id,
+        address: this.user.address,
+        amount: allocation.totalApplied,
+        dateRange: {
+          from: this.fromDate,
+          to: this.toDate,
+        },
+        stripeSessionId: this.stripeSessionId,
+        paymentIntentId: this.paymentIntentId,
+        paymentMethod: this.type,
+      });
+      return {
+        payment,
+        unusedAmount: allocation.unusedAmount,
+        appliedAmount: allocation.totalApplied,
+      };
+    } else {
+      // Multiple allocations/rollover (for excess payment)
+      const payments = [];
+      for (const alloc of allocation.allocations) {
+        payments.push(
+          await this.modelInstance.create({
+            user: this.user._id,
+            address: this.user.address,
+            amount: alloc.amount,
+            dateRange: {
+              from: alloc.fromDate,
+              to: alloc.toDate,
+            },
+            stripeSessionId: this.stripeSessionId,
+            paymentIntentId: this.paymentIntentId,
+            paymentMethod: this.type,
+          }),
+        );
+      }
+      return {
+        payment: payments,
+        unusedAmount: allocation.unusedAmount,
+        appliedAmount: allocation.totalApplied,
+      };
+    }
   }
 
   /**
@@ -107,8 +95,7 @@ class CreatePayment {
    * Example: If Dec 2025 is partially paid (50), and we attempt to pay 100 for Dec 2025,
    * it will allocate 50 to Dec 2025 and 50 to Jan 2026.
    */
-  // javascript
-// utils/paymentManager.js
+
   async allocatePayment(requestedAmount, throwIfExceed100 = false) {
     const existingPayments = await this.modelInstance.find({
       user: this.user._id,
