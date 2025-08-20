@@ -2,7 +2,7 @@
 
 import { showAlert } from '../utils/alerts.js';
 import { buttonSpinner} from '../utils/spinner.js';
-
+import axios from 'axios';
 
 const editProjEve = document.querySelector('#editProjEve');
 const formEditProjEve = document.querySelector('#formEditProjEve');
