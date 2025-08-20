@@ -1,5 +1,3 @@
-// paymentManager.js - Refactored for partial payment rollover to next month
-
 class CreatePayment {
   constructor({
     modelInstance,
@@ -26,7 +24,6 @@ class CreatePayment {
     const allocation = await this.allocatePayment(amount);
     if (this.type === 'manual') {
       this.stripeSessionId = this.or;
-
     }
 
     if (!allocation || allocation.allocations.length === 0) {
@@ -39,10 +36,8 @@ class CreatePayment {
     const lastAlloc = allocation.allocations[allocation.allocations.length - 1];
     const coversSelectedRange =
       allocation.allocations.length === 1 ||
-      (
-        firstAlloc.fromDate.getTime() === new Date(this.fromDate).getTime() &&
-        lastAlloc.toDate.getTime() === new Date(this.toDate).getTime()
-      );
+      (firstAlloc.fromDate.getTime() === new Date(this.fromDate).getTime() &&
+        lastAlloc.toDate.getTime() === new Date(this.toDate).getTime());
 
     if (coversSelectedRange) {
       // Store the payment as a single record for the selected range
@@ -63,38 +58,31 @@ class CreatePayment {
         unusedAmount: allocation.unusedAmount,
         appliedAmount: allocation.totalApplied,
       };
-    } else {
-      // Multiple allocations/rollover (for excess payment)
-      const payments = [];
-      for (const alloc of allocation.allocations) {
-        payments.push(
-          await this.modelInstance.create({
-            user: this.user._id,
-            address: this.user.address,
-            amount: alloc.amount,
-            dateRange: {
-              from: alloc.fromDate,
-              to: alloc.toDate,
-            },
-            stripeSessionId: this.stripeSessionId,
-            paymentIntentId: this.paymentIntentId,
-            paymentMethod: this.type,
-          }),
-        );
-      }
-      return {
-        payment: payments,
-        unusedAmount: allocation.unusedAmount,
-        appliedAmount: allocation.totalApplied,
-      };
     }
+    // Multiple allocations/rollover (for excess payment)
+    const payments = [];
+    for (const alloc of allocation.allocations) {
+      payments.push(
+        await this.modelInstance.create({
+          user: this.user._id,
+          address: this.user.address,
+          amount: alloc.amount,
+          dateRange: {
+            from: alloc.fromDate,
+            to: alloc.toDate,
+          },
+          stripeSessionId: this.stripeSessionId,
+          paymentIntentId: this.paymentIntentId,
+          paymentMethod: this.type,
+        }),
+      );
+    }
+    return {
+      payment: payments,
+      unusedAmount: allocation.unusedAmount,
+      appliedAmount: allocation.totalApplied,
+    };
   }
-
-  /**
-   * Allocates the payment amount to months, rolling over excess to next unpaid months.
-   * Example: If Dec 2025 is partially paid (50), and we attempt to pay 100 for Dec 2025,
-   * it will allocate 50 to Dec 2025 and 50 to Jan 2026.
-   */
 
   async allocatePayment(requestedAmount, throwIfExceed100 = false) {
     const existingPayments = await this.modelInstance.find({
@@ -110,12 +98,16 @@ class CreatePayment {
     while (remainingAmount > 0 && currentDate <= endDate) {
       const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
       let alreadyPaidForMonth = 0;
-      existingPayments.forEach(payment => {
+      existingPayments.forEach((payment) => {
         alreadyPaidForMonth += this._getAmountPaidForMonth(payment, monthKey);
       });
       const availableForMonth = Math.max(0, 100 - alreadyPaidForMonth);
 
-      if (throwIfExceed100 && remainingAmount > availableForMonth && availableForMonth > 0) {
+      if (
+        throwIfExceed100 &&
+        remainingAmount > availableForMonth &&
+        availableForMonth > 0
+      ) {
         throw new Error(
           `Payment for ${monthKey} would exceed ₱100. Please reduce payment or select another month.`,
         );
@@ -125,8 +117,16 @@ class CreatePayment {
         const toApply = Math.min(remainingAmount, availableForMonth);
         allocations.push({
           amount: toApply,
-          fromDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-          toDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0),
+          fromDate: new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            1,
+          ),
+          toDate: new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth() + 1,
+            0,
+          ),
         });
         remainingAmount -= toApply;
       }
@@ -137,7 +137,7 @@ class CreatePayment {
     while (remainingAmount > 0) {
       const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
       let alreadyPaidForMonth = 0;
-      existingPayments.forEach(payment => {
+      existingPayments.forEach((payment) => {
         alreadyPaidForMonth += this._getAmountPaidForMonth(payment, monthKey);
       });
       const availableForMonth = Math.max(0, 100 - alreadyPaidForMonth);
@@ -145,28 +145,35 @@ class CreatePayment {
       // If month is already fully paid, throw error
       if (availableForMonth === 0) {
         throw new Error(
-          `Cannot allocate payment to ${monthKey} as it is either already fully paid or the amount will exceed 100. Please reduce the amount.`
+          `Cannot allocate payment to ${monthKey} as it is either already fully paid or the amount will exceed 100. Please reduce the amount.`,
         );
       }
 
       const toApply = Math.min(remainingAmount, availableForMonth);
       allocations.push({
         amount: toApply,
-        fromDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-        toDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0),
+        fromDate: new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          1,
+        ),
+        toDate: new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() + 1,
+          0,
+        ),
       });
       remainingAmount -= toApply;
       currentDate.setMonth(currentDate.getMonth() + 1);
     }
 
-    return { allocations, unusedAmount: remainingAmount, totalApplied: requestedAmount - remainingAmount };
+    return {
+      allocations,
+      unusedAmount: remainingAmount,
+      totalApplied: requestedAmount - remainingAmount,
+    };
   }
 
-  /**
-   * Returns the amount paid in a specific month by a given payment.
-   * @param {*} payment
-   * @param {*} monthKey
-   */
   _getAmountPaidForMonth(payment, monthKey) {
     // monthKey: "YYYY-M"
     const [year, month] = monthKey.split('-').map(Number);
